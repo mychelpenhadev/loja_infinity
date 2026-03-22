@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Variedades</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="index.html" class="nav-brand">
+                <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
+            </a>
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link active">Home</a>
+                <a href="produtos.html?cat=promocoes" class="nav-link">Promoções</a>
+                <a href="produtos.html?cat=novidades" class="nav-link">Novidades</a>
+                <a href="produtos.html?cat=criancas" class="nav-link">Crianças</a>
+                <a href="produtos.html" class="nav-link">Todos os Produtos</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" class="action-btn" title="Minha Conta">
+                    <i class='bx bx-user'></i>
+                </a>
+                <a href="admin.html" class="action-btn" title="Painel Admin">
+                    <i class='bx bxs-dashboard'></i>
+                </a>
+                <button class="action-btn" id="theme-toggle" title="Mudar Tema">
+                    <i class='bx bxs-moon'></i>
+                </button>
+                <a href="carrinho.html" class="action-btn" title="Carrinho">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <section class="hero">
+        <div class="floating-element el-1">
+            <i class='bx bxs-notepad' style="color: var(--clr-primary); font-size: 1.5rem;"></i>
+        </div>
+        <div class="floating-element el-2">
+            <i class='bx bxs-star' style="color: #FBBF24; font-size: 1.5rem;"></i>
+            <span style="font-weight: 600; font-size: 0.875rem;">Premium</span>
+        </div>
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <h1>Organize suas <span>ideias com estilo</span></h1>
+                <p>Descubra nossa coleção exclusiva de cadernos inteligentes, canetas em tons pastéis e organizadores que vão transformar sua rotina criativa.</p>
+                <a href="produtos.html" class="btn btn-primary">
+                    Explorar Coleção <i class='bx bx-right-arrow-alt'></i>
+                </a>
+            </div>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Papelaria Moderna e Colorida">
+            </div>
+        </div>
+    </section>
+    <section class="section" style="background-color: var(--clr-bg);">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">O que você procura?</h2>
+                <p class="section-subtitle">Navegue pelas nossas principais categorias</p>
+            </div>
+            <div class="categories-grid">
+                <a href="produtos.html?cat=cadernos" class="category-card">
+                    <div class="cat-icon"><i class='bx bxs-book-heart'></i></div>
+                    <span class="cat-title">Cadernos</span>
+                </a>
+                <a href="produtos.html?cat=canetas" class="category-card">
+                    <div class="cat-icon"><i class='bx bxs-pen'></i></div>
+                    <span class="cat-title">Canetas & Lápis</span>
+                </a>
+                <a href="produtos.html?cat=mochilas" class="category-card">
+                    <div class="cat-icon"><i class='bx bxs-backpack'></i></div>
+                    <span class="cat-title">Mochilas</span>
+                </a>
+                <a href="produtos.html?cat=materiais" class="category-card">
+                    <div class="cat-icon"><i class='bx bxs-edit-alt'></i></div>
+                    <span class="cat-title">Materiais</span>
+                </a>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Destaques da Semana</h2>
+                <p class="section-subtitle">Os produtos mais amados pelos nossos criativos</p>
+            </div>
+            <div class="product-grid" id="featured-products">
+            </div>
+        </div>
+    </section>
+    <section class="section" style="background-color: var(--clr-surface); border-top: 1px solid var(--clr-border);">
+        <div class="container">
+            <div class="hero-grid" style="align-items: center;">
+                <div>
+                    <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
+                        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&mute=1" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="section-title" style="font-size: 2rem;">A inspiração começa aqui.</h2>
+                    <p style="color: var(--clr-text-light); margin-bottom: 1.5rem;">Na Infinity Variedades, acreditamos que ferramentas bonitas e funcionais são o combustível para a criatividade. Cada produto é escolhido a dedo para trazer cor e eficiência ao seu universo.</p>
+                    <ul style="display: flex; flex-direction: column; gap: 1rem; color: var(--clr-text);">
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><i class='bx bxs-check-circle' style="color: var(--clr-secondary); font-size: 1.25rem;"></i> Produtos selecionados a dedo</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><i class='bx bxs-check-circle' style="color: var(--clr-secondary); font-size: 1.25rem;"></i> Cores que acalmam e inspiram</li>
+                        <li style="display: flex; align-items: center; gap: 0.5rem;"><i class='bx bxs-check-circle' style="color: var(--clr-secondary); font-size: 1.25rem;"></i> Qualidade premium garantida</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="index.html" class="nav-brand" style="margin-bottom: 1.5rem; display: inline-flex;">
+                        <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 80px; object-fit: contain;">
+                    </a>
+                    <p>Sua vida mais colorida e organizada. Entregamos criatividade em forma de papelaria para todo o Brasil.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class='bx bxl-instagram'></i></a>
+                        <a href="#" class="social-link"><i class='bx bxl-tiktok'></i></a>
+                        <a href="#" class="social-link"><i class='bx bxl-pinterest'></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Atendimento</h3>
+                    <div class="footer-links">
+                        <a href="#">Fale Conosco</a>
+                        <a href="#">Dúvidas Frequentes</a>
+                        <a href="#">Trocas e Devoluções</a>
+                        <a href="#">Rastrear Pedido</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Explore</h3>
+                    <div class="footer-links">
+                        <a href="#">Lançamentos</a>
+                        <a href="#">Mais Vendidos</a>
+                        <a href="#">Kits Promocionais</a>
+                        <a href="#">Cartão Presente</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; <script>document.write(new Date().getFullYear())</script> Infinity Variedades. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+    <script src="assets/js/core/db.js"></script>
+    <script src="assets/js/core/app.js"></script>
+    <script src="assets/js/pages/index.js"></script>
+</body>
+</html>

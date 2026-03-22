@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Carrinho | Infinity Variedades</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 2.2fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+            align-items: start;
+        }
+        .cart-items-container {
+            background-color: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--clr-border);
+        }
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--clr-border);
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .cart-item-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            background-color: var(--clr-bg);
+            padding: 0.5rem;
+            border: 1px solid var(--clr-border);
+        }
+        .cart-item-info {
+            flex-grow: 1;
+        }
+        .cart-item-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .cart-item-category {
+            font-size: 0.875rem;
+            color: var(--clr-text-light);
+            text-transform: uppercase;
+        }
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            height: 36px;
+        }
+        .qty-btn {
+            width: 30px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            color: var(--clr-text);
+        }
+        .qty-btn:hover {
+            background-color: var(--clr-bg);
+        }
+        .qty-input {
+            width: 40px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            color: var(--clr-text);
+            pointer-events: none;
+        }
+        .cart-item-price {
+            font-weight: 700;
+            font-size: 1.125rem;
+            min-width: 100px;
+            text-align: right;
+            color: var(--clr-accent);
+        }
+        .btn-remove {
+            color: #EF4444;
+            font-size: 1.5rem;
+            margin-left: 1rem;
+            transition: var(--transition);
+        }
+        .btn-remove:hover {
+            transform: scale(1.1);
+        }
+        /* Order Summary */
+        .order-summary {
+            background-color: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--clr-border);
+            position: sticky;
+            top: 100px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: var(--clr-text-light);
+        }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--clr-border);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--clr-text);
+        }
+        .btn-checkout {
+            width: 100%;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--clr-text-light);
+        }
+        @media (max-width: 992px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+            .order-summary {
+                position: relative;
+                top: 0;
+            }
+        }
+        @media (max-width: 576px) {
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .cart-item-price {
+                text-align: left;
+            }
+            .btn-remove {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="index.html" class="nav-brand">
+                <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
+            </a>
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="produtos.html?cat=promocoes" class="nav-link">Promoções</a>
+                <a href="produtos.html?cat=novidades" class="nav-link">Novidades</a>
+                <a href="produtos.html?cat=criancas" class="nav-link">Crianças</a>
+                <a href="produtos.html" class="nav-link">Todos os Produtos</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" class="action-btn" title="Minha Conta">
+                    <i class='bx bx-user'></i>
+                </a>
+                <button class="action-btn" id="theme-toggle" title="Mudar Tema">
+                    <i class='bx bxs-moon'></i>
+                </button>
+                <a href="carrinho.html" class="action-btn" title="Carrinho">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="section">
+        <div class="container">
+            <h1 class="section-title">Meu Carrinho</h1>
+            <div id="cart-content">
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="padding-top: 0; border: none;">
+                &copy; <script>document.write(new Date().getFullYear())</script> Infinity Variedades.
+            </div>
+        </div>
+    </footer>
+    <script src="assets/js/core/db.js"></script>
+    <script src="assets/js/core/app.js"></script>
+    <script src="assets/js/pages/carrinho.js"></script>
+</body>
+</html>

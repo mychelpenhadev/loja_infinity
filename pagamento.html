@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento | Infinity Variedades</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .payment-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+            align-items: start;
+        }
+        .payment-methods {
+            background-color: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--clr-border);
+        }
+        .payment-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--clr-border);
+            padding-bottom: 1rem;
+        }
+        .pay-tab {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--clr-text-light);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .pay-tab:hover {
+            background-color: var(--clr-bg);
+        }
+        .pay-tab.active {
+            background-color: var(--clr-bg-alt);
+            color: var(--clr-primary);
+        }
+        .pay-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .pay-content.active {
+            display: block;
+        }
+
+        /* Order Summary reused from carrinho */
+        .order-summary {
+            background-color: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--clr-border);
+            position: sticky;
+            top: 100px;
+        }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: var(--clr-text-light);
+        }
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--clr-border);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--clr-text);
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 250px;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+            border: 1px solid var(--clr-border);
+        }
+
+        @media (max-width: 992px) {
+            .payment-layout { grid-template-columns: 1fr; }
+            .order-summary { position: relative; top: 0; }
+        }
+        @media (max-width: 576px) {
+            .payment-tabs { flex-direction: column; }
+            .pay-tab { width: 100%; justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="index.html" class="nav-brand">
+                <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
+            </a>
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="produtos.html?cat=promocoes" class="nav-link">Promoções</a>
+                <a href="produtos.html?cat=novidades" class="nav-link">Novidades</a>
+                <a href="produtos.html?cat=criancas" class="nav-link">Crianças</a>
+                <a href="produtos.html" class="nav-link">Todos os Produtos</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" class="action-btn" title="Minha Conta">
+                    <i class='bx bx-user'></i>
+                </a>
+                <button class="action-btn" id="theme-toggle" title="Mudar Tema">
+                    <i class='bx bxs-moon'></i>
+                </button>
+                <a href="carrinho.html" class="action-btn" title="Carrinho">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container" id="checkout-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h1 class="section-title" style="margin-bottom: 0;">Finalizar Pagamento</h1>
+                <a href="carrinho.html" class="btn" style="background-color: transparent; color: var(--clr-text); border: 1px solid var(--clr-border);">
+                    <i class='bx bx-arrow-back'></i> Voltar
+                </a>
+            </div>
+            
+            <div class="payment-layout">
+                <div class="payment-methods">
+                    <form id="payment-form">
+                        <!-- RETIRADA NA LOJA UNICA OPÇÃO -->
+                        <div id="tab-store" style="display: block;">
+                            <h3 style="margin-bottom: 1rem;">Retirada no Estabelecimento</h3>
+                            <p style="color: var(--clr-text-light); margin-bottom: 1.5rem;">Venha nos fazer uma visita! Após confirmar seu pedido, você receberá a chave PIX para pagamento, e seu pedido estará separado e pronto na nossa recepção.</p>
+                            
+                            <div style="background-color: var(--clr-bg); padding: 1.5rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 1px solid var(--clr-border);">
+                                <h4 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class='bx bx-map' style="color: var(--clr-accent);"></i> Nosso Endereço
+                                </h4>
+                                <p style="color: var(--clr-text-light);">Av. Paulista, 1578 - Bela Vista<br>São Paulo, SP - CEP 01310-200</p>
+                                <p style="color: var(--clr-text-light); margin-top: 0.5rem;"><strong>Horário:</strong> Seg a Sáb - 09:00 às 18:00</p>
+                            </div>
+
+                            <a href="https://wa.me/5511999999999?text=Ol%C3%A1!%20Fiz%20um%20pedido%20no%20site%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida%20sobre%20a%20retirada." target="_blank" class="btn btn-primary btn-full" style="background-color: #25D366; border-color: #25D366; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <i class='bx bxl-whatsapp' style="font-size: 1.5rem;"></i> Conversar no WhatsApp
+                            </a>
+
+                            <div class="map-container">
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.1975762031023!2d-46.6587428236113!3d-23.5613483615852!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2c9776a!2sAv.%20Paulista%2C%201578%20-%20Bela%20Vista%2C%20S%C3%A3o%20Paulo%20-%20SP%2C%2001310-200!5e0!3m2!1spt-BR!2sbr!4v1714406201389!5m2!1spt-BR!2sbr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Resumo -->
+                <div class="order-summary" id="checkout-summary">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="padding-top: 0; border: none;">
+                &copy; <script>document.write(new Date().getFullYear())</script> Infinity Variedades.
+            </div>
+        </div>
+    </footer>
+    
+    <script src="assets/js/core/db.js"></script>
+    <script src="assets/js/core/app.js"></script>
+    <script src="assets/js/pages/pagamento.js"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Produto | Infinity Variedades</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 2rem;
+            align-items: start;
+        }
+        .product-gallery {
+            background-color: var(--clr-surface);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--clr-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 100px;
+        }
+        .product-gallery img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
+            transform: scale(1);
+            transition: transform 0.3s ease;
+        }
+        .product-gallery img:hover {
+            transform: scale(1.05);
+        }
+        .product-meta {
+            margin-bottom: 1.5rem;
+        }
+        .category-tag {
+            display: inline-block;
+            background-color: rgba(168, 192, 255, 0.2);
+            color: var(--clr-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .product-title-large {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .price-large {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--clr-accent);
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .desc-text {
+            color: var(--clr-text-light);
+            font-size: 1.125rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+        .cart-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            align-items: center;
+        }
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            background-color: var(--clr-surface);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            height: 50px;
+        }
+        .qty-btn {
+            width: 40px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--clr-text);
+            transition: var(--transition);
+        }
+        .qty-btn:hover {
+            background-color: var(--clr-bg);
+            color: var(--clr-primary);
+        }
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--clr-text);
+            pointer-events: none;
+        }
+        .btn-large {
+            height: 50px;
+            flex-grow: 1;
+            font-size: 1.125rem;
+        }
+        .video-container {
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid var(--clr-border);
+        }
+        @media (max-width: 768px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .product-gallery {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="index.html" class="nav-brand">
+                <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
+            </a>
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="produtos.html?cat=promocoes" class="nav-link">Promoções</a>
+                <a href="produtos.html?cat=novidades" class="nav-link">Novidades</a>
+                <a href="produtos.html?cat=criancas" class="nav-link">Crianças</a>
+                <a href="produtos.html" class="nav-link">Todos os Produtos</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" class="action-btn" title="Minha Conta">
+                    <i class='bx bx-user'></i>
+                </a>
+                <button class="action-btn" id="theme-toggle" title="Mudar Tema">
+                    <i class='bx bxs-moon'></i>
+                </button>
+                <a href="carrinho.html" class="action-btn" title="Carrinho">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="section">
+        <div class="container">
+            <a href="produtos.html" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--clr-text-light); margin-bottom: 2rem; transition: var(--transition);">
+                <i class='bx bx-arrow-back'></i> Voltar para a loja
+            </a>
+            <div id="product-content">
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="padding-top: 0; border: none;">
+                &copy; <script>document.write(new Date().getFullYear())</script> Infinity Variedades.
+            </div>
+        </div>
+    </footer>
+    <script src="assets/js/core/db.js"></script>
+    <script src="assets/js/core/app.js"></script>
+    <script src="assets/js/pages/detalhes.js"></script>
+</body>
+</html>

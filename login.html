@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Conta | Infinity Variedades</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 80px - 200px);
+            padding: 4rem 1.5rem;
+            background-color: var(--clr-bg);
+        }
+        .auth-card {
+            background-color: var(--clr-surface);
+            padding: 3rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--clr-border);
+        }
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            color: var(--clr-text);
+        }
+        .auth-subtitle {
+            text-align: center;
+            color: var(--clr-text-light);
+            margin-bottom: 2rem;
+        }
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--clr-text);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-md);
+            background-color: transparent;
+            color: var(--clr-text);
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--clr-secondary);
+            box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
+        }
+        .auth-toggle {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--clr-text-light);
+            font-size: 0.95rem;
+        }
+        .auth-toggle a {
+            color: var(--clr-secondary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+        .btn-full {
+            width: 100%;
+        }
+        .btn-google {
+            background-color: white;
+            color: #444;
+            border: 1px solid #ccc;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            height: 48px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-google:hover {
+            background-color: #f7f7f7;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--clr-text-light);
+            font-size: 0.875rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--clr-border);
+        }
+        .divider::before { margin-right: 1rem; }
+        .divider::after { margin-left: 1rem; }
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--clr-border);
+        }
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--clr-text-light);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+        .auth-tab.active {
+            color: var(--clr-secondary);
+            border-bottom-color: var(--clr-secondary);
+        }
+        .auth-tab:hover:not(.active) {
+            color: var(--clr-text);
+        }
+        .password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .password-container input {
+            padding-right: 2.5rem;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            cursor: pointer;
+            color: var(--clr-text-light);
+            font-size: 1.25rem;
+            transition: var(--transition);
+        }
+        .password-toggle:hover {
+            color: var(--clr-secondary);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container nav">
+            <a href="index.html" class="nav-brand">
+                <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
+            </a>
+            <nav class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="produtos.html?cat=promocoes" class="nav-link">Promoções</a>
+                <a href="produtos.html?cat=novidades" class="nav-link">Novidades</a>
+                <a href="produtos.html?cat=criancas" class="nav-link">Crianças</a>
+                <a href="produtos.html" class="nav-link">Todos os Produtos</a>
+            </nav>
+            <div class="nav-actions">
+                <button class="action-btn" id="theme-toggle" title="Mudar Tema">
+                    <i class='bx bxs-moon'></i>
+                </button>
+                <a href="carrinho.html" class="action-btn" title="Carrinho">
+                    <i class='bx bx-shopping-bag'></i>
+                    <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tab-login">Entrar</div>
+                <div class="auth-tab" id="tab-register">Cadastrar</div>
+            </div>
+            <div id="login-view">
+                <h1 class="auth-title">Bem-vindo de volta!</h1>
+                <p class="auth-subtitle">Faça login para continuar suas compras.</p>
+                <button type="button" class="btn-google" onclick="signInWithGoogle()">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 20px; height: 20px;">
+                    Entrar com o Google
+                </button>
+                <div class="divider">ou use seu e-mail</div>
+                <form class="auth-form" id="login-form">
+                    <div class="form-group">
+                        <label for="login-email">E-mail</label>
+                        <input type="email" id="login-email" class="form-control" required placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Senha</label>
+                        <div class="password-container">
+                            <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+                            <i class='bx bx-show password-toggle' onclick="togglePassword('login-password', this)" title="Mostrar Senha"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" style="height: 48px; margin-top: 0.5rem;">
+                        Entrar <i class='bx bx-log-in-circle' style="margin-left: 0.5rem;"></i>
+                    </button>
+                </form>
+                <div class="auth-toggle">
+                    Ainda não tem uma conta? <a href="#" id="show-register">Cadastre-se aqui</a>
+                </div>
+            </div>
+            <div id="register-view" style="display: none;">
+                <h1 class="auth-title">Crie sua Conta</h1>
+                <p class="auth-subtitle">Junte-se a nós e aproveite ofertas exclusivas.</p>
+                <button type="button" class="btn-google" onclick="signInWithGoogle()">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 20px; height: 20px;">
+                    Criar conta com o Google
+                </button>
+                <div class="divider">ou use seu e-mail</div>
+                <form class="auth-form" id="register-form">
+                    <div class="form-group">
+                        <label for="reg-name">Nome Completo</label>
+                        <input type="text" id="reg-name" class="form-control" required placeholder="João da Silva">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-cpf">CPF</label>
+                        <input type="text" id="reg-cpf" class="form-control" required placeholder="000.000.000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">E-mail (Gmail)</label>
+                        <input type="email" id="reg-email" class="form-control" required placeholder="seu@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Senha</label>
+                        <div class="password-container">
+                            <input type="password" id="reg-password" class="form-control" required placeholder="Crie uma senha forte">
+                            <i class='bx bx-show password-toggle' onclick="togglePassword('reg-password', this)" title="Mostrar Senha"></i>
+                        </div>
+                        <small style="color: var(--clr-text-light); font-size: 0.75rem; margin-top: 5px; display: block;">Mínimo 8 caracteres, 1 maiúscula, 1 número e 1 símbolo.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password-confirm">Confirmar Senha</label>
+                        <div class="password-container">
+                            <input type="password" id="reg-password-confirm" class="form-control" required placeholder="Repita sua senha">
+                            <i class='bx bx-show password-toggle' onclick="togglePassword('reg-password-confirm', this)" title="Mostrar Senha"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" style="height: 48px; margin-top: 0.5rem;">
+                        Criar Conta <i class='bx bx-user-plus' style="margin-left: 0.5rem;"></i>
+                    </button>
+                </form>
+                <div class="auth-toggle">
+                    Já tem uma conta? <a href="#" id="show-login">Faça Login</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="padding-top: 0; border: none;">
+                &copy; <script>document.write(new Date().getFullYear())</script> Infinity Variedades.
+            </div>
+        </div>
+    </footer>
+    <script src="assets/js/core/db.js"></script>
+    <script src="assets/js/core/app.js"></script>
+    <script src="assets/js/pages/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+document.addEventListener('DOMContentLoaded', async () => {
+    // Basic Auth Check
+    try {
+        const response = await fetch('api/auth.php?action=check');
+        const data = await response.json();
+        
+        if (!data.loggedIn || data.role !== 'admin') {
+            window.location.href = 'index.html';
+            return;
+        }
+    } catch(err) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    renderOrdersTable();
+});
+
+window.markAsDelivered = (orderId) => {
+    if(confirm("Tem certeza que este pedido foi retirado com sucesso e deseja marcá-lo como Entregue?")) {
+        window.OrderManager.updateStatus(orderId, 'entregue');
+        renderOrdersTable();
+        window.showToast("Pedido finalizado com sucesso!", "success");
+    }
+}
+
+function renderOrdersTable() {
+    const tbody = document.getElementById('table-orders-body');
+    const allOrders = window.OrderManager.getAll();
+    
+    // Filter only orders where method includes "Retirada"
+    const pickupOrders = allOrders.filter(o => o.method && o.method.includes("Retirar"));
+
+    if (pickupOrders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--clr-text-light); padding: 3rem;">Nenhum pedido para retirada encontrado.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = pickupOrders.map(order => {
+        // Date formatting
+        const dateObj = new Date(order.date);
+        const formattedDate = dateObj.toLocaleDateString('pt-BR') + ' às ' + dateObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+        
+        // Sum up item quantities logically
+        const totalItemsCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+        
+        // Format items details array
+        const itemsList = order.items.map(i => `${i.quantity}x ${i.name}`).join('<br>');
+        
+        let statusHtml = '';
+        if (order.status === 'entregue') {
+            statusHtml = `<span style="display:inline-block; padding:0.25rem 0.65rem; border-radius:1rem; background:rgba(16, 185, 129, 0.1); color:#10B981; font-size:0.75rem; font-weight:600; margin-bottom:0.5rem;">Entregue</span><br>`;
+        } else {
+            statusHtml = `
+                <span style="display:inline-block; padding:0.25rem 0.65rem; border-radius:1rem; background:rgba(245, 158, 11, 0.1); color:#F59E0B; font-size:0.75rem; font-weight:600; margin-bottom:0.5rem;">Pendente</span><br>
+                <button onclick="window.markAsDelivered('${order.id}')" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Confirmar Retirada</button>
+            `;
+        }
+
+        return `
+            <tr>
+                <td style="font-weight: 600; color: var(--clr-primary);">#${order.id}</td>
+                <td>
+                    <strong>${order.userName}</strong><br>
+                    <small style="color: var(--clr-text-light);">ID: ${order.userId}</small>
+                </td>
+                <td style="color: var(--clr-text-light);">
+                    ${formattedDate}<br>
+                    <div style="margin-top:0.5rem;">${statusHtml}</div>
+                </td>
+                <td style="font-weight: 700;">${window.formatCurrency(order.total)}</td>
+                <td style="font-size: 0.85rem; color: var(--clr-text-light);">
+                    ${itemsList}
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
