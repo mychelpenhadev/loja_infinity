@@ -13,14 +13,10 @@ try {
             break;
 
         case 'save':
-            $raw_data = file_get_contents('php://input');
-            file_put_contents('/tmp/order_debug.json', $raw_data);
-            $data = json_decode($raw_data, true);
-            if (!$data) throw new Exception("Dados inválidos");
-
+            session_start();
             $external_id = $data['external_id'] ?? $data['externalId'] ?? ('ORD' . rand(1000, 9999));
-            $user_id = $data['user_id'] ?? $data['userId'] ?? null;
-            $user_name = $data['user_name'] ?? $data['userName'] ?? 'Visitante';
+            $user_id = $data['user_id'] ?? $data['userId'] ?? $_SESSION['user_id'] ?? null;
+            $user_name = $data['user_name'] ?? $data['userName'] ?? $_SESSION['user_name'] ?? 'Visitante';
             $total = $data['total'];
             $status = $data['status'] ?? 'pendente';
             $method = $data['method'] ?? 'WhatsApp';
