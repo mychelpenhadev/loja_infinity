@@ -16,11 +16,16 @@ if (file_exists($envPath)) {
 }
 
 // Suporte para variáveis de ambiente do sistema (como no Railway/Vercel)
-$host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: $host);
-$user = getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: $user);
-$pass = getenv('DB_PASS') ?: (getenv('MYSQLPASSWORD') ?: $pass);
-$dbname = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: $dbname);
+$host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: '127.0.0.1');
+$user = getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: 'root');
+$pass = getenv('DB_PASS') ?: (getenv('MYSQLPASSWORD') ?: '');
+$dbname = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: 'papelaria_db');
 $port = getenv('MYSQLPORT') ?: '3306';
+
+// Se host for 'localhost' via .env, vamos forçar '127.0.0.1' para evitar socket issues
+if ($host === 'localhost') {
+    $host = '127.0.0.1';
+}
 
 // Ajustar host para incluir porta se necessário
 if ($port !== '3306' && !str_contains($host, ':')) {
