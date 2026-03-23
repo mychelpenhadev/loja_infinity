@@ -159,16 +159,20 @@
                 submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Salvando...";
 
                 try {
+                    let result;
                     if (id) {
-                        await window.ProductManager.update(id, productData);
-                        window.showToast('Produto atualizado com sucesso!');
+                        result = await window.ProductManager.update(id, productData);
                     } else {
-                        await window.ProductManager.add(productData);
-                        window.showToast('Produto adicionado ao catálogo!');
+                        result = await window.ProductManager.add(productData);
                     }
 
-                    closeModal();
-                    await renderTable();
+                    if (result && result.status === 'success') {
+                        window.showToast(id ? 'Produto atualizado com sucesso!' : 'Produto adicionado ao catálogo!', 'success');
+                        closeModal();
+                        await renderTable();
+                    } else {
+                        window.showToast('Erro ao salvar: ' + (result ? result.message : 'Resposta inválida do servidor'), 'error');
+                    }
                 } catch(err) {
                     window.showToast('Erro ao salvar produto.', 'error');
                 } finally {
@@ -176,4 +180,42 @@
                     submitBtn.innerText = "Salvar Produto";
                 }
             });
+        }
+
+        async function renderTable() {
+            if (!tableBody) return;
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;"><i class="bx bx-loader-alt bx-spin"></i> Carregando produtos...</td></tr>';
+            try {
+                const products = await window.ProductManager.getAll();
+                tableBody.innerHTML = '';
+
+                if (products.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;">Nenhum produto cadastrado.</td></tr>';
+                    return;
+                }
+
+                products.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>
+                            <div class="prod-cell">
+                                <img src="${p.image}" class="prod-thumb" alt="${p.name}">
+                                <span style="font-weight: 500;">${p.name}</span>
+                            </div>
+                        </td>
+                        <td><span style="background: var(--clr-bg); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; text-transform:uppercase;">${p.category}</span></td>
+                        <td style="font-weight: 600;">${window.formatCurrency(p.price)}</td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="edit-btn" onclick="editProduct('${p.id}')" title="Editar"><i class='bx bx-edit'></i></button>
+                                <button class="delete-btn" onclick="deleteProduct('${p.id}')" title="Excluir"><i class='bx bx-trash'></i></button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            } catch(e) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color: #EF4444;">Erro ao carregar os produtos.</td></tr>';
+                window.showToast('Erro ao carregar produtos.', 'error');
+            }
         }

@@ -19,7 +19,7 @@ const ProductManager = {
       return data;
     } catch (err) {
       console.error("Erro ao buscar produtos:", err);
-      return [];
+      throw err;
     }
   },
   

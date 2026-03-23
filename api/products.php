@@ -10,7 +10,11 @@ try {
         case 'list':
             $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC");
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode($products);
+            $json = json_encode($products, JSON_UNESCAPED_UNICODE);
+            if ($json === false) {
+                throw new Exception("Erro ao serializar produtos: " . json_last_error_msg());
+            }
+            echo $json;
             break;
 
         case 'save':
