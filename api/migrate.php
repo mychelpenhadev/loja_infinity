@@ -43,9 +43,28 @@ try {
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-    // 4. Inserir WhatsApp padrão
+    // 4. Criar tabela de Usuários
+    $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `name` varchar(100) NOT NULL,
+        `cpf` varchar(20) DEFAULT NULL,
+        `telefone` varchar(20) DEFAULT NULL,
+        `email` varchar(100) NOT NULL,
+        `password` varchar(255) NOT NULL,
+        `role` enum('cliente','admin') DEFAULT 'cliente',
+        `profile_picture` LONGTEXT DEFAULT NULL,
+        `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `email` (`email`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    // 5. Inserir WhatsApp padrão
     $stmt = $pdo->prepare("INSERT IGNORE INTO `configs` (`config_key`, `config_value`) VALUES (?, ?)");
     $stmt->execute(['whatsappNumber', '+5598985269184']);
+
+    // 6. Inserir Admin padrão (admin@infinity.com.br / admin123)
+    $stmt = $pdo->prepare("INSERT IGNORE INTO `users` (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)");
+    $stmt->execute([1, 'Administrador Geral', 'admin@infinity.com.br', password_hash('admin123', PASSWORD_DEFAULT), 'admin']);
 
     header('Content-Type: application/json');
     echo json_encode(["status" => "success", "message" => "Banco de dados migrado com sucesso!"]);
