@@ -138,8 +138,8 @@ function setupCheckoutForm() {
         
         // Registra o pedido no Banco de Dados
         await window.OrderManager.add({
-            userId: window.userId,
-            userName: window.userName || "Cliente Padrão",
+            user_id: window.userId,
+            user_name: window.userName || "Cliente Padrão",
             items: fullItemsData,
             total: subtotal,
             method: 'WhatsApp'

@@ -50,14 +50,14 @@ async function renderOrdersTable() {
     }
 
     tbody.innerHTML = pickupOrders.map(order => {
-        // Date formatting
-        const dateObj = new Date(order.date);
+        // Date formatting - using created_at from DB
+        const dateObj = new Date(order.created_at);
         const formattedDate = dateObj.toLocaleDateString('pt-BR') + ' às ' + dateObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
         
-        // Items details
+        // Items details - using items_json from DB
         let itemsList = "";
         try {
-            const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+            const items = typeof order.items_json === 'string' ? JSON.parse(order.items_json) : (order.items_json || []);
             itemsList = items.map(i => `${i.quantity}x ${i.name}`).join('<br>');
         } catch(e) {
             itemsList = "Erro ao carregar itens";
@@ -79,8 +79,8 @@ async function renderOrdersTable() {
             <tr>
                 <td style="font-weight: 600; color: var(--clr-primary);">#${order.id}</td>
                 <td>
-                    <strong>${order.userName}</strong><br>
-                    <small style="color: var(--clr-text-light);">ID: ${order.userId}</small>
+                    <strong>${order.user_name}</strong><br>
+                    <small style="color: var(--clr-text-light);">ID: ${order.user_id}</small>
                 </td>
                 <td style="color: var(--clr-text-light);">
                     ${formattedDate}<br>
