@@ -40,10 +40,17 @@ const ProductManager = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product)
       });
-      return await response.json();
+      
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        console.error("Resposta não-JSON do servidor:", text);
+        return { status: 'error', message: 'Servidor retornou formato inválido. Status: ' + response.status };
+      }
     } catch (err) {
-      console.error("Erro ao adicionar produto:", err);
-      return null;
+      console.error("Erro na requisição fetch:", err);
+      return { status: 'error', message: 'Falha na conexão com o servidor.' };
     }
   },
   
