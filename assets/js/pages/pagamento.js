@@ -65,11 +65,6 @@ async function renderCheckoutSummary() {
             <span>Subtotal (${window.CartManager.getTotalItems()} itens)</span>
             <span style="color: var(--clr-text); font-weight: 500;">${window.formatCurrency(subtotal)}</span>
         </div>
-        <div class="summary-row" id="shipping-row">
-            <span>Retirada em Loja</span>
-            <span style="color: #10B981; font-weight: 500; font-size:0.875rem;" id="shipping-val">Grátis</span>
-        </div>
-
         <div class="summary-total">
             <span>Total a Pagar</span>
             <span style="color: var(--clr-accent);" id="total-val">${window.formatCurrency(total)}</span>

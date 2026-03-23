@@ -104,8 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            const shipping = 15.00;
-            const total = subtotal + shipping;
+            const total = subtotal;
 
             container.innerHTML = `
                 <div class="cart-layout">
@@ -119,10 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="summary-row">
                             <span>Subtotal (${window.CartManager.getTotalItems()} itens)</span>
                             <span style="color: var(--clr-text); font-weight: 500;">${window.formatCurrency(subtotal)}</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Frete Fixo</span>
-                            <span style="color: var(--clr-text); font-weight: 500;">${window.formatCurrency(shipping)}</span>
                         </div>
 
                         <div class="summary-total">
