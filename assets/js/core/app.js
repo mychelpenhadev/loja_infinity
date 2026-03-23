@@ -17,14 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const currentTheme = document.documentElement.getAttribute('data-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem(window.STORAGE_KEYS.THEME, newTheme);
+      localStorage.setItem('papelaria_theme', newTheme);
       updateThemeIcon(newTheme);
     });
   }
 });
 
 function initTheme() {
-  const savedTheme = localStorage.getItem(window.STORAGE_KEYS?.THEME) || 'light';
+  const themeKey = 'papelaria_theme';
+  const savedTheme = localStorage.getItem(themeKey) || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateThemeIcon(savedTheme);
 }

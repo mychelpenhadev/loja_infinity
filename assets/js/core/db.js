@@ -233,6 +233,7 @@ window.ProductManager = ProductManager;
 window.CartManager = CartManager;
 window.OrderManager = OrderManager;
 window.ConfigManager = ConfigManager;
+window.STORAGE_KEYS = STORAGE_KEYS;
 window.formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 };
