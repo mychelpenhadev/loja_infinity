@@ -80,11 +80,12 @@ async function checkAuth() {
           });
           
           
-          if(data.role !== 'admin') {
+          if(data.role === 'admin') {
+              document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'flex');
+          } else {
               document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'none');
           }
       } else {
-          
           document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'none');
       }
   } catch (err) {
