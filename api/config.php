@@ -7,6 +7,7 @@ $action = $_GET['action'] ?? 'get';
 try {
     switch ($action) {
         case 'get':
+            header('Cache-Control: private, max-age=300'); // Config cache for 5 min
             $key = $_GET['key'] ?? null;
             if ($key) {
                 $stmt = $pdo->prepare("SELECT config_value FROM configs WHERE config_key = ?");

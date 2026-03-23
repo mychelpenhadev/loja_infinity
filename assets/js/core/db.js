@@ -5,22 +5,43 @@
 
 const STORAGE_KEYS = {
   CART: 'papelaria_cart',
-  THEME: 'papelaria_theme'
+  THEME: 'papelaria_theme',
+  PRODUCTS_CACHE: 'papelaria_products_cache',
+  PRODUCTS_CACHE_EXP: 'papelaria_products_exp',
+  CONFIG_CACHE: 'papelaria_config_cache',
+  CONFIG_CACHE_EXP: 'papelaria_config_exp'
 };
 
 const ProductManager = {
   _cache: null,
 
   getAll: async () => {
+    const now = Date.now();
+    const cached = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE);
+    const exp = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP);
+
+    if (cached && exp && now < parseInt(exp)) {
+      return JSON.parse(cached);
+    }
+
     try {
       const response = await fetch('api/products.php?action=list');
       const data = await response.json();
+      
+      sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE, JSON.stringify(data));
+      sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP, (now + 60000).toString());
+      
       ProductManager._cache = data;
       return data;
     } catch (err) {
       console.error("Erro ao buscar produtos:", err);
       throw err;
     }
+  },
+
+  clearCache: () => {
+    sessionStorage.removeItem(STORAGE_KEYS.PRODUCTS_CACHE);
+    sessionStorage.removeItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP);
   },
   
   getById: async (id) => {
@@ -35,6 +56,7 @@ const ProductManager = {
   
   add: async (product) => {
     try {
+      ProductManager.clearCache();
       const response = await fetch('api/products.php?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -59,6 +81,7 @@ const ProductManager = {
   
   update: async (id, updatedData) => {
     try {
+      ProductManager.clearCache();
       const response = await fetch('api/products.php?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,6 +96,7 @@ const ProductManager = {
   
   remove: async (id) => {
     try {
+      ProductManager.clearCache();
       const response = await fetch(`api/products.php?action=delete&id=${id}`);
       return await response.json();
     } catch (err) {
@@ -198,12 +222,30 @@ const ConfigManager = {
   _cache: {},
 
   init: async () => {
+    const now = Date.now();
+    const cached = sessionStorage.getItem(STORAGE_KEYS.CONFIG_CACHE);
+    const exp = sessionStorage.getItem(STORAGE_KEYS.CONFIG_CACHE_EXP);
+
+    if (cached && exp && now < parseInt(exp)) {
+      ConfigManager._cache = JSON.parse(cached);
+      return;
+    }
+
     try {
       const response = await fetch('api/config.php?action=get');
-      ConfigManager._cache = await response.json();
+      const data = await response.json();
+      ConfigManager._cache = data;
+      
+      sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE, JSON.stringify(data));
+      sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE_EXP, (now + 300000).toString()); // 5 min cache for config
     } catch (err) {
       console.error("Erro ao inicializar ConfigManager:", err);
     }
+  },
+
+  clearCache: () => {
+    sessionStorage.removeItem(STORAGE_KEYS.CONFIG_CACHE);
+    sessionStorage.removeItem(STORAGE_KEYS.CONFIG_CACHE_EXP);
   },
 
   get: (key) => {
@@ -212,6 +254,7 @@ const ConfigManager = {
 
   set: async (key, value) => {
     try {
+      ConfigManager.clearCache();
       ConfigManager._cache[key] = value;
       await fetch('api/config.php?action=save', {
         method: 'POST',

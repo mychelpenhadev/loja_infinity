@@ -10,6 +10,7 @@ $action = $_GET['action'] ?? 'list';
 try {
     switch ($action) {
         case 'list':
+            header('Cache-Control: public, max-age=60'); // Cache for 60s
             $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC");
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $json = json_encode($products, JSON_UNESCAPED_UNICODE);
@@ -62,6 +63,7 @@ try {
             break;
 
         case 'get':
+            header('Cache-Control: public, max-age=3600'); // Single product cache for 1h
             $id = $_GET['id'] ?? null;
             if (!$id) throw new Exception("ID não fornecido");
             

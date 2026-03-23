@@ -1,7 +1,6 @@
 <?php
 ob_start();
 session_start();
-require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'db.php';
 header('Content-Type: application/json');
 ob_clean();
@@ -79,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         try {
+            require_once __DIR__ . '/../vendor/autoload.php';
             $client = new Google_Client(['client_id' => '375279591438-7uirtbvgbtsd2c2pjti9kmmhal8r2sr3.apps.googleusercontent.com']);
             $payload = $client->verifyIdToken($token);
             if ($payload) {
