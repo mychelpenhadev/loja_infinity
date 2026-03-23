@@ -77,10 +77,10 @@ async function renderOrdersTable() {
 
         return `
             <tr>
-                <td style="font-weight: 600; color: var(--clr-primary);">#${order.id}</td>
+                <td style="font-weight: 600; color: var(--clr-primary);">${order.external_id || ('#' + order.id)}</td>
                 <td>
-                    <strong>${order.user_name}</strong><br>
-                    <small style="color: var(--clr-text-light);">ID: ${order.user_id}</small>
+                    <strong>${order.user_name || 'Visitante'}</strong><br>
+                    <small style="color: var(--clr-text-light);">ID: ${order.user_id || 'N/A'}</small>
                 </td>
                 <td style="color: var(--clr-text-light);">
                     ${formattedDate}<br>

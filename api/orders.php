@@ -14,16 +14,17 @@ try {
 
         case 'save':
             $raw_data = file_get_contents('php://input');
+            file_put_contents('/tmp/order_debug.json', $raw_data);
             $data = json_decode($raw_data, true);
             if (!$data) throw new Exception("Dados inválidos");
 
-            $external_id = $data['external_id'] ?? ('ORD' . rand(1000, 9999));
-            $user_id = $data['user_id'] ?? null;
-            $user_name = $data['user_name'] ?? 'Visitante';
+            $external_id = $data['external_id'] ?? $data['externalId'] ?? ('ORD' . rand(1000, 9999));
+            $user_id = $data['user_id'] ?? $data['userId'] ?? null;
+            $user_name = $data['user_name'] ?? $data['userName'] ?? 'Visitante';
             $total = $data['total'];
             $status = $data['status'] ?? 'pendente';
             $method = $data['method'] ?? 'WhatsApp';
-            $items_json = json_encode($data['items']);
+            $items_json = json_encode($data['items'] ?? $data['items_json'] ?? []);
 
             $stmt = $pdo->prepare("INSERT INTO orders (external_id, user_id, user_name, total, status, items_json, method) VALUES (?, ?, ?, ?, ?, ?, ?)");
             $stmt->execute([$external_id, $user_id, $user_name, $total, $status, $items_json, $method]);

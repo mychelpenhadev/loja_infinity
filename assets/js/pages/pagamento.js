@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = 'login.html';
             return;
         }
+        // Ensure local variables are set if global ones aren't ready
+        window.userId = data.id;
+        window.userName = data.name;
     } catch(err) {
         window.location.href = 'login.html';
         return;
