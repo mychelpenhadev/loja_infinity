@@ -21,8 +21,7 @@ try {
             break;
 
         case 'save':
-            // Apenas admin pode salvar/editar
-            // if (!isAdmin()) { throw new Exception("Não autorizado"); }
+            requireAdmin();
             
             $raw_data = file_get_contents('php://input');
             $data = json_decode($raw_data, true);
@@ -53,7 +52,7 @@ try {
             break;
 
         case 'delete':
-            // if (!isAdmin()) { throw new Exception("Não autorizado"); }
+            requireAdmin();
             $id = $_GET['id'] ?? null;
             if (!$id) throw new Exception("ID não fornecido");
             

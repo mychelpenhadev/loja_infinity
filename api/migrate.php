@@ -3,6 +3,8 @@ require_once 'db.php';
 
 // Script para migrar o banco de dados de localStorage para MySQL
 // Este script deve ser executado para configurar as tabelas iniciais
+require_once 'auth.php';
+requireAdmin();
 
 try {
     // 1. Criar tabela de Produtos

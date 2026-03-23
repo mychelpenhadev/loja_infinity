@@ -252,4 +252,17 @@ if ($action === 'update_profile') {
     exit;
 }
 
+
+function isAdmin() {
+    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
+}
+
+function requireAdmin() {
+    if (!isAdmin()) {
+        http_response_code(403);
+        echo json_encode(["status" => "error", "message" => "Acesso negado. Apenas administradores podem realizar esta ação."]);
+        exit;
+    }
+}
+
 echo json_encode(["status" => "error", "message" => "Ação inválida."]);

@@ -1,8 +1,6 @@
-<?php
-session_start();
-if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
-    header('HTTP/1.0 403 Forbidden');
-    echo "<h2 style='color:red;font-family:sans-serif;margin:20px;'>Acesso Restrito: 403.</h2>";
+require_once 'api/auth.php';
+if (!isAdmin()) {
+    header('Location: login.html');
     exit;
 }
 ?>

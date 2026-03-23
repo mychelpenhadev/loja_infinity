@@ -1,12 +1,14 @@
 <?php
 header('Content-Type: application/json');
 require_once 'db.php';
+require_once 'auth.php';
 
 $action = $_GET['action'] ?? 'list';
 
 try {
     switch ($action) {
         case 'list':
+            requireAdmin();
             $stmt = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC");
             $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($orders);
@@ -33,6 +35,7 @@ try {
             break;
 
         case 'update_status':
+            requireAdmin();
             $id = $_GET['id'] ?? null;
             $status = $_GET['status'] ?? null;
             if (!$id || !$status) throw new Exception("Parâmetros faltantes");
@@ -43,6 +46,7 @@ try {
             break;
             
         case 'delete':
+            requireAdmin();
             $id = $_GET['id'] ?? null;
             if (!$id) throw new Exception("ID não fornecido");
             $stmt = $pdo->prepare("DELETE FROM orders WHERE id = ?");
