@@ -356,15 +356,19 @@
                             <h3 class="profile-box-title"><i class='bx bx-user'></i> Meus Dados</h3>
                             <form class="auth-form" id="profile-form" style="gap: 1rem;">
                                 <!-- Profile Picture Upload UI -->
-                                <div style="text-align: center; margin-bottom: 0.5rem;">
-                                    <div style="position: relative; display: inline-block;">
-                                        <img id="prof-pic-preview" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--clr-border);">
-                                        <label for="prof-pic-input" style="position: absolute; bottom: 0; right: -5px; background: var(--clr-primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--clr-surface); transition: var(--transition);">
-                                            <i class='bx bx-camera'></i>
-                                        </label>
+                                <div style="text-align: center; margin-bottom: 1rem;">
+                                    <div style="position: relative; display: inline-block; margin-bottom: 0.5rem;">
+                                        <img id="prof-pic-preview" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--clr-surface); box-shadow: var(--shadow-md);">
                                         <input type="file" id="prof-pic-input" accept="image/*" style="display: none;">
                                     </div>
-                                    <div style="font-size: 0.75rem; color: var(--clr-text-light); margin-top: 0.25rem;">Foto de Perfil</div>
+                                    <div style="display: flex; justify-content: center; gap: 0.5rem;">
+                                        <button type="button" class="btn" id="btn-edit-pic" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; background: var(--clr-primary); color: white; border-radius: var(--radius-full); display: flex; align-items: center; gap: 0.25rem;">
+                                            <i class='bx bx-edit-alt'></i> Alterar
+                                        </button>
+                                        <button type="button" class="btn" id="btn-delete-pic" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; background: #EF4444; color: white; border-radius: var(--radius-full); display: flex; align-items: center; gap: 0.25rem;">
+                                            <i class='bx bx-trash'></i> Remover
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label for="prof-nome" style="font-size: 0.85rem;">Nome Completo</label>

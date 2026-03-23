@@ -51,6 +51,60 @@
                 `;
             });
 
+            // Hero Slider Logic
+            const heroSlider = document.getElementById('hero-slider');
+            const sliderDots = document.getElementById('slider-dots');
+            
+            if (heroSlider && sliderDots) {
+                const allP = window.ProductManager.getAll();
+                // Filter for "Novidades" (rating >= 4.8)
+                const novidades = allP.filter(p => p.rating >= 4.8).slice(0, 5);
+                
+                if (novidades.length > 0) {
+                    heroSlider.innerHTML = novidades.map((p, index) => `
+                        <div class="slider-item ${index === 0 ? 'active' : ''}" data-id="${p.id}" onclick="window.location.href='detalhes.html?id=${p.id}'">
+                            <img src="${p.image}" alt="${p.name}">
+                        </div>
+                    `).join('');
+                    
+                    sliderDots.innerHTML = novidades.map((_, index) => `
+                        <span class="dot ${index === 0 ? 'active' : ''}" data-index="${index}"></span>
+                    `).join('');
+                    
+                    let currentSlide = 0;
+                    const items = heroSlider.querySelectorAll('.slider-item');
+                    const dots = sliderDots.querySelectorAll('.dot');
+                    
+                    function showSlide(index) {
+                        items.forEach(item => item.classList.remove('active'));
+                        dots.forEach(dot => dot.classList.remove('active'));
+                        
+                        items[index].classList.add('active');
+                        dots[index].classList.add('active');
+                        currentSlide = index;
+                    }
+                    
+                    // Auto-slide
+                    let slideInterval = setInterval(() => {
+                        let next = (currentSlide + 1) % items.length;
+                        showSlide(next);
+                    }, 5000);
+                    
+                    // Dot clicks
+                    dots.forEach(dot => {
+                        dot.addEventListener('click', () => {
+                            const index = parseInt(dot.getAttribute('data-index'));
+                            showSlide(index);
+                            clearInterval(slideInterval);
+                            slideInterval = setInterval(() => {
+                                let next = (currentSlide + 1) % items.length;
+                                showSlide(next);
+                            }, 5000);
+                        });
+                    });
+                }
+            }
+
             // Lógica de Notificações
             const notifBtn = document.getElementById('notification-btn');
             const notifDropdown = document.getElementById('notification-dropdown');

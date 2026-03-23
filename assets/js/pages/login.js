@@ -221,8 +221,27 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             window.pendingProfilePic = null;
+            window.deleteProfilePic = false;
             const picInput = document.getElementById('prof-pic-input');
             const picPreview = document.getElementById('prof-pic-preview');
+            const btnEditPic = document.getElementById('btn-edit-pic');
+            const btnDeletePic = document.getElementById('btn-delete-pic');
+
+            if(btnEditPic && picInput) {
+                btnEditPic.onclick = () => picInput.click();
+            }
+
+            if(btnDeletePic && picPreview) {
+                btnDeletePic.onclick = () => {
+                    const userName = document.getElementById('prof-nome').value || 'User';
+                    picPreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=random`;
+                    window.pendingProfilePic = null;
+                    window.deleteProfilePic = true;
+                    if(picInput) picInput.value = ''; // Clear file input
+                    window.showToast("Foto removida. Salve o perfil para confirmar.", "success");
+                };
+            }
+
             if(picInput) {
                 picInput.addEventListener('change', function() {
                     if (this.files && this.files[0]) {
@@ -256,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                                 picPreview.src = dataUrl;
                                 window.pendingProfilePic = dataUrl;
+                                window.deleteProfilePic = false; // Reset delete flag if new pic chosen
                             };
                             img.src = e.target.result;
                         };
@@ -293,6 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     fd.append('password', passVal);
                     if(window.pendingProfilePic) {
                         fd.append('profile_picture', window.pendingProfilePic);
+                    }
+                    if(window.deleteProfilePic) {
+                        fd.append('delete_photo', '1');
                     }
 
                     try {

@@ -97,7 +97,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 let filtered = allProducts.filter(p => {
                     const matchesSearch = p.name.toLowerCase().includes(searchQuery) || p.description.toLowerCase().includes(searchQuery);
                     
-                    const matchesCategory = currentCategory === 'all' || p.category.toLowerCase().includes(currentCategory);
+                    let matchesCategory = currentCategory === 'all' || p.category.toLowerCase().includes(currentCategory);
+                    
+                    // Special handling for Novidades (rating based)
+                    if (currentCategory === 'novidades') {
+                        matchesCategory = p.rating >= 4.8 || p.category.toLowerCase().includes('novid');
+                    }
+                    // Special handling for Promoções
+                    if (currentCategory === 'promocoes') {
+                        matchesCategory = p.category.toLowerCase().includes('promo');
+                    }
+                    if (currentCategory === 'criancas') {
+                        matchesCategory = p.category.toLowerCase().includes('crianca') || p.category.toLowerCase().includes('infantil');
+                    }
+                    if (currentCategory === 'materiais') {
+                        matchesCategory = p.category.toLowerCase().includes('materiais') || p.category.toLowerCase().includes('estojo');
+                    }
                     
                     const matchesBrand = currentBrand === 'all' || 
                         (p.brand && p.brand.toLowerCase() === currentBrand) ||

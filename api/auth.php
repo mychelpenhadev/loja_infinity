@@ -171,10 +171,42 @@ if ($action === 'update_profile') {
         $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
     }
     
-    if (!empty($newPicture)) {
-        $query .= ", profile_picture = ?";
-        $params[] = $newPicture;
-        $_SESSION['profile_picture'] = $newPicture;
+    if (!empty($newPicture) && strpos($newPicture, 'data:image/') === 0) {
+        // Decode base64
+        list($type, $data) = explode(';', $newPicture);
+        list(, $data) = explode(',', $data);
+        $data = base64_decode($data);
+        
+        // Create filename
+        $extension = 'jpg'; // We forced jpeg in JS
+        $filename = 'user_' . $userId . '_' . time() . '.' . $extension;
+        $uploadPath = __DIR__ . '/../uploads/profile_pics/' . $filename;
+        $dbPath = 'uploads/profile_pics/' . $filename;
+        
+        // Remove old file if exists
+        $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
+        $stmt_old->execute([$userId]);
+        $oldPic = $stmt_old->fetchColumn();
+        if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
+            @unlink(__DIR__ . '/../' . $oldPic);
+        }
+
+        if (file_put_contents($uploadPath, $data)) {
+            $query .= ", profile_picture = ?";
+            $params[] = $dbPath;
+            $_SESSION['profile_picture'] = $dbPath;
+        }
+    } else if (isset($_POST['delete_photo']) && $_POST['delete_photo'] == '1') {
+        // Remove old file if exists
+        $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
+        $stmt_old->execute([$userId]);
+        $oldPic = $stmt_old->fetchColumn();
+        if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
+            @unlink(__DIR__ . '/../' . $oldPic);
+        }
+        
+        $query .= ", profile_picture = NULL";
+        $_SESSION['profile_picture'] = null;
     }
     
     $query .= " WHERE id = ?";
