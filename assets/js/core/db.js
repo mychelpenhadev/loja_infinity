@@ -235,13 +235,20 @@ const OrderManager = {
   
   updateStatus: (orderId, newStatus) => {
     const orders = OrderManager.getAll();
-    const index = orders.findIndex(o => o.id === orderId);
+    const index = orders.findIndex(o => String(o.id) === String(orderId));
     if (index !== -1) {
       orders[index].status = newStatus;
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
       return true;
     }
     return false;
+  },
+  
+  remove: (orderId) => {
+    const orders = OrderManager.getAll();
+    const filtered = orders.filter(o => String(o.id) !== String(orderId));
+    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(filtered));
+    return true;
   }
 };
 

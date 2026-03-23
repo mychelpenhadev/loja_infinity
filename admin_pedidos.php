@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+    header('HTTP/1.0 403 Forbidden');
+    echo "<h2 style='color:red;font-family:sans-serif;margin:20px;'>Acesso Restrito: 403.</h2>";
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
@@ -109,13 +117,13 @@
                 <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
             </a>
             <nav class="admin-menu">
-                <a href="admin.html" class="admin-link">
+                <a href="admin.php" class="admin-link">
                     <i class='bx bx-cube-alt'></i> Produtos
                 </a>
-                <a href="admin_pedidos.html" class="admin-link active">
+                <a href="admin_pedidos.php" class="admin-link active">
                     <i class='bx bx-shopping-bag'></i> Pedidos (Retirada)
                 </a>
-                <a href="admin_config.html" class="admin-link">
+                <a href="admin_config.php" class="admin-link">
                     <i class='bx bx-cog'></i> Configurações
                 </a>
                 <a href="index.html" class="admin-link">
@@ -151,8 +159,8 @@
         </main>
     </div>
     
-    <script src="assets/js/core/db.js"></script>
-    <script src="assets/js/core/app.js"></script>
-    <script src="assets/js/pages/admin_pedidos.js"></script>
+    <script src="assets/js/core/db.js?v=4"></script>
+    <script src="assets/js/core/app.js?v=4"></script>
+    <script src="assets/js/pages/admin_pedidos.js?v=4"></script>
 </body>
 </html>

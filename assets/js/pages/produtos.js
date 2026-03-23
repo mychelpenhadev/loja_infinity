@@ -47,7 +47,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterBtns.forEach(b => b.classList.remove('active'));
                 const activeBtn = document.querySelector(`.filter-pill[data-cat="${cat}"]`);
                 if (activeBtn) activeBtn.classList.add('active');
+                updateBrandFilterList(cat);
             }
+
+            function updateBrandFilterList(cat) {
+                if (!brandSelect) return;
+                
+                if (cat === 'costura' || cat === 'canetas') {
+                    let configuredBrandsStr = '';
+                    if (cat === 'costura') {
+                        configuredBrandsStr = window.ConfigManager.get('brandsCostura');
+                    } else if (cat === 'canetas') {
+                        configuredBrandsStr = window.ConfigManager.get('brandsCanetas');
+                    }
+
+                    let brands = [];
+                    if (configuredBrandsStr && configuredBrandsStr.trim().length > 0) {
+                        brands = configuredBrandsStr.split(',').map(b => b.trim()).filter(b => b.length > 0);
+                    } else {
+                        // Fallback to active products dynamically if not configured by admin
+                        const catProducts = allProducts.filter(p => p.category.toLowerCase().includes(cat));
+                        const uniqueBrands = new Set();
+                        catProducts.forEach(p => {
+                            if (p.brand && p.brand.trim() !== '') uniqueBrands.add(p.brand.trim());
+                        });
+                        brands = Array.from(uniqueBrands);
+                    }
+
+                    if (brands.length > 0) {
+                        brandSelect.style.display = 'inline-block';
+                        brandSelect.innerHTML = '<option value="all">Todas as Marcas</option>' + 
+                            brands.map(b => `<option value="${b.toLowerCase()}">${b}</option>`).join('');
+                    } else {
+                        brandSelect.style.display = 'none';
+                    }
+                } else {
+                    brandSelect.style.display = 'none';
+                }
+                
+                currentBrand = 'all';
+                brandSelect.value = 'all';
+            }
+
+            // Init brands based on URL category
+            updateBrandFilterList(currentCategory);
 
             function renderProducts() {
                 
@@ -56,7 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     const matchesCategory = currentCategory === 'all' || p.category.toLowerCase().includes(currentCategory);
                     
-                    const matchesBrand = currentBrand === 'all' || (p.brand && p.brand.toLowerCase() === currentBrand);
+                    const matchesBrand = currentBrand === 'all' || 
+                        (p.brand && p.brand.toLowerCase() === currentBrand) ||
+                        (p.name.toLowerCase().includes(currentBrand)) ||
+                        (p.description.toLowerCase().includes(currentBrand));
                     
                     return matchesSearch && matchesCategory && matchesBrand;
                 });
@@ -85,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
 
                             <a href="detalhes.html?id=${product.id}" class="product-image-container">
-                                <img src="${product.image}" alt="${product.name}">
+                                <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async">
                             </a>
                             
                             <div class="product-info">
@@ -98,9 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                                 <div class="product-footer">
                                     <span class="product-price">${window.formatCurrency(product.price)}</span>
-                                    <button class="btn-add" onclick="window.handleAddToCart('${product.id}')">
-                                        <i class='bx bx-cart-add'></i> Adicionar
-                                    </button>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button class="btn" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; background-color: var(--clr-primary); color: white;" onclick="window.handleBuyNow('${product.id}')">
+                                            Comprar
+                                        </button>
+                                        <button class="btn-add" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;" onclick="window.handleAddToCart('${product.id}')" title="Adicionar ao Carrinho">
+                                            <i class='bx bx-cart-add'></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

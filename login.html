@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Conta | Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=10">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         .auth-container {
             display: flex;
@@ -155,6 +156,79 @@
         .password-toggle:hover {
             color: var(--clr-secondary);
         }
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            align-items: start;
+            margin-top: 1.5rem;
+        }
+        .profile-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .profile-box {
+            background: var(--clr-bg);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+        .profile-box-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--clr-text);
+        }
+        .promo-scroll {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+        .promo-mini-card {
+            min-width: 120px;
+            max-width: 140px;
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            text-align: center;
+            background: var(--clr-surface);
+            text-decoration: none;
+            color: var(--clr-text);
+            transition: var(--transition);
+        }
+        .promo-mini-card:hover {
+            border-color: var(--clr-primary);
+            transform: translateY(-2px);
+        }
+        .promo-mini-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: contain;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+        }
+        .promo-mini-card h4 {
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .promo-mini-card span {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--clr-primary);
+        }
+        @media (max-width: 768px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -182,6 +256,15 @@
         </div>
     </header>
     <main class="auth-container">
+        <!-- Global Google Config -->
+        <div id="g_id_onload"
+             data-client_id="375279591438-7uirtbvgbtsd2c2pjti9kmmhal8r2sr3.apps.googleusercontent.com"
+             data-context="signin"
+             data-ux_mode="popup"
+             data-callback="handleGoogleLogin"
+             data-auto_prompt="false">
+        </div>
+
         <div class="auth-card">
             <div class="auth-tabs">
                 <div class="auth-tab active" id="tab-login">Entrar</div>
@@ -190,10 +273,9 @@
             <div id="login-view">
                 <h1 class="auth-title">Bem-vindo de volta!</h1>
                 <p class="auth-subtitle">Faça login para continuar suas compras.</p>
-                <button type="button" class="btn-google" onclick="signInWithGoogle()">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 20px; height: 20px;">
-                    Entrar com o Google
-                </button>
+                <div style="display: flex; justify-content: center; width: 100%;">
+                    <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signin_with" data-size="large" data-locale="pt-BR"></div>
+                </div>
                 <div class="divider">ou use seu e-mail</div>
                 <form class="auth-form" id="login-form">
                     <div class="form-group">
@@ -218,10 +300,9 @@
             <div id="register-view" style="display: none;">
                 <h1 class="auth-title">Crie sua Conta</h1>
                 <p class="auth-subtitle">Junte-se a nós e aproveite ofertas exclusivas.</p>
-                <button type="button" class="btn-google" onclick="signInWithGoogle()">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 20px; height: 20px;">
-                    Criar conta com o Google
-                </button>
+                <div style="display: flex; justify-content: center; width: 100%;">
+                    <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signup_with" data-size="large" data-locale="pt-BR"></div>
+                </div>
                 <div class="divider">ou use seu e-mail</div>
                 <form class="auth-form" id="register-form">
                     <div class="form-group">
@@ -231,6 +312,10 @@
                     <div class="form-group">
                         <label for="reg-cpf">CPF</label>
                         <input type="text" id="reg-cpf" class="form-control" required placeholder="000.000.000-00">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-telefone">Telefone / WhatsApp</label>
+                        <input type="text" id="reg-telefone" class="form-control" required placeholder="(00) 00000-0000">
                     </div>
                     <div class="form-group">
                         <label for="reg-email">E-mail (Gmail)</label>
@@ -259,6 +344,86 @@
                     Já tem uma conta? <a href="#" id="show-login">Faça Login</a>
                 </div>
             </div>
+
+            <div id="profile-view" style="display: none; padding-top: 1rem;">
+                <h1 class="auth-title" style="text-align: left;">Meu Perfil</h1>
+                <p class="auth-subtitle" style="text-align: left; margin-bottom: 0;">Bem-vindo(a), <strong id="prof-welcome-name"></strong></p>
+
+                <div class="profile-layout">
+                    <!-- Sidebar -->
+                    <div class="profile-sidebar">
+                        <div class="profile-box">
+                            <h3 class="profile-box-title"><i class='bx bx-user'></i> Meus Dados</h3>
+                            <form class="auth-form" id="profile-form" style="gap: 1rem;">
+                                <!-- Profile Picture Upload UI -->
+                                <div style="text-align: center; margin-bottom: 0.5rem;">
+                                    <div style="position: relative; display: inline-block;">
+                                        <img id="prof-pic-preview" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--clr-border);">
+                                        <label for="prof-pic-input" style="position: absolute; bottom: 0; right: -5px; background: var(--clr-primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--clr-surface); transition: var(--transition);">
+                                            <i class='bx bx-camera'></i>
+                                        </label>
+                                        <input type="file" id="prof-pic-input" accept="image/*" style="display: none;">
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--clr-text-light); margin-top: 0.25rem;">Foto de Perfil</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prof-nome" style="font-size: 0.85rem;">Nome Completo</label>
+                                    <input type="text" id="prof-nome" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="prof-cpf" style="font-size: 0.85rem;">CPF</label>
+                                    <input type="text" id="prof-cpf" class="form-control" placeholder="000.000.000-00" style="padding: 0.5rem; font-size: 0.9rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="prof-telefone" style="font-size: 0.85rem;">Telefone / WhatsApp</label>
+                                    <input type="text" id="prof-telefone" class="form-control" placeholder="(00) 00000-0000" style="padding: 0.5rem; font-size: 0.9rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="prof-senha" style="font-size: 0.85rem;">Nova Senha</label>
+                                    <div class="password-container">
+                                        <input type="password" id="prof-senha" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Mín 8 caract. Opcional.">
+                                        <i class='bx bx-show password-toggle' onclick="togglePassword('prof-senha', this)"></i>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-full" style="height: 38px; font-size: 0.9rem;">
+                                    Salvar <i class='bx bx-save'></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="profile-box">
+                            <h3 class="profile-box-title"><i class='bx bx-headphone'></i> Precisa de Ajuda?</h3>
+                            <p style="font-size: 0.8rem; color: var(--clr-text-light); margin-bottom: 1rem;">Tem alguma dúvida sobre seu pedido? Fale conosco direto no WhatsApp.</p>
+                            <a href="#" id="profile-wa-btn" target="_blank" class="btn btn-primary btn-full" style="background-color: #25D366; border-color: #25D366; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 38px; font-size: 0.9rem;">
+                                <i class='bx bxl-whatsapp' style="font-size: 1.25rem;"></i> Suporte WhatsApp
+                            </a>
+                            
+                            <hr style="margin: 1.5rem 0; border: none; border-bottom: 1px solid var(--clr-border);">
+                            
+                            <button id="btn-logout" class="btn btn-full" style="height: 38px; font-size: 0.9rem; background: transparent; border: 1px solid #EF4444; color: #EF4444;">
+                                Sair da Conta <i class='bx bx-log-out'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Content (Orders and Promos) -->
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div class="profile-box">
+                            <h3 class="profile-box-title"><i class='bx bx-shopping-bag'></i> Pedidos Realizados</h3>
+                            <div id="profile-orders-list">
+                                <!-- Javascript rendered -->
+                            </div>
+                        </div>
+
+                        <div class="profile-box" style="border-color: var(--clr-accent);">
+                            <h3 class="profile-box-title" style="color: var(--clr-accent);"><i class='bx bxs-discount'></i> Promoções para Você</h3>
+                            <div class="promo-scroll" id="profile-promos-list">
+                                <!-- Javascript rendered -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
     <footer class="footer">
@@ -268,8 +433,8 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/core/db.js"></script>
-    <script src="assets/js/core/app.js"></script>
-    <script src="assets/js/pages/login.js"></script>
+    <script src="assets/js/core/db.js?v=8"></script>
+    <script src="assets/js/core/app.js?v=8"></script>
+    <script src="assets/js/pages/login.js?v=8"></script>
 </body>
 </html>

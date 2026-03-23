@@ -18,12 +18,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function loadSettings() {
-    const pixInput = document.getElementById('config-pix');
-    const savedPix = window.ConfigManager.get('pixKey');
+    const whatsappInput = document.getElementById('config-whatsapp');
+    const brandsCosturaInput = document.getElementById('config-brands-costura');
+    const brandsCanetasInput = document.getElementById('config-brands-canetas');
+
+    const savedWhatsapp = window.ConfigManager.get('whatsappNumber');
+    const savedBrandsCostura = window.ConfigManager.get('brandsCostura');
+    const savedBrandsCanetas = window.ConfigManager.get('brandsCanetas');
     
-    if (savedPix) {
-        pixInput.value = savedPix;
-    }
+    if (savedWhatsapp) whatsappInput.value = savedWhatsapp;
+    if (savedBrandsCostura) brandsCosturaInput.value = savedBrandsCostura;
+    if (savedBrandsCanetas) brandsCanetasInput.value = savedBrandsCanetas;
 }
 
 function setupForm() {
@@ -32,9 +37,13 @@ function setupForm() {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         
-        const pixVal = document.getElementById('config-pix').value.trim();
+        const whatsappVal = document.getElementById('config-whatsapp').value.trim();
+        const brandsCosturaVal = document.getElementById('config-brands-costura').value.trim();
+        const brandsCanetasVal = document.getElementById('config-brands-canetas').value.trim();
         
-        window.ConfigManager.set('pixKey', pixVal);
+        window.ConfigManager.set('whatsappNumber', whatsappVal);
+        window.ConfigManager.set('brandsCostura', brandsCosturaVal);
+        window.ConfigManager.set('brandsCanetas', brandsCanetasVal);
         
         window.showToast("Configurações salvas com sucesso!", "success");
     });

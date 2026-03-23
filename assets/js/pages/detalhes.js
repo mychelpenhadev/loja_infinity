@@ -49,14 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ${window.formatCurrency(product.price)}
                             </div>
 
-                            <div class="cart-actions">
+                            <div class="cart-actions" style="flex-wrap: wrap; gap: 1rem;">
                                 <div class="qty-controls">
                                     <button class="qty-btn" id="btn-minus"><i class='bx bx-minus'></i></button>
                                     <input type="text" class="qty-input" id="qty-display" value="${quantity}" readonly>
                                     <button class="qty-btn" id="btn-plus"><i class='bx bx-plus'></i></button>
                                 </div>
-                                <button class="btn btn-primary btn-large" id="btn-add-cart">
-                                    Adicionar ao Carrinho <i class='bx bx-shopping-bag'></i>
+                                <button class="btn btn-primary btn-large" id="btn-buy-now" style="flex: 1;">
+                                    Comprar Agora
+                                </button>
+                                <button class="btn btn-large" id="btn-add-cart" style="flex: 1; border: 1px solid var(--clr-primary); background: transparent; color: var(--clr-primary);">
+                                    Adicionar <i class='bx bx-cart-add'></i>
                                 </button>
                             </div>
 
@@ -93,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btnPlus = document.getElementById('btn-plus');
                 const display = document.getElementById('qty-display');
                 const btnAddCart = document.getElementById('btn-add-cart');
+                const btnBuyNow = document.getElementById('btn-buy-now');
 
                 btnMinus.addEventListener('click', () => {
                     if (quantity > 1) {
@@ -119,6 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     quantity = 1;
                     display.value = quantity;
                 });
+
+                if (btnBuyNow) {
+                    btnBuyNow.addEventListener('click', () => {
+                        window.handleBuyNow(product.id, quantity);
+                    });
+                }
             };
 
             renderContent();

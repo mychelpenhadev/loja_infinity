@@ -24,12 +24,20 @@ window.markAsDelivered = (orderId) => {
     }
 }
 
+window.deleteOrder = (orderId) => {
+    if(confirm("Tem certeza que deseja excluir permanentemente este pedido?")) {
+        window.OrderManager.remove(orderId);
+        renderOrdersTable();
+        window.showToast("Pedido excluído com sucesso!", "success");
+    }
+}
+
 function renderOrdersTable() {
     const tbody = document.getElementById('table-orders-body');
     const allOrders = window.OrderManager.getAll();
     
-    // Filter only orders where method includes "Retirada"
-    const pickupOrders = allOrders.filter(o => o.method && o.method.includes("Retirar"));
+    // Filter only orders where method includes "Retirar" or is "WhatsApp"
+    const pickupOrders = allOrders.filter(o => o.method && (o.method.includes("Retirar") || o.method === "WhatsApp"));
 
     if (pickupOrders.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--clr-text-light); padding: 3rem;">Nenhum pedido para retirada encontrado.</td></tr>`;
@@ -53,9 +61,11 @@ function renderOrdersTable() {
         } else {
             statusHtml = `
                 <span style="display:inline-block; padding:0.25rem 0.65rem; border-radius:1rem; background:rgba(245, 158, 11, 0.1); color:#F59E0B; font-size:0.75rem; font-weight:600; margin-bottom:0.5rem;">Pendente</span><br>
-                <button onclick="window.markAsDelivered('${order.id}')" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Confirmar Retirada</button>
+                <button onclick="window.markAsDelivered('${order.id}')" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; margin-bottom:0.25rem;">Confirmar Retirada</button><br>
             `;
         }
+        
+        statusHtml += `<button onclick="window.deleteOrder('${order.id}')" class="btn" style="padding: 0.25rem 0.5rem; font-size: 0.75rem; background: transparent; border: 1px solid #EF4444; color: #EF4444;">Excluir</button>`;
 
         return `
             <tr>

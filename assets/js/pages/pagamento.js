@@ -21,6 +21,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     renderCheckoutSummary();
     setupCheckoutForm();
+
+    const supportWaBtn = document.getElementById('support-wa-btn');
+    if (supportWaBtn) {
+        let waNum = window.ConfigManager.get('whatsappNumber') || '+5598985269184';
+        waNum = waNum.replace(/\D/g, ''); 
+        if (waNum && !waNum.startsWith('55') && waNum.length <= 11) {
+            waNum = '55' + waNum;
+        }
+        supportWaBtn.href = `https://wa.me/${waNum}?text=Ol%C3%A1!%20Fiz%20um%20pedido%20no%20site%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida%20sobre%20a%20retirada.`;
+    }
 });
 
 function renderCheckoutSummary() {
@@ -56,25 +66,15 @@ function renderCheckoutSummary() {
         </div>
 
         <button type="submit" form="payment-form" id="confirm-btn" class="btn btn-primary" style="width: 100%; margin-top: 2rem; padding: 1rem;">
-            Confirmar Pagamento <i class='bx bx-check-shield' ></i>
+            Confirmar Produtos <i class='bx bxl-whatsapp' ></i>
         </button>
         
         <p style="text-align: center; margin-top: 1rem; color: var(--clr-text-light); font-size: 0.75rem;">
-            <i class='bx bx-lock-alt'></i> Transação Criptografada (SSL de Ponta a Ponta)
+            Seu pedido será enviado via WhatsApp
         </p>
     `;
 }
 
-
-
-window.copyPix = () => {
-    const copyText = document.getElementById("pix-key");
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(copyText.value);
-    
-    window.showToast("Chave Pix copiada com sucesso!");
-};
 
 function setupCheckoutForm() {
     const form = document.getElementById('payment-form');
@@ -83,7 +83,7 @@ function setupCheckoutForm() {
         e.preventDefault();
         
         const btn = document.getElementById('confirm-btn');
-        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Autorizando Transação...";
+        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Processando...";
         btn.style.opacity = '0.7';
         btn.disabled = true;
 
@@ -104,85 +104,59 @@ function setupCheckoutForm() {
             }
         });
 
-        fetch('api/create_payment.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ items: fullItemsData })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.qr_code_base64) {
-                // Registra o pedido como pendente
-                window.OrderManager.add({
-                    userId: window.userId,
-                    userName: window.userName || "Cliente Padrão",
-                    items: fullItemsData,
-                    total: subtotal,
-                    method: 'Mercado Pago (Pix Nativo)'
-                });
+        // Recupera o número do WhatsApp da configuração (Removendo não numéricos)
+        let whatsappNumber = window.ConfigManager.get('whatsappNumber') || '+5598985269184';
+        whatsappNumber = whatsappNumber.replace(/\D/g, ''); 
+        if (whatsappNumber && !whatsappNumber.startsWith('55') && whatsappNumber.length <= 11) {
+            whatsappNumber = '55' + whatsappNumber;
+        }
 
-                window.CartManager.clear();
-                
-                const container = document.getElementById('checkout-container');
-                container.innerHTML = `
-                    <div style="padding: 2rem; background-color: var(--clr-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 700px; margin: 0 auto; text-align: center;">
-                        <i class='bx bx-loader-alt bx-spin' style="font-size: 5rem; color: var(--clr-primary); margin-bottom: 0.5rem;" id="status-icon"></i>
-                        <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="status-title">Aguardando Pagamento</h2>
-                        <p style="color: var(--clr-text-light); margin-bottom: 2rem;" id="status-desc">Leia o QR Code abaixo para finalizar seu pedido.</p>
-                        
-                        <div id="payment-box" style="background-color: var(--clr-bg); border: 1px solid var(--clr-primary); border-radius: var(--radius-md); padding: 2rem; text-align: center;">
-                            <h3 style="margin-bottom: 1rem; color: var(--clr-primary);">
-                                <i class='bx bx-qr-scan'></i> Realizar Pagamento Pix
-                            </h3>
-                            <p style="color: var(--clr-text); margin-bottom: 1.5rem; font-size: 0.95rem;">Escaneie o QR Code abaixo pelo aplicativo do banco ou repasse para a chave para finalizar.</p>
-                            
-                            <div style="margin-bottom: 1.5rem;">
-                                <img src="data:image/jpeg;base64,${data.qr_code_base64}" alt="QR Code Pix" style="width: 200px; height: 200px; border-radius: var(--radius-md); padding: 10px; background: white; border: 1px solid var(--clr-border);">
-                            </div>
-                            
-                            <div style="text-align: left;">
-                                <label style="font-weight: 500; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Copie e Cole a chave abaixo:</label>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <input type="text" style="flex:1; padding: 0.75rem 1rem; border: 1px solid var(--clr-border); border-radius: var(--radius-md); background-color: var(--clr-surface); color: var(--clr-text);" value="${data.qr_code}" id="pix-key" readonly>
-                                    <button type="button" class="btn btn-primary" onclick="window.copyPix()" style="width: auto; padding: 0 1.5rem;">Copiar</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 2.5rem; display: none;" id="back-btn-box">
-                            <a href="produtos.html" class="btn" style="border: 1px solid var(--clr-border); background: transparent; color: var(--clr-text); width: 100%;">Voltar para Loja de Produtos</a>
-                        </div>
-                    </div>
-                `;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                // Iniciar Polling a cada 3 segundos
-                const interval = setInterval(() => {
-                    fetch('api/check_payment.php?id=' + data.id)
-                    .then(res => res.json())
-                    .then(check => {
-                        if (check.status === 'approved') {
-                            clearInterval(interval);
-                            document.getElementById('status-icon').className = 'bx bxs-check-circle';
-                            document.getElementById('status-icon').style.color = '#10B981';
-                            document.getElementById('status-title').innerText = 'Pagamento Concluído!';
-                            document.getElementById('status-desc').innerText = 'O pedido está sendo preparado para a entrega.';
-                            document.getElementById('payment-box').style.display = 'none';
-                            document.getElementById('back-btn-box').style.display = 'block';
-                        }
-                    })
-                    .catch(err => console.error("Erro no polling:", err));
-                }, 3000);
-
-            } else {
-                throw new Error(data.error || "Erro desconhecido ao gerar QR Code.");
-            }
-        })
-        .catch(err => {
-            btn.innerHTML = "Confirmar Pagamento <i class='bx bx-check-shield'></i>";
-            btn.style.opacity = '1';
-            btn.disabled = false;
-            alert("Erro ao processar pagamento: " + err.message);
+        // Formatar mensagem para o WhatsApp
+        let message = `*Novo Pedido - Infinity Variedades*\n\n`;
+        message += `*Cliente:* ${window.userName || 'Visitante'}\n\n`;
+        message += `*Produtos:*\n`;
+        
+        fullItemsData.forEach(item => {
+            message += `- ${item.quantity}x ${item.name} (${window.formatCurrency(item.price)})\n`;
         });
+        
+        message += `\n*Total da Compra:* ${window.formatCurrency(subtotal)}`;
+        const encodedMessage = encodeURIComponent(message);
+        
+        // Registra o pedido como pendente
+        window.OrderManager.add({
+            userId: window.userId,
+            userName: window.userName || "Cliente Padrão",
+            items: fullItemsData,
+            total: subtotal,
+            method: 'WhatsApp'
+        });
+
+        window.CartManager.clear();
+        
+        const container = document.getElementById('checkout-container');
+        container.innerHTML = `
+            <div style="padding: 2rem; background-color: var(--clr-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 700px; margin: 0 auto; text-align: center;">
+                <i class='bx bxs-check-circle' style="font-size: 5rem; color: #10B981; margin-bottom: 0.5rem;" id="status-icon"></i>
+                <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="status-title">Pedido Registrado!</h2>
+                <p style="color: var(--clr-text-light); margin-bottom: 2rem;" id="status-desc">Você será redirecionado para o WhatsApp para enviar o pedido à loja.</p>
+                
+                <div style="margin-top: 1.5rem;">
+                    <a href="https://wa.me/${whatsappNumber}?text=${encodedMessage}" target="_blank" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <i class='bx bxl-whatsapp' style="font-size: 1.25rem;"></i> Enviar Pedido no WhatsApp
+                    </a>
+                </div>
+                
+                <div style="margin-top: 1rem;" id="back-btn-box">
+                    <a href="produtos.html" class="btn" style="border: 1px solid var(--clr-border); background: transparent; color: var(--clr-text); width: 100%;">Voltar para Loja de Produtos</a>
+                </div>
+            </div>
+        `;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Redirecionamento automático após 1.5s
+        setTimeout(() => {
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+        }, 1500);
     });
 }

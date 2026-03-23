@@ -90,7 +90,7 @@
                 <a href="login.html" class="action-btn" title="Minha Conta">
                     <i class='bx bx-user'></i>
                 </a>
-                <a href="admin.html" class="action-btn" title="Painel Admin">
+                <a href="admin.php" class="action-btn" title="Painel Admin">
                     <i class='bx bxs-dashboard'></i>
                 </a>
                 <button class="action-btn" id="theme-toggle" title="Mudar Tema">
@@ -118,11 +118,8 @@
                     <button class="filter-pill" data-cat="costura">Costura & Bordados</button>
                 </div>
                 <div class="search-bar">
-                    <select id="brand-filter" style="border: none; background: transparent; color: var(--clr-text); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-weight: 500;">
+                    <select id="brand-filter" style="display: none; border: none; background: transparent; color: var(--clr-text); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-weight: 500;">
                         <option value="all">Todas as Marcas</option>
-                        <option value="amigurumi">Amigurumi</option>
-                        <option value="anne">Anne</option>
-                        <option value="duna">Duna</option>
                     </select>
                     <i class='bx bx-search' style="color: var(--clr-text-light); font-size: 1.25rem;"></i>
                     <input type="text" id="search-input" placeholder="Buscar produtos...">
@@ -139,8 +136,8 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/core/db.js"></script>
-    <script src="assets/js/core/app.js"></script>
-    <script src="assets/js/pages/produtos.js"></script>
+    <script src="assets/js/core/db.js?v=5"></script>
+    <script src="assets/js/core/app.js?v=5"></script>
+    <script src="assets/js/pages/produtos.js?v=5"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   updateCartBadge();
   injectChatbot();
+  injectMobileNav();
   checkAuth();
   
   
@@ -37,10 +38,18 @@ function updateThemeIcon(theme) {
 
 function updateCartBadge() {
   const badge = document.getElementById('cart-badge');
+  const mobileBadge = document.getElementById('cart-badge-mobile');
+  const totalItems = window.CartManager.getTotalItems();
+  const formatItems = totalItems > 99 ? '99+' : totalItems;
+  
   if (badge) {
-    const totalItems = window.CartManager.getTotalItems();
-    badge.textContent = totalItems > 99 ? '99+' : totalItems;
+    badge.textContent = formatItems;
     badge.style.display = totalItems > 0 ? 'flex' : 'none';
+  }
+  
+  if (mobileBadge) {
+    mobileBadge.textContent = formatItems;
+    mobileBadge.style.display = totalItems > 0 ? 'inline-block' : 'none';
   }
 }
 
@@ -62,25 +71,60 @@ async function checkAuth() {
       const userBtns = document.querySelectorAll('a[href="login.html"]');
       if (data.loggedIn) {
           userBtns.forEach(btn => {
-              btn.innerHTML = `<i class='bx bxs-user-circle' title="Minha Conta" style="font-size: 1.5rem; color: var(--clr-accent);"></i>`;
-              btn.href = "#";
-              btn.onclick = (e) => {
-                  e.preventDefault();
-                  openProfileModal();
-              };
+              if (data.profile_picture) {
+                  btn.innerHTML = `<img src="${data.profile_picture}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--clr-accent);" title="Minha Conta">`;
+              } else {
+                  btn.innerHTML = `<i class='bx bxs-user-circle' title="Minha Conta" style="font-size: 1.5rem; color: var(--clr-accent);"></i>`;
+              }
+              // Native href to login.html works, relying on login.js to show profile
           });
           
           
           if(data.role !== 'admin') {
-              document.querySelectorAll('a[href="admin.html"]').forEach(el => el.style.display = 'none');
+              document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'none');
           }
       } else {
           
-          document.querySelectorAll('a[href="admin.html"]').forEach(el => el.style.display = 'none');
+          document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'none');
       }
   } catch (err) {
       console.error("Erro ao verificar auth:", err);
+  } finally {
+      if(document.querySelector('.mobile-bottom-nav')) {
+          const profileIcon = document.getElementById('mobile-profile-icon');
+          if(profileIcon) {
+             profileIcon.className = window.isLoggedIn ? 'bx bx-user-check' : 'bx bx-user';
+          }
+      }
   }
+}
+
+function injectMobileNav() {
+    if (document.querySelector('.mobile-bottom-nav')) return;
+    const nav = document.createElement('nav');
+    nav.className = 'mobile-bottom-nav';
+    const path = window.location.pathname;
+    
+    nav.innerHTML = `
+        <a href="index.html" class="mobile-nav-item ${path.endsWith('index.html') || path === '/' ? 'active' : ''}">
+            <i class='bx bx-home-alt'></i>
+            <span>Início</span>
+        </a>
+        <a href="produtos.html" class="mobile-nav-item ${path.endsWith('produtos.html') ? 'active' : ''}">
+            <i class='bx bx-grid-alt'></i>
+            <span>Achei</span>
+        </a>
+        <a href="carrinho.html" class="mobile-nav-item ${path.endsWith('carrinho.html') ? 'active' : ''}" style="position: relative;">
+            <i class='bx bx-shopping-bag'></i>
+            <span>Carrinho</span>
+            <span id="cart-badge-mobile" style="position: absolute; top: 0px; right: 10px; background: var(--clr-accent); color: white; font-size: 10px; font-weight: bold; border-radius: 50%; padding: 2px 6px; display: none;">0</span>
+        </a>
+        <a href="login.html" class="mobile-nav-item ${path.endsWith('login.html') ? 'active' : ''}">
+            <i class='bx bx-user' id="mobile-profile-icon"></i>
+            <span>Minha Conta</span>
+        </a>
+    `;
+    document.body.appendChild(nav);
 }
 
 
@@ -129,107 +173,7 @@ function injectChatbot() {
       chatWin.classList.remove('active');
   };
 
-window.openProfileModal = () => {
-    let modal = document.getElementById('profile-modal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'profile-modal';
-        modal.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 1000; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease;
-        `;
-        
-        modal.innerHTML = `
-            <div style="background-color: var(--clr-surface); padding: 2.5rem; border-radius: var(--radius-lg); width: 90%; max-width: 400px; box-shadow: var(--shadow-lg); transform: translateY(20px); transition: transform 0.3s ease;" id="profile-content-box">
-                <h2 style="margin-bottom: 1.5rem; text-align: center; color: var(--clr-text);">Minha Conta</h2>
-                <form id="profile-form">
-                    <div style="margin-bottom: 1rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.875rem;">Nome Completo</label>
-                        <input type="text" id="prof-nome" value="${window.userName}" required style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--clr-border); border-radius: var(--radius-md); background-color: var(--clr-bg); color: var(--clr-text); font-family: var(--font-body);">
-                    </div>
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="display:block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.875rem;">Nova Senha <small>(deixe em branco para manter)</small></label>
-                        <input type="password" id="prof-senha" placeholder="****" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--clr-border); border-radius: var(--radius-md); background-color: var(--clr-bg); color: var(--clr-text); font-family: var(--font-body);">
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-bottom: 1rem;">Salvar Alterações</button>
-                    
-                    <button type="button" id="logout-btn" class="btn" style="width: 100%; justify-content: center; background-color: #EF4444; color: white; margin-bottom: 0.5rem;">
-                        <i class='bx bx-log-out'></i> Sair da Conta
-                    </button>
-                    
-                    <button type="button" class="btn" style="width: 100%; justify-content: center; background: transparent; border: 1px solid var(--clr-border); color: var(--clr-text);" onclick="closeProfileModal()">Cancelar</button>
-                </form>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            if(confirm('Tem certeza que deseja sair?')) {
-                await fetch('api/auth.php?action=logout');
-                window.location.reload();
-            }
-        });
-
-        document.getElementById('profile-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const passVal = document.getElementById('prof-senha').value;
-            if(passVal) {
-                const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-                if(!passRegex.test(passVal)) {
-                    window.showToast("A senha nova deve ter no mínimo 8 caracteres, 1 maiúscula, 1 número e 1 especial.", "error");
-                    return;
-                }
-            }
-            
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerText;
-            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Salvando...";
-            btn.disabled = true;
-
-            const fd = new FormData();
-            fd.append('name', document.getElementById('prof-nome').value);
-            fd.append('password', document.getElementById('prof-senha').value);
-
-            try {
-                const res = await fetch('api/auth.php?action=update_profile', { method: 'POST', body: fd });
-                const json = await res.json();
-                if (json.status === 'success') {
-                    window.showToast(json.message, 'success');
-                    window.userName = document.getElementById('prof-nome').value;
-                    closeProfileModal();
-                } else {
-                    window.showToast(json.message, 'error');
-                }
-            } catch(err) {
-                window.showToast("Erro de rede ao salvar perfil.", 'error');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        });
-    }
-
-    // Trigger animation
-    setTimeout(() => {
-        modal.style.opacity = '1';
-        modal.style.pointerEvents = 'all';
-        document.getElementById('profile-content-box').style.transform = 'translateY(0)';
-    }, 10);
-};
-
-window.closeProfileModal = () => {
-    const modal = document.getElementById('profile-modal');
-    if (modal) {
-        modal.style.opacity = '0';
-        modal.style.pointerEvents = 'none';
-        document.getElementById('profile-content-box').style.transform = 'translateY(20px)';
-        setTimeout(() => modal.remove(), 300);
-    }
-};
+// Profile modal removed as per user request (moved to login.html)
   
   const chatInput = document.getElementById('chat-input');
   const chatSend = document.getElementById('chat-send-btn');
@@ -238,7 +182,11 @@ window.closeProfileModal = () => {
   const addMessage = (text, type) => {
       const msg = document.createElement('div');
       msg.className = `chat-msg ${type}`;
-      msg.innerHTML = text;
+      if (type === 'user') {
+          msg.textContent = text;
+      } else {
+          msg.innerHTML = text;
+      }
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
   };
@@ -387,4 +335,16 @@ window.handleAddToCart = (productId) => {
   }
   window.CartManager.add(productId, 1);
   window.showToast('Produto adicionado ao carrinho!');
+};
+
+window.handleBuyNow = (productId, quantity = 1) => {
+  if (!window.isLoggedIn) {
+      window.showToast('Faça login para comprar!', 'error');
+      setTimeout(() => {
+          window.location.href = 'login.html';
+      }, 1500);
+      return;
+  }
+  window.CartManager.add(productId, quantity);
+  window.location.href = 'carrinho.html';
 };

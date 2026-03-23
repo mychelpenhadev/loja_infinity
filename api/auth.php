@@ -1,13 +1,17 @@
 <?php
+ob_start();
 session_start();
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'db.php';
 header('Content-Type: application/json');
+ob_clean();
 $action = $_GET['action'] ?? '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     if ($action === 'register') {
         $name = isset($data['name']) ? trim($data['name']) : trim($_POST['name'] ?? '');
         $cpf = isset($data['cpf']) ? trim($data['cpf']) : trim($_POST['cpf'] ?? '');
+        $telefone = isset($data['telefone']) ? trim($data['telefone']) : trim($_POST['telefone'] ?? '');
         $email = isset($data['email']) ? trim($data['email']) : trim($_POST['email'] ?? '');
         $password = isset($data['password']) ? $data['password'] : ($_POST['password'] ?? '');
         $role = 'cliente';
@@ -23,11 +27,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (name, cpf, email, password, role) VALUES (?, ?, ?, ?, ?)");
-            if ($stmt->execute([$name, $cpf, $email, $hash, $role])) {
+            $stmt = $pdo->prepare("INSERT INTO users (name, cpf, telefone, email, password, role) VALUES (?, ?, ?, ?, ?, ?)");
+            if ($stmt->execute([$name, $cpf, $telefone, $email, $hash, $role])) {
                 $_SESSION['user_id'] = $pdo->lastInsertId();
                 $_SESSION['user_name'] = $name;
                 $_SESSION['user_role'] = $role;
+                $_SESSION['user_telefone'] = $telefone;
+                $_SESSION['user_cpf'] = $cpf;
                 echo json_encode(["status" => "success", "message" => "Conta criada com sucesso."]);
             }
             else {
@@ -43,14 +49,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = isset($data['email']) ? trim($data['email']) : trim($_POST['email'] ?? '');
         $password = isset($data['password']) ? $data['password'] : ($_POST['password'] ?? '');
         try {
-            $stmt = $pdo->prepare("SELECT id, name, password, role FROM users WHERE email = ?");
+            $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, password, role, profile_picture FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($user && password_verify($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_role'] = $user['role'];
-                echo json_encode(["status" => "success", "message" => "Login efetuado com sucesso.", "role" => $user['role'], "id" => $user['id']]);
+                $_SESSION['profile_picture'] = $user['profile_picture'];
+                $_SESSION['user_telefone'] = $user['telefone'];
+                $_SESSION['user_cpf'] = $user['cpf'];
+                echo json_encode(["status" => "success", "message" => "Login efetuado com sucesso.", "role" => $user['role'], "id" => $user['id'], "profile_picture" => $user['profile_picture']]);
             }
             else {
                 echo json_encode(["status" => "error", "message" => "E-mail ou senha incorretos."]);
@@ -61,6 +70,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit;
     }
+    
+    if ($action === 'google_login') {
+        $token = $data['token'] ?? '';
+        if (!$token) {
+            echo json_encode(["status" => "error", "message" => "Autenticação falhou."]);
+            exit;
+        }
+        
+        try {
+            $client = new Google_Client(['client_id' => '375279591438-7uirtbvgbtsd2c2pjti9kmmhal8r2sr3.apps.googleusercontent.com']);
+            $payload = $client->verifyIdToken($token);
+            if ($payload) {
+                $email = $payload['email'];
+                $name = $payload['name'] ?? 'Usuário Google';
+                $picture = $payload['picture'] ?? null;
+                
+                $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, role, profile_picture FROM users WHERE email = ?");
+                $stmt->execute([$email]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($user) {
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_name'] = $user['name'];
+                    $_SESSION['user_role'] = $user['role'];
+                    $_SESSION['profile_picture'] = $user['profile_picture'];
+                    $_SESSION['user_telefone'] = $user['telefone'];
+                    $_SESSION['user_cpf'] = $user['cpf'];
+                    echo json_encode(["status" => "success", "message" => "Bem-vindo de volta, " . $user['name'] . "!", "role" => $user['role'], "id" => $user['id'], "profile_picture" => $user['profile_picture']]);
+                } else {
+                    $randomPass = bin2hex(random_bytes(8));
+                    $hash = password_hash($randomPass, PASSWORD_DEFAULT);
+                    $role = 'cliente';
+                    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, profile_picture) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([$name, $email, $hash, $role, $picture]);
+                    
+                    $_SESSION['user_id'] = $pdo->lastInsertId();
+                    $_SESSION['user_name'] = $name;
+                    $_SESSION['user_role'] = $role;
+                    $_SESSION['profile_picture'] = $picture;
+                    $_SESSION['user_telefone'] = null;
+                    $_SESSION['user_cpf'] = null;
+                    echo json_encode(["status" => "success", "message" => "Conta criada com sucesso pelo Google!", "role" => $role, "id" => $_SESSION['user_id'], "profile_picture" => $picture]);
+                }
+            } else {
+                echo json_encode(["status" => "error", "message" => "Token inválido ou expirado."]);
+            }
+        } catch(Exception $e) {
+            echo json_encode(["status" => "error", "message" => "Erro na verificação do Google: " . $e->getMessage()]);
+        }
+        exit;
+    }
 }
 if ($action === 'check') {
     if (isset($_SESSION['user_id'])) {
@@ -68,7 +128,10 @@ if ($action === 'check') {
             "loggedIn" => true,
             "id" => $_SESSION['user_id'],
             "name" => $_SESSION['user_name'],
-            "role" => $_SESSION['user_role']
+            "role" => $_SESSION['user_role'],
+            "profile_picture" => $_SESSION['profile_picture'] ?? null,
+            "telefone" => $_SESSION['user_telefone'] ?? null,
+            "cpf" => $_SESSION['user_cpf'] ?? null
         ]);
     }
     else {
@@ -90,6 +153,9 @@ if ($action === 'update_profile') {
     
     $newName = $_POST['name'] ?? '';
     $newPassword = $_POST['password'] ?? '';
+    $newPicture = $_POST['profile_picture'] ?? '';
+    $newTelefone = $_POST['telefone'] ?? '';
+    $newCpf = $_POST['cpf'] ?? '';
     $userId = $_SESSION['user_id'];
     
     if (empty($newName)) {
@@ -97,18 +163,38 @@ if ($action === 'update_profile') {
         exit;
     }
     
+    $query = "UPDATE users SET name = ?, telefone = ?, cpf = ?";
+    $params = [$newName, $newTelefone, $newCpf];
+    
     if (!empty($newPassword)) {
-        $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("UPDATE users SET name = ?, password = ? WHERE id = ?");
-        $stmt->execute([$newName, $hashed, $userId]);
-    } else {
-        $stmt = $pdo->prepare("UPDATE users SET name = ? WHERE id = ?");
-        $stmt->execute([$newName, $userId]);
+        $query .= ", password = ?";
+        $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
     }
     
-    $_SESSION['user_name'] = $newName;
+    if (!empty($newPicture)) {
+        $query .= ", profile_picture = ?";
+        $params[] = $newPicture;
+        $_SESSION['profile_picture'] = $newPicture;
+    }
     
-    echo json_encode(["status" => "success", "message" => "Perfil atualizado!"]);
+    $query .= " WHERE id = ?";
+    $params[] = $userId;
+    
+    try {
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($params);
+        
+        $_SESSION['user_name'] = $newName;
+        $_SESSION['user_telefone'] = $newTelefone;
+        $_SESSION['user_cpf'] = $newCpf;
+        
+        // Ensure no other text was outputted
+        @ob_clean();
+        echo json_encode(["status" => "success", "message" => "Perfil atualizado!"]);
+    } catch(PDOException $e) {
+        @ob_clean();
+        echo json_encode(["status" => "error", "message" => "Erro DB: " . $e->getMessage()]);
+    }
     exit;
 }
 

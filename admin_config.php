@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+    header('HTTP/1.0 403 Forbidden');
+    echo "<h2 style='color:red;font-family:sans-serif;margin:20px;'>Acesso Restrito: 403.</h2>";
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
@@ -102,13 +110,13 @@
                 <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
             </a>
             <nav class="admin-menu">
-                <a href="admin.html" class="admin-link">
+                <a href="admin.php" class="admin-link">
                     <i class='bx bx-cube-alt'></i> Produtos
                 </a>
-                <a href="admin_pedidos.html" class="admin-link">
+                <a href="admin_pedidos.php" class="admin-link">
                     <i class='bx bx-shopping-bag'></i> Pedidos (Retirada)
                 </a>
-                <a href="admin_config.html" class="admin-link active">
+                <a href="admin_config.php" class="admin-link active">
                     <i class='bx bx-cog'></i> Configurações
                 </a>
                 <a href="index.html" class="admin-link">
@@ -130,13 +138,29 @@
             <div class="settings-card">
                 <form id="configForm">
                     <h3 style="margin-bottom: 1.5rem; color: var(--clr-primary); border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem;">
-                        <i class='bx bx-qr-scan'></i> Pagamentos
+                        <i class='bx bxl-whatsapp'></i> Contato
+                    </h3>
+
+                    <div class="form-group">
+                        <label>Número do WhatsApp da Loja</label>
+                        <input type="text" id="config-whatsapp" class="form-control" placeholder="Ex: 5511999999999">
+                        <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Número com DDI e DDD (ex: 5511999999999) para receber os pedidos.</small>
+                    </div>
+
+                    <h3 style="margin-bottom: 1.5rem; margin-top: 2rem; color: var(--clr-primary); border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem;">
+                        <i class='bx bx-filter'></i> Marcas Pesquisáveis
                     </h3>
                     
                     <div class="form-group">
-                        <label>Chave PIX Recebedora</label>
-                        <input type="text" id="config-pix" class="form-control" placeholder="E-mail, CPF, CNPJ ou Chave Aleatória">
-                        <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Essa chave aparecerá na tela do cliente quando ele selecionar pagamento via Pix.</small>
+                        <label>Marcas - Costura e Bordados</label>
+                        <input type="text" id="config-brands-costura" class="form-control" placeholder="Ex: Amigurumi, Anne, Duna">
+                        <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Separadas por vírgula. Ex: Amigurumi, Anne. Deixe vazio para usar padrão.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marcas - Canetas e Lápis</label>
+                        <input type="text" id="config-brands-canetas" class="form-control" placeholder="Ex: Bic, Faber-Castell">
+                        <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Separadas por vírgula. Ex: Bic, Faber-Castell. Deixe vazio para usar padrão.</small>
                     </div>
                     
                     <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">
@@ -148,8 +172,8 @@
         </main>
     </div>
     
-    <script src="assets/js/core/db.js"></script>
-    <script src="assets/js/core/app.js"></script>
-    <script src="assets/js/pages/admin_config.js"></script>
+    <script src="assets/js/core/db.js?v=3"></script>
+    <script src="assets/js/core/app.js?v=3"></script>
+    <script src="assets/js/pages/admin_config.js?v=3"></script>
 </body>
 </html>

@@ -67,6 +67,7 @@
             document.getElementById('modal-title').innerText = 'Novo Produto';
             form.reset();
             document.getElementById('prod-id').value = '';
+            document.getElementById('prod-marca').value = '';
             document.getElementById('prod-imagem-base64').value = '';
             document.getElementById('image-preview-container').style.display = 'none';
             document.getElementById('image-preview').src = '';
@@ -104,6 +105,7 @@
                 document.getElementById('prod-nome').value = product.name;
                 document.getElementById('prod-preco').value = product.price;
                 document.getElementById('prod-categoria').value = product.category;
+                document.getElementById('prod-marca').value = product.brand || '';
                 
                 
                 document.getElementById('prod-imagem-base64').value = product.image;
@@ -141,6 +143,7 @@
                 name: document.getElementById('prod-nome').value,
                 price: parseFloat(document.getElementById('prod-preco').value),
                 category: document.getElementById('prod-categoria').value,
+                brand: document.getElementById('prod-marca').value.trim(),
                 image: imageBase64,
                 video: document.getElementById('prod-video').value,
                 description: document.getElementById('prod-desc').value

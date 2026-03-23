@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=15">
 </head>
 <body>
     <header class="header">
@@ -24,12 +24,28 @@
                 <a href="login.html" class="action-btn" title="Minha Conta">
                     <i class='bx bx-user'></i>
                 </a>
-                <a href="admin.html" class="action-btn" title="Painel Admin">
+                <a href="admin.php" class="action-btn" title="Painel Admin">
                     <i class='bx bxs-dashboard'></i>
                 </a>
                 <button class="action-btn" id="theme-toggle" title="Mudar Tema">
                     <i class='bx bxs-moon'></i>
                 </button>
+                <div class="notification-wrapper" id="notif-wrapper" style="position: relative;">
+                    <button class="action-btn" id="notification-btn" title="Notificações">
+                        <i class='bx bx-bell'></i>
+                        <span class="notification-badge" id="notification-badge" style="display: none;">0</span>
+                    </button>
+                    <div class="notification-dropdown" id="notification-dropdown">
+                        <div class="notification-header">
+                            <h4 style="font-size: 1rem; margin: 0;">Novidades</h4>
+                            <span class="mark-read-btn" id="mark-read-btn">Limpar</span>
+                        </div>
+                        <div class="notification-list" id="notification-list">
+                            <!-- Injected via JS -->
+                        </div>
+                        <a href="produtos.html" class="view-all-notif">Ver todos os Produtos</a>
+                    </div>
+                </div>
                 <a href="carrinho.html" class="action-btn" title="Carrinho">
                     <i class='bx bx-shopping-bag'></i>
                     <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
@@ -54,7 +70,7 @@
                 </a>
             </div>
             <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Papelaria Moderna e Colorida">
+                <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Papelaria Moderna e Colorida" loading="lazy" decoding="async">
             </div>
         </div>
     </section>
@@ -131,19 +147,24 @@
                 <div class="footer-col">
                     <h3>Atendimento</h3>
                     <div class="footer-links">
-                        <a href="#">Fale Conosco</a>
-                        <a href="#">Dúvidas Frequentes</a>
-                        <a href="#">Trocas e Devoluções</a>
-                        <a href="#">Rastrear Pedido</a>
+                        <a href="javascript:void(0)" onclick="if(window.handleSupport) window.handleSupport(); else alert('Chame no WhatsApp!')">Fale Conosco</a>
+                        <a href="javascript:void(0)" onclick="if(window.handleSupport) window.handleSupport(); else alert('Chame no WhatsApp!')">Dúvidas Frequentes</a>
                     </div>
                 </div>
                 <div class="footer-col">
                     <h3>Explore</h3>
                     <div class="footer-links">
-                        <a href="#">Lançamentos</a>
-                        <a href="#">Mais Vendidos</a>
-                        <a href="#">Kits Promocionais</a>
-                        <a href="#">Cartão Presente</a>
+                        <a href="produtos.html?cat=novidades">Lançamentos</a>
+                        <a href="produtos.html?sort=populares">Mais Vendidos</a>
+                        <a href="produtos.html?cat=promocoes">Kits Promocionais</a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Pagamento</h3>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 1rem;">
+                        <i class='bx bxl-visa' style='font-size: 36px; color: var(--clr-text);'></i>
+                        <i class='bx bxl-mastercard' style='font-size: 36px; color: var(--clr-text);'></i>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo%E2%80%94pix_powered_by_Banco_Central_%28Brazil%2C_2020%29.svg" alt="Pix" style="height: 24px; opacity: 0.8;">
                     </div>
                 </div>
             </div>
@@ -152,8 +173,8 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/core/db.js"></script>
-    <script src="assets/js/core/app.js"></script>
-    <script src="assets/js/pages/index.js"></script>
+    <script src="assets/js/core/db.js?v=13"></script>
+    <script src="assets/js/core/app.js?v=14"></script>
+    <script src="assets/js/pages/index.js?v=13"></script>
 </body>
 </html>
