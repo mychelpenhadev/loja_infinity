@@ -346,65 +346,77 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            function loadUserOrders(userId) {
+            async function loadUserOrders(userId) {
                 const list = document.getElementById('profile-orders-list');
-                const allOrders = window.OrderManager.getAll();
-                const userOrders = allOrders.filter(o => o.userId === userId);
-                
-                if(userOrders.length === 0) {
-                    list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0;">Você ainda não tem nenhum pedido realizado.</p>`;
-                    return;
-                }
-                
-                // Sort newest first
-                userOrders.sort((a,b) => new Date(b.date) - new Date(a.date));
-                
-                list.innerHTML = userOrders.map(o => {
-                    const dateObj = new Date(o.date);
-                    const dateStr = dateObj.toLocaleDateString('pt-BR');
-                    const itemsMsg = o.items.map(i => `${i.quantity}x ${i.name}`).join(', ');
-                    const isEntregue = o.status === 'entregue';
+                if(!list) return;
+                try {
+                    const userOrders = await window.OrderManager.getAll();
+                    const filtered = userOrders.filter(o => String(o.user_id) === String(userId));
                     
-                    return `
-                        <div style="border-bottom: 1px solid var(--clr-border); padding: 1rem 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                <div>
-                                    <strong style="font-size: 1rem;">Pedido #${o.id}</strong>
-                                    <div style="font-size: 0.8rem; color: var(--clr-text-light);">${dateStr}</div>
+                    if(filtered.length === 0) {
+                        list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0;">Você ainda não tem nenhum pedido realizado.</p>`;
+                        return;
+                    }
+                    
+                    filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    list.innerHTML = filtered.map(o => {
+                        const dateObj = new Date(o.created_at);
+                        const dateStr = dateObj.toLocaleDateString('pt-BR');
+                        const items = typeof o.items_json === 'string' ? JSON.parse(o.items_json) : o.items_json;
+                        const itemsMsg = items.map(i => `${i.quantity}x ${i.name}`).join(', ');
+                        const isEntregue = o.status === 'entregue' || o.status === 'concluido';
+                        
+                        return `
+                            <div style="border-bottom: 1px solid var(--clr-border); padding: 1rem 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                    <div>
+                                        <strong style="font-size: 1rem;">Pedido #${o.id}</strong>
+                                        <div style="font-size: 0.8rem; color: var(--clr-text-light);">${dateStr}</div>
+                                    </div>
+                                    <span style="display:inline-block; padding:0.25rem 0.5rem; border-radius:1rem; background: ${isEntregue ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${isEntregue ? '#10B981' : '#F59E0B'}; font-size:0.75rem; font-weight:600;">
+                                        ${o.status.charAt(0).toUpperCase() + o.status.slice(1)}
+                                    </span>
                                 </div>
-                                <span style="display:inline-block; padding:0.25rem 0.5rem; border-radius:1rem; background: ${isEntregue ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${isEntregue ? '#10B981' : '#F59E0B'}; font-size:0.75rem; font-weight:600;">
-                                    ${isEntregue ? 'Entregue' : 'Pendente'}
-                                </span>
+                                <div style="font-size: 0.85rem; color: var(--clr-text-light); margin-bottom: 0.5rem; line-height: 1.4;">
+                                    ${itemsMsg}
+                                </div>
+                                <div style="font-weight: 700; color: var(--clr-primary); font-size: 0.95rem;">
+                                    ${window.formatCurrency(o.total)}
+                                </div>
                             </div>
-                            <div style="font-size: 0.85rem; color: var(--clr-text-light); margin-bottom: 0.5rem; line-height: 1.4;">
-                                ${itemsMsg}
-                            </div>
-                            <div style="font-weight: 700; color: var(--clr-primary); font-size: 0.95rem;">
-                                ${window.formatCurrency(o.total)}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                        `;
+                    }).join('');
+                } catch (e) {
+                    console.error("Erro ao carregar pedidos:", e);
+                }
             }
 
-            function loadMiniPromos() {
+            async function loadMiniPromos() {
                 const list = document.getElementById('profile-promos-list');
                 if(!list) return;
-                const allProducts = window.ProductManager.getAll();
-                const promoProducts = allProducts.filter(p => p.category.toLowerCase().includes('promo') || p.category.toLowerCase() === 'promocoes');
-                
-                if(promoProducts.length === 0) {
-                    list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.85rem; padding: 0.5rem 0;">Nenhuma promoção ativa no momento.</p>`;
-                    return;
+                try {
+                    const allProducts = await window.ProductManager.getAll();
+                    const promoProducts = allProducts.filter(p => {
+                        const cat = (p.category || "").toLowerCase();
+                        return cat.includes('promo') || cat === 'promocoes';
+                    });
+                    
+                    if(promoProducts.length === 0) {
+                        list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.85rem; padding: 0.5rem 0;">Nenhuma promoção ativa no momento.</p>`;
+                        return;
+                    }
+                    
+                    list.innerHTML = promoProducts.slice(0, 6).map(p => `
+                        <a href="detalhes.html?id=${p.id}" class="promo-mini-card">
+                            <img src="${p.image}" alt="${p.name}">
+                            <h4 title="${p.name}">${p.name}</h4>
+                            <span>${window.formatCurrency(p.price)}</span>
+                        </a>
+                    `).join('');
+                } catch (e) {
+                    console.error("Erro ao carregar promoções:", e);
                 }
-                
-                list.innerHTML = promoProducts.slice(0, 6).map(p => `
-                    <a href="detalhes.html?id=${p.id}" class="promo-mini-card">
-                        <img src="${p.image}" alt="${p.name}">
-                        <h4 title="${p.name}">${p.name}</h4>
-                        <span>${window.formatCurrency(p.price)}</span>
-                    </a>
-                `).join('');
             }
 
             function setupWhatsAppSupport() {
