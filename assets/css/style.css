@@ -343,6 +343,43 @@ button {
   color: var(--clr-primary);
 }
 
+.slider-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 2rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  backdrop-filter: blur(4px);
+  color: #fff;
+  text-align: left;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.5s ease 0.3s;
+}
+
+.slider-item.active .slider-caption {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.slider-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.slider-price {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--clr-primary);
+  background: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

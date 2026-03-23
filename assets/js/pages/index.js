@@ -64,6 +64,10 @@
                     heroSlider.innerHTML = novidades.map((p, index) => `
                         <div class="slider-item ${index === 0 ? 'active' : ''}" data-id="${p.id}" onclick="window.location.href='detalhes.html?id=${p.id}'">
                             <img src="${p.image}" alt="${p.name}">
+                            <div class="slider-caption">
+                                <h3 class="slider-title">${p.name}</h3>
+                                <span class="slider-price">${window.formatCurrency(p.price)}</span>
+                            </div>
                         </div>
                     `).join('');
                     
