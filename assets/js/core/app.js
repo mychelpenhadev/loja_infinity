@@ -349,3 +349,9 @@ window.handleBuyNow = (productId, quantity = 1) => {
   window.CartManager.add(productId, quantity);
   window.location.href = 'carrinho.html';
 };
+
+window.handleWhatsApp = () => {
+    const num = window.ConfigManager.get('whatsappNumber') || '5599999999999'; // Fallback
+    const msg = encodeURIComponent("Olá! Gostaria de tirar uma dúvida.");
+    window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+};
