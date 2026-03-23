@@ -1,64 +1,66 @@
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const container = document.getElementById('featured-products');
-            const products = window.ProductManager.getAll().slice(0, 4); 
+            const allProducts = await window.ProductManager.getAll();
+            const products = allProducts.slice(0, 4); 
             
             if (products.length === 0) {
-                container.innerHTML = '<p>Nenhum produto encontrado.</p>';
-                return;
-            }
-
-            products.forEach(product => {
-                const isNew = product.rating >= 4.8;
-                container.innerHTML += `
-                    <div class="product-card">
-                        ${isNew ? '<span class="product-badge">Novidade</span>' : ''}
-                        
-                        <div class="product-actions">
-                            <button class="icon-btn" onclick="window.location.href='detalhes.html?id=${product.id}'" title="Ver Detalhes">
-                                <i class='bx bx-show'></i>
-                            </button>
-                            <button class="icon-btn" title="Favoritar">
-                                <i class='bx bx-heart'></i>
-                            </button>
-                        </div>
-
-                        <a href="detalhes.html?id=${product.id}" class="product-image-container">
-                            <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async">
-                        </a>
-                        
-                        <div class="product-info">
-                            <span class="product-category">${product.category}</span>
-                            <a href="detalhes.html?id=${product.id}" class="product-title">${product.name}</a>
-                            
-                            <div class="product-rating">
-                                ${window.generateStars(product.rating)}
-                                <span style="color: var(--clr-text-light); margin-left: auto; font-size: 0.75rem;">(${Math.floor(Math.random() * 50) + 10})</span>
-                            </div>
-
-                            <div class="product-footer">
-                                <span class="product-price">${window.formatCurrency(product.price)}</span>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <button class="btn" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; background-color: var(--clr-primary); color: white;" onclick="window.handleBuyNow('${product.id}')">
-                                        Comprar
+                if(container) container.innerHTML = '<p>Nenhum produto em destaque encontrado.</p>';
+            } else {
+                if(container) {
+                    container.innerHTML = '';
+                    products.forEach(product => {
+                        const isNew = product.rating >= 4.8;
+                        container.innerHTML += `
+                            <div class="product-card">
+                                ${isNew ? '<span class="product-badge">Novidade</span>' : ''}
+                                
+                                <div class="product-actions">
+                                    <button class="icon-btn" onclick="window.location.href='detalhes.html?id=${product.id}'" title="Ver Detalhes">
+                                        <i class='bx bx-show'></i>
                                     </button>
-                                    <button class="btn-add" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;" onclick="window.handleAddToCart('${product.id}')" title="Adicionar ao Carrinho">
-                                        <i class='bx bx-cart-add'></i>
+                                    <button class="icon-btn" title="Favoritar">
+                                        <i class='bx bx-heart'></i>
                                     </button>
                                 </div>
+
+                                <a href="detalhes.html?id=${product.id}" class="product-image-container">
+                                    <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async">
+                                </a>
+                                
+                                <div class="product-info">
+                                    <span class="product-category">${product.category}</span>
+                                    <a href="detalhes.html?id=${product.id}" class="product-title">${product.name}</a>
+                                    
+                                    <div class="product-rating">
+                                        ${window.generateStars(product.rating)}
+                                        <span style="color: var(--clr-text-light); margin-left: auto; font-size: 0.75rem;">(${Math.floor(Math.random() * 50) + 10})</span>
+                                    </div>
+
+                                    <div class="product-footer">
+                                        <span class="product-price">${window.formatCurrency(product.price)}</span>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button class="btn" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; background-color: var(--clr-primary); color: white;" onclick="window.handleBuyNow('${product.id}')">
+                                                Comprar
+                                            </button>
+                                            <button class="btn-add" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;" onclick="window.handleAddToCart('${product.id}')" title="Adicionar ao Carrinho">
+                                                <i class='bx bx-cart-add'></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                `;
-            });
+                        `;
+                    });
+                }
+            }
 
             // Hero Slider Logic
             const heroSlider = document.getElementById('hero-slider');
             const sliderDots = document.getElementById('slider-dots');
             
             if (heroSlider && sliderDots) {
-                const allP = window.ProductManager.getAll();
                 // Filter for "Novidades" (rating >= 4.8)
-                const novidades = allP.filter(p => p.rating >= 4.8).slice(0, 5);
+                const novidades = allProducts.filter(p => p.rating >= 4.8).slice(0, 5);
                 
                 if (novidades.length > 0) {
                     heroSlider.innerHTML = novidades.map((p, index) => `
@@ -117,9 +119,8 @@
             const markReadBtn = document.getElementById('mark-read-btn');
 
             if (notifBtn) {
-                const allP = window.ProductManager.getAll();
-                const latest = allP.slice(-2).reverse(); 
-                const promos = allP.filter(p => p.category && p.category.toLowerCase().includes('promo'));
+                const latest = allProducts.slice(-2).reverse(); 
+                const promos = allProducts.filter(p => p.category && p.category.toLowerCase().includes('promo'));
                 
                 let notifsHTML = '';
                 let count = 0;
@@ -133,7 +134,7 @@
                             <div class="notif-content">
                                 <span class="notif-title">Chegou Novidade!</span>
                                 <span class="notif-desc">${p.name} foi adicionado à loja.</span>
-                                <span class="notif-time">Testado hoje</span>
+                                <span class="notif-time">Agora mesmo</span>
                             </div>
                         </a>
                     `;
@@ -150,7 +151,7 @@
                             <div class="notif-content">
                                 <span class="notif-title">Oferta em Destaque!</span>
                                 <span class="notif-desc">${p.name}</span>
-                                <span class="notif-time">Agora mesmo</span>
+                                <span class="notif-time">Promoção</span>
                             </div>
                         </a>
                     `;
@@ -158,28 +159,34 @@
                 }
 
                 if(count === 0) {
-                    notifList.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--clr-text-light);">Tudo lido por aqui! 🎉</div>`;
-                    notifBadge.style.display = 'none';
+                    if(notifList) notifList.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--clr-text-light);">Tudo lido por aqui! 🎉</div>`;
+                    if(notifBadge) notifBadge.style.display = 'none';
                 } else {
-                    notifList.innerHTML = notifsHTML;
-                    notifBadge.textContent = count;
-                    notifBadge.style.display = 'flex';
+                    if(notifList) notifList.innerHTML = notifsHTML;
+                    if(notifBadge) {
+                        notifBadge.textContent = count;
+                        notifBadge.style.display = 'flex';
+                    }
                 }
 
-                notifBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    notifDropdown.classList.toggle('active');
-                });
+                if(notifBtn) {
+                    notifBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        notifDropdown.classList.toggle('active');
+                    });
+                }
 
                 document.addEventListener('click', (e) => {
-                    if(!notifBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+                    if(notifBtn && !notifBtn.contains(e.target) && notifDropdown && !notifDropdown.contains(e.target)) {
                         notifDropdown.classList.remove('active');
                     }
                 });
 
-                markReadBtn.addEventListener('click', () => {
-                    notifList.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--clr-text-light);">Tudo limpo! 🎉</div>`;
-                    notifBadge.style.display = 'none';
-                });
+                if(markReadBtn) {
+                    markReadBtn.addEventListener('click', () => {
+                        notifList.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--clr-text-light);">Tudo limpo! 🎉</div>`;
+                        notifBadge.style.display = 'none';
+                    });
+                }
             }
         });

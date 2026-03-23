@@ -1,15 +1,18 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
             const container = document.getElementById('catalog-grid');
             const searchInput = document.getElementById('search-input');
             const filterBtns = document.querySelectorAll('.filter-pill');
             const brandSelect = document.getElementById('brand-filter');
             
-            let allProducts = window.ProductManager.getAll();
+            // Mostrar loader inicial
+            if(container) container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 3rem;"><i class="bx bx-loader-alt bx-spin" style="font-size: 3rem; color: var(--clr-primary);"></i><p style="margin-top: 1rem;">Carregando catálogo...</p></div>';
+
+            let allProducts = await window.ProductManager.getAll();
             let currentCategory = 'all';
             let currentBrand = 'all';
             let searchQuery = '';
 
-            
+            // Handle URL category
             const urlParams = new URLSearchParams(window.location.search);
             const urlCat = urlParams.get('cat');
             if (urlCat) {
@@ -17,16 +20,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateActivePill(urlCat);
             }
 
-            
             renderProducts();
 
-            
-            searchInput.addEventListener('input', (e) => {
-                searchQuery = e.target.value.toLowerCase();
-                renderProducts();
-            });
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value.toLowerCase();
+                    renderProducts();
+                });
+            }
 
-            // Listen to brand select changes
             if (brandSelect) {
                 brandSelect.addEventListener('change', (e) => {
                     currentBrand = e.target.value;
@@ -34,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     currentCategory = e.target.getAttribute('data-cat');
@@ -65,8 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (configuredBrandsStr && configuredBrandsStr.trim().length > 0) {
                         brands = configuredBrandsStr.split(',').map(b => b.trim()).filter(b => b.length > 0);
                     } else {
-                        // Fallback to active products dynamically if not configured by admin
-                        const catProducts = allProducts.filter(p => p.category.toLowerCase().includes(cat));
+                        const catProducts = allProducts.filter(p => (p.category || '').toLowerCase().includes(cat));
                         const uniqueBrands = new Set();
                         catProducts.forEach(p => {
                             if (p.brand && p.brand.trim() !== '') uniqueBrands.add(p.brand.trim());
@@ -89,42 +89,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 brandSelect.value = 'all';
             }
 
-            // Init brands based on URL category
+            // Init brands
             updateBrandFilterList(currentCategory);
 
             function renderProducts() {
+                if (!container) return;
                 
                 let filtered = allProducts.filter(p => {
-                    const matchesSearch = p.name.toLowerCase().includes(searchQuery) || p.description.toLowerCase().includes(searchQuery);
+                    const name = p.name || '';
+                    const desc = p.description || '';
+                    const cat = p.category || '';
+                    const brand = p.brand || '';
+
+                    const matchesSearch = name.toLowerCase().includes(searchQuery) || desc.toLowerCase().includes(searchQuery);
                     
-                    let matchesCategory = currentCategory === 'all' || p.category.toLowerCase().includes(currentCategory);
+                    let matchesCategory = currentCategory === 'all' || cat.toLowerCase().includes(currentCategory);
                     
-                    // Special handling for Novidades (rating based)
                     if (currentCategory === 'novidades') {
-                        matchesCategory = p.rating >= 4.8 || p.category.toLowerCase().includes('novid');
+                        matchesCategory = parseFloat(p.rating) >= 4.8 || cat.toLowerCase().includes('novid');
                     }
-                    // Special handling for Promoções
                     if (currentCategory === 'promocoes') {
-                        matchesCategory = p.category.toLowerCase().includes('promo');
+                        matchesCategory = cat.toLowerCase().includes('promo');
                     }
                     if (currentCategory === 'criancas') {
-                        matchesCategory = p.category.toLowerCase().includes('crianca') || p.category.toLowerCase().includes('infantil');
+                        matchesCategory = cat.toLowerCase().includes('crianca') || cat.toLowerCase().includes('infantil');
                     }
                     if (currentCategory === 'materiais') {
-                        matchesCategory = p.category.toLowerCase().includes('materiais') || p.category.toLowerCase().includes('estojo');
+                        matchesCategory = cat.toLowerCase().includes('materiais') || cat.toLowerCase().includes('estojo');
                     }
                     
                     const matchesBrand = currentBrand === 'all' || 
-                        (p.brand && p.brand.toLowerCase() === currentBrand) ||
-                        (p.name.toLowerCase().includes(currentBrand)) ||
-                        (p.description.toLowerCase().includes(currentBrand));
+                        brand.toLowerCase() === currentBrand ||
+                        name.toLowerCase().includes(currentBrand) ||
+                        desc.toLowerCase().includes(currentBrand);
                     
                     return matchesSearch && matchesCategory && matchesBrand;
                 });
 
                 if (filtered.length === 0) {
                     container.innerHTML = `
-                        <div class="no-results">
+                        <div class="no-results" style="grid-column: 1/-1; text-align:center; padding: 4rem;">
                             <i class='bx bx-search-alt' style="font-size: 4rem; color: var(--clr-text-light); margin-bottom: 1rem;"></i>
                             <h2>Nenhum produto encontrado</h2>
                             <p>Tente buscar por outro termo ou limpe os filtros.</p>
@@ -134,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 container.innerHTML = filtered.map(product => {
-                    const isNew = product.rating >= 4.8;
+                    const isNew = parseFloat(product.rating) >= 4.8;
                     return `
                         <div class="product-card">
                             ${isNew ? '<span class="product-badge">Novidade</span>' : ''}

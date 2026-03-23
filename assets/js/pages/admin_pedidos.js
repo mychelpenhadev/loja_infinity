@@ -16,25 +16,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderOrdersTable();
 });
 
-window.markAsDelivered = (orderId) => {
+window.markAsDelivered = async (orderId) => {
     if(confirm("Tem certeza que este pedido foi retirado com sucesso e deseja marcá-lo como Entregue?")) {
-        window.OrderManager.updateStatus(orderId, 'entregue');
+        await window.OrderManager.updateStatus(orderId, 'entregue');
         renderOrdersTable();
         window.showToast("Pedido finalizado com sucesso!", "success");
     }
 }
 
-window.deleteOrder = (orderId) => {
+window.deleteOrder = async (orderId) => {
     if(confirm("Tem certeza que deseja excluir permanentemente este pedido?")) {
-        window.OrderManager.remove(orderId);
+        await window.OrderManager.remove(orderId);
         renderOrdersTable();
         window.showToast("Pedido excluído com sucesso!", "success");
     }
 }
 
-function renderOrdersTable() {
+async function renderOrdersTable() {
     const tbody = document.getElementById('table-orders-body');
-    const allOrders = window.OrderManager.getAll();
+    if (!tbody) return;
+
+    // Mostrar loader
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 3rem;"><i class="bx bx-loader-alt bx-spin" style="font-size: 2rem; color: var(--clr-primary);"></i></td></tr>`;
+
+    const allOrders = await window.OrderManager.getAll();
     
     // Filter only orders where method includes "Retirar" or is "WhatsApp"
     const pickupOrders = allOrders.filter(o => o.method && (o.method.includes("Retirar") || o.method === "WhatsApp"));
@@ -49,11 +54,14 @@ function renderOrdersTable() {
         const dateObj = new Date(order.date);
         const formattedDate = dateObj.toLocaleDateString('pt-BR') + ' às ' + dateObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
         
-        // Sum up item quantities logically
-        const totalItemsCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
-        
-        // Format items details array
-        const itemsList = order.items.map(i => `${i.quantity}x ${i.name}`).join('<br>');
+        // Items details
+        let itemsList = "";
+        try {
+            const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+            itemsList = items.map(i => `${i.quantity}x ${i.name}`).join('<br>');
+        } catch(e) {
+            itemsList = "Erro ao carregar itens";
+        }
         
         let statusHtml = '';
         if (order.status === 'entregue') {

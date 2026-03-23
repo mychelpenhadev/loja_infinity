@@ -1,152 +1,74 @@
 
+// db.js - Versão Refatorada para MySQL
+// O Carrinho permanece em localStorage por ser específico do dispositivo do cliente.
+// Produtos, Pedidos e Configurações agora são buscados via API.
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'papelaria_products',
   CART: 'papelaria_cart',
-  THEME: 'papelaria_theme',
-  ORDERS: 'papelaria_orders',
-  CONFIG: 'papelaria_config'
+  THEME: 'papelaria_theme'
 };
 
-const DEFAULT_PRODUCTS = [
-  {
-    id: 'p1',
-    name: 'Caderno Inteligente Tons Pastéis',
-    description: 'Caderno de discos com folhas reposicionáveis. Capa em tons pastéis com acabamento premium e elástico de fechamento.',
-    price: 89.90,
-    category: 'cadernos',
-    image: 'https://images.unsplash.com/photo-1531346878377-a541e4ab0eaf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    video: '',
-    rating: 5
-  },
-  {
-    id: 'p2',
-    name: 'Kit Canetas Gel Pastel',
-    description: 'Conjunto com 6 cores incríveis com ponta fina 0.5mm. Desliza fácil e não mancha o verso da folha.',
-    price: 34.50,
-    category: 'canetas',
-    image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    video: '',
-    rating: 4.5
-  },
-  {
-    id: 'p3',
-    name: 'Mochila Escolar Minimalista Lilás',
-    description: 'Mochila espaçosa com compartimento para notebook. Feita em material resistente à água e design super limpo e moderno.',
-    price: 159.90,
-    category: 'mochilas',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    video: '',
-    rating: 4.8
-  },
-  {
-    id: 'p4',
-    name: 'Estojo Box Organizador',
-    description: 'Estojo com grande capacidade e divisórias elásticas internas para organizar até 100 lápis/canetas.',
-    price: 45.00,
-    category: 'materiais escolares',
-    image: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    video: '',
-    rating: 4
-  },
-  {
-    id: 'p5',
-    name: 'Planner Anual Argolado',
-    description: 'Chega de perder compromissos! Planner sem data, visões semanais e mensais com design colorido e motivador.',
-    price: 110.00,
-    category: 'cadernos',
-    image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    video: '',
-    rating: 5
-  },
-  {
-    id: 'p6',
-    name: 'Marca-texto Nuvem (Kit com 4)',
-    description: 'Cores suaves que não atravessam a folha, formato ergonômico e estiloso para os estudos renderem mais.',
-    price: 28.90,
-    category: 'canetas',
-    image: 'https://images.unsplash.com/photo-1527748842146-cdec8a1d720b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-    video: '',
-    rating: 4.2
-  },
-  {
-    id: 'prod-009',
-    name: 'Linha Amigurumi Círculo 254m',
-    category: 'Costura & Bordados',
-    brand: 'amigurumi',
-    price: 18.50,
-    rating: 4.9,
-    image: 'https://images.tcdn.com.br/img/img_prod/606359/fio_amigurumi_circulo_100_algodao_125g_3901_1_25eec91e573e65eedfcfd93d5082bdde.jpg',
-    description: 'Fio de algodão mercerizado ideal para crochê e tricô de bonecos tridimensionais (Amigurumis).'
-  },
-  {
-    id: 'prod-010',
-    name: 'Fio Anne 500 Círculo',
-    category: 'Costura & Bordados',
-    brand: 'anne',
-    price: 21.90,
-    rating: 4.7,
-    image: 'https://images.tcdn.com.br/img/img_prod/606359/fio_anne_500m_circulo_439_1_20201211151621.jpg',
-    description: 'Fio 100% algodão mercerizado, proporciona acabamento cintilante e toque macio ao bordado.'
-  },
-  {
-    id: 'prod-011',
-    name: 'Fio Duna Multicolor Círculo',
-    category: 'Costura & Bordados',
-    brand: 'duna',
-    price: 19.90,
-    rating: 4.8,
-    image: 'https://images.tcdn.com.br/img/img_prod/606359/fio_duna_circulo_170m_100g_4615_1_20201211171804.jpg',
-    description: 'Com espessura ideal, oferece rendimento e caimento perfeito em peças de vestuário e decoração.'
-  }
-];
-
-
-function initializeDB() {
-  if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
-  }
-  if (!localStorage.getItem(STORAGE_KEYS.CART)) {
-    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify([]));
-  }
-}
-
 const ProductManager = {
-  getAll: () => JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]'),
-  
-  getById: (id) => {
-    const products = ProductManager.getAll();
-    return products.find(p => p.id === id);
-  },
-  
-  add: (product) => {
-    const products = ProductManager.getAll();
-    const newProduct = {
-      ...product,
-      id: 'p' + Date.now().toString(),
-      rating: 5
-    };
-    products.push(newProduct);
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-    return newProduct;
-  },
-  
-  update: (id, updatedData) => {
-    const products = ProductManager.getAll();
-    const index = products.findIndex(p => p.id === id);
-    if (index !== -1) {
-      products[index] = { ...products[index], ...updatedData };
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-      return true;
+  _cache: null,
+
+  getAll: async () => {
+    try {
+      const response = await fetch('api/products.php?action=list');
+      const data = await response.json();
+      ProductManager._cache = data;
+      return data;
+    } catch (err) {
+      console.error("Erro ao buscar produtos:", err);
+      return [];
     }
-    return false;
   },
   
-  remove: (id) => {
-    const products = ProductManager.getAll();
-    const filtered = products.filter(p => p.id !== id);
-    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(filtered));
-    return true;
+  getById: async (id) => {
+    try {
+      const response = await fetch(`api/products.php?action=get&id=${id}`);
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao buscar produto:", err);
+      return null;
+    }
+  },
+  
+  add: async (product) => {
+    try {
+      const response = await fetch('api/products.php?action=save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product)
+      });
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao adicionar produto:", err);
+      return null;
+    }
+  },
+  
+  update: async (id, updatedData) => {
+    try {
+      const response = await fetch('api/products.php?action=save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...updatedData, id })
+      });
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao atualizar produto:", err);
+      return null;
+    }
+  },
+  
+  remove: async (id) => {
+    try {
+      const response = await fetch(`api/products.php?action=delete&id=${id}`);
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao remover produto:", err);
+      return null;
+    }
   }
 };
 
@@ -160,7 +82,7 @@ const CartManager = {
   add: (productId, quantity = 1) => {
     const key = CartManager.getCartKey();
     const cart = JSON.parse(localStorage.getItem(key) || '[]');
-    const existing = cart.find(item => item.productId === productId);
+    const existing = cart.find(item => String(item.productId) === String(productId));
     
     if (existing) {
       existing.quantity += quantity;
@@ -169,7 +91,6 @@ const CartManager = {
     }
     
     localStorage.setItem(key, JSON.stringify(cart));
-    
     window.dispatchEvent(new Event('cartUpdated'));
     return true;
   },
@@ -177,7 +98,7 @@ const CartManager = {
   remove: (productId) => {
     const key = CartManager.getCartKey();
     const cart = JSON.parse(localStorage.getItem(key) || '[]');
-    const filtered = cart.filter(item => item.productId !== productId);
+    const filtered = cart.filter(item => String(item.productId) !== String(productId));
     localStorage.setItem(key, JSON.stringify(filtered));
     window.dispatchEvent(new Event('cartUpdated'));
     return true;
@@ -188,7 +109,7 @@ const CartManager = {
     
     const key = CartManager.getCartKey();
     const cart = JSON.parse(localStorage.getItem(key) || '[]');
-    const item = cart.find(i => i.productId === productId);
+    const item = cart.find(i => String(i.productId) === String(productId));
     if (item) {
       item.quantity = quantity;
       localStorage.setItem(key, JSON.stringify(cart));
@@ -207,68 +128,101 @@ const CartManager = {
     return cart.reduce((total, item) => total + item.quantity, 0);
   },
   
-  getTotalPrice: () => {
+  getTotalPrice: async () => {
     const cart = CartManager.getCart();
-    const products = ProductManager.getAll();
+    const products = await ProductManager.getAll();
     return cart.reduce((total, item) => {
-      const product = products.find(p => p.id === item.productId);
-      return total + (product ? product.price * item.quantity : 0);
+      const product = products.find(p => String(p.id) === String(item.productId));
+      return total + (product ? parseFloat(product.price) * item.quantity : 0);
     }, 0);
   }
 };
 
 const OrderManager = {
-  getAll: () => JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || '[]'),
-  
-  add: (orderData) => {
-    const orders = OrderManager.getAll();
-    const newOrder = {
-      id: 'ORD' + Math.floor(Math.random() * 1000000),
-      date: new Date().toISOString(),
-      status: 'pendente',
-      ...orderData
-    };
-    orders.unshift(newOrder); // Adds to beginning so newest is first
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-    return newOrder;
-  },
-  
-  updateStatus: (orderId, newStatus) => {
-    const orders = OrderManager.getAll();
-    const index = orders.findIndex(o => String(o.id) === String(orderId));
-    if (index !== -1) {
-      orders[index].status = newStatus;
-      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-      return true;
+  getAll: async () => {
+    try {
+      const response = await fetch('api/orders.php?action=list');
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao buscar pedidos:", err);
+      return [];
     }
-    return false;
   },
   
-  remove: (orderId) => {
-    const orders = OrderManager.getAll();
-    const filtered = orders.filter(o => String(o.id) !== String(orderId));
-    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(filtered));
-    return true;
+  add: async (orderData) => {
+    try {
+      const response = await fetch('api/orders.php?action=save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao registrar pedido:", err);
+      return null;
+    }
+  },
+  
+  updateStatus: async (orderId, newStatus) => {
+    try {
+      const response = await fetch(`api/orders.php?action=update_status&id=${orderId}&status=${newStatus}`);
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao atualizar status:", err);
+      return null;
+    }
+  },
+  
+  remove: async (orderId) => {
+    try {
+      const response = await fetch(`api/orders.php?action=delete&id=${orderId}`);
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao remover pedido:", err);
+      return null;
+    }
   }
 };
 
 const ConfigManager = {
-  get: (key) => {
-    const config = JSON.parse(localStorage.getItem(STORAGE_KEYS.CONFIG) || '{}');
-    return config[key];
+  _cache: {},
+
+  init: async () => {
+    try {
+      const response = await fetch('api/config.php?action=get');
+      ConfigManager._cache = await response.json();
+    } catch (err) {
+      console.error("Erro ao inicializar ConfigManager:", err);
+    }
   },
-  set: (key, value) => {
-    const config = JSON.parse(localStorage.getItem(STORAGE_KEYS.CONFIG) || '{}');
-    config[key] = value;
-    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(config));
+
+  get: (key) => {
+    return ConfigManager._cache[key];
+  },
+
+  set: async (key, value) => {
+    try {
+      ConfigManager._cache[key] = value;
+      await fetch('api/config.php?action=save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: value })
+      });
+    } catch (err) {
+      console.error("Erro ao salvar config:", err);
+    }
   }
 };
 
-
-initializeDB();
+// Inicialização Assíncrona
+(async () => {
+    await ConfigManager.init();
+})();
 
 window.ProductManager = ProductManager;
 window.CartManager = CartManager;
 window.OrderManager = OrderManager;
 window.ConfigManager = ConfigManager;
-window.STORAGE_KEYS = STORAGE_KEYS;
+window.formatCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+};

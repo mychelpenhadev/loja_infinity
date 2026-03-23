@@ -13,6 +13,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // Aguardar o ConfigManager carregar os dados do banco
+    // No db.js ele inicia automaticamente, mas vamos garantir aqui
+    if (window.ConfigManager && window.ConfigManager.init) {
+        await window.ConfigManager.init();
+    }
+
     loadSettings();
     setupForm();
 });
@@ -21,6 +27,8 @@ function loadSettings() {
     const whatsappInput = document.getElementById('config-whatsapp');
     const brandsCosturaInput = document.getElementById('config-brands-costura');
     const brandsCanetasInput = document.getElementById('config-brands-canetas');
+
+    if (!whatsappInput) return;
 
     const savedWhatsapp = window.ConfigManager.get('whatsappNumber');
     const savedBrandsCostura = window.ConfigManager.get('brandsCostura');
@@ -33,17 +41,25 @@ function loadSettings() {
 
 function setupForm() {
     const form = document.getElementById('configForm');
+    if (!form) return;
     
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const whatsappVal = document.getElementById('config-whatsapp').value.trim();
         const brandsCosturaVal = document.getElementById('config-brands-costura').value.trim();
         const brandsCanetasVal = document.getElementById('config-brands-canetas').value.trim();
         
-        window.ConfigManager.set('whatsappNumber', whatsappVal);
-        window.ConfigManager.set('brandsCostura', brandsCosturaVal);
-        window.ConfigManager.set('brandsCanetas', brandsCanetasVal);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Salvando...";
+
+        await window.ConfigManager.set('whatsappNumber', whatsappVal);
+        await window.ConfigManager.set('brandsCostura', brandsCosturaVal);
+        await window.ConfigManager.set('brandsCanetas', brandsCanetasVal);
+        
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Salvar Configurações";
         
         window.showToast("Configurações salvas com sucesso!", "success");
     });

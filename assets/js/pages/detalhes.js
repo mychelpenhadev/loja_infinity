@@ -1,32 +1,39 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id');
             const container = document.getElementById('product-content');
 
             if (!productId) {
-                container.innerHTML = `<h2>Produto não encontrado.</h2>`;
+                if(container) container.innerHTML = `<h2 style="text-align:center; padding: 4rem;">ID do produto inválido ou não fornecido.</h2>`;
                 return;
             }
 
-            const product = window.ProductManager.getById(productId);
+            // Mostrar loader
+            if(container) container.innerHTML = '<div style="text-align:center; padding: 5rem;"><i class="bx bx-loader-alt bx-spin" style="font-size: 4rem; color: var(--clr-primary);"></i><p style="margin-top:1rem;">Buscando detalhes do produto...</p></div>';
+
+            const product = await window.ProductManager.getById(productId);
 
             if (!product) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 4rem 0;">
-                        <i class='bx bx-error-circle' style="font-size: 4rem; color: var(--clr-text-light); margin-bottom: 1rem;"></i>
-                        <h2>Ops! Esse produto não existe.</h2>
-                        <a href="produtos.html" class="btn btn-primary" style="margin-top: 2rem;">Ver Catálogo</a>
-                    </div>
-                `;
+                if(container) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 4rem 0;">
+                            <i class='bx bx-error-circle' style="font-size: 4rem; color: var(--clr-text-light); margin-bottom: 1rem;"></i>
+                            <h2>Ops! Esse produto não foi encontrado no nosso banco de dados.</h2>
+                            <p style="color: var(--clr-text-light); margin-bottom: 2rem;">Ele pode ter sido removido ou o link está incorreto.</p>
+                            <a href="produtos.html" class="btn btn-primary">Ver Todos os Produtos</a>
+                        </div>
+                    `;
+                }
                 return;
             }
 
-            
             document.title = `${product.name} | Infinity Variedades`;
 
             let quantity = 1;
 
             const renderContent = () => {
+                if(!container) return;
+                
                 container.innerHTML = `
                     <div class="details-grid">
                         <div class="product-gallery">
@@ -76,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
 
-                
                 if (product.video && product.video.trim() !== '') {
                     container.innerHTML += `
                         <div class="video-container">
@@ -98,31 +104,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 const btnAddCart = document.getElementById('btn-add-cart');
                 const btnBuyNow = document.getElementById('btn-buy-now');
 
-                btnMinus.addEventListener('click', () => {
-                    if (quantity > 1) {
-                        quantity--;
-                        display.value = quantity;
-                    }
-                });
+                if (btnMinus) {
+                    btnMinus.addEventListener('click', () => {
+                        if (quantity > 1) {
+                            quantity--;
+                            display.value = quantity;
+                        }
+                    });
+                }
 
-                btnPlus.addEventListener('click', () => {
-                    if (quantity < 10) {
-                        quantity++;
-                        display.value = quantity;
-                    }
-                });
+                if (btnPlus) {
+                    btnPlus.addEventListener('click', () => {
+                        if (quantity < 10) {
+                            quantity++;
+                            display.value = quantity;
+                        }
+                    });
+                }
 
-                btnAddCart.addEventListener('click', () => {
-                    if (!window.isLoggedIn) {
-                        window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
-                        setTimeout(() => { window.location.href = 'login.html'; }, 1500);
-                        return;
-                    }
-                    window.CartManager.add(product.id, quantity);
-                    window.showToast(`Adicionado ${quantity} uni. ao carrinho!`);
-                    quantity = 1;
-                    display.value = quantity;
-                });
+                if (btnAddCart) {
+                    btnAddCart.addEventListener('click', () => {
+                        if (!window.isLoggedIn) {
+                            window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
+                            setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                            return;
+                        }
+                        window.CartManager.add(product.id, quantity);
+                        window.showToast(`Adicionado ${quantity} uni. ao carrinho!`);
+                        quantity = 1;
+                        display.value = quantity;
+                    });
+                }
 
                 if (btnBuyNow) {
                     btnBuyNow.addEventListener('click', () => {

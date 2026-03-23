@@ -21,6 +21,7 @@
             }
         }
 
+
         const tableBody = document.getElementById('table-body');
         const modal = document.getElementById('productFormModal');
         const form = document.getElementById('productForm');
@@ -28,12 +29,13 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const isAuthorized = await verifyAdminAccess();
             if (isAuthorized) {
-                renderTable();
+                await renderTable();
             }
         });
 
-        function renderTable() {
-            const products = window.ProductManager.getAll();
+        async function renderTable() {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;"><i class="bx bx-loader-alt bx-spin"></i> Carregando produtos...</td></tr>';
+            const products = await window.ProductManager.getAll();
             tableBody.innerHTML = '';
 
             if (products.length === 0) {
@@ -63,42 +65,8 @@
             });
         }
 
-        function openModal() {
-            document.getElementById('modal-title').innerText = 'Novo Produto';
-            form.reset();
-            document.getElementById('prod-id').value = '';
-            document.getElementById('prod-marca').value = '';
-            document.getElementById('prod-imagem-base64').value = '';
-            document.getElementById('image-preview-container').style.display = 'none';
-            document.getElementById('image-preview').src = '';
-            modal.classList.add('active');
-        }
-
-        
-        const fileInput = document.getElementById('prod-imagem-file');
-        const base64Input = document.getElementById('prod-imagem-base64');
-        const imagePreview = document.getElementById('image-preview');
-        const previewContainer = document.getElementById('image-preview-container');
-
-        fileInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    base64Input.value = e.target.result;
-                    imagePreview.src = e.target.result;
-                    previewContainer.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function closeModal() {
-            modal.classList.remove('active');
-        }
-
-        window.editProduct = (id) => {
-            const product = window.ProductManager.getById(id);
+        window.editProduct = async (id) => {
+            const product = await window.ProductManager.getById(id);
             if (product) {
                 document.getElementById('modal-title').innerText = 'Editar Produto';
                 document.getElementById('prod-id').value = product.id;
@@ -107,11 +75,10 @@
                 document.getElementById('prod-categoria').value = product.category;
                 document.getElementById('prod-marca').value = product.brand || '';
                 
-                
                 document.getElementById('prod-imagem-base64').value = product.image;
                 imagePreview.src = product.image;
                 previewContainer.style.display = 'block';
-                fileInput.value = ''; // Reset file input
+                fileInput.value = ''; 
 
                 document.getElementById('prod-video').value = product.video || '';
                 document.getElementById('prod-desc').value = product.description;
@@ -120,16 +87,16 @@
             }
         };
 
-        window.deleteProduct = (id) => {
+        window.deleteProduct = async (id) => {
             if (confirm('Tem certeza que deseja excluir permanentemente este produto?')) {
-                window.ProductManager.remove(id);
+                await window.ProductManager.remove(id);
                 window.CartManager.remove(id); 
                 window.showToast('Produto removido com sucesso!', 'success');
-                renderTable();
+                await renderTable();
             }
         };
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const imageBase64 = document.getElementById('prod-imagem-base64').value;
@@ -149,16 +116,20 @@
                 description: document.getElementById('prod-desc').value
             };
 
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Salvando...";
+
             if (id) {
-                
-                window.ProductManager.update(id, productData);
+                await window.ProductManager.update(id, productData);
                 window.showToast('Produto atualizado com sucesso!');
             } else {
-                
-                window.ProductManager.add(productData);
+                await window.ProductManager.add(productData);
                 window.showToast('Produto adicionado ao catálogo!');
             }
 
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Salvar Produto";
             closeModal();
-            renderTable();
+            await renderTable();
         });

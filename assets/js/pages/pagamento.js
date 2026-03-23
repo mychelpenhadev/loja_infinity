@@ -33,15 +33,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-function renderCheckoutSummary() {
+async function renderCheckoutSummary() {
     const container = document.getElementById('checkout-summary');
+    if (!container) return;
+
     const cartItems = window.CartManager.getCart();
     
+    // Mostrar loader mini
+    container.style.opacity = '0.6';
+    const allProducts = await window.ProductManager.getAll();
+    container.style.opacity = '1';
+
     let subtotal = 0;
     cartItems.forEach(item => {
-        const product = window.ProductManager.getById(item.productId);
+        const product = allProducts.find(p => String(p.id) === String(item.productId));
         if (product) {
-            subtotal += product.price * item.quantity;
+            subtotal += parseFloat(product.price) * item.quantity;
         }
     });
 
@@ -78,27 +85,33 @@ function renderCheckoutSummary() {
 
 function setupCheckoutForm() {
     const form = document.getElementById('payment-form');
+    if (!form) return;
     
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         const btn = document.getElementById('confirm-btn');
-        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Processando...";
-        btn.style.opacity = '0.7';
-        btn.disabled = true;
+        if (btn) {
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Processando...";
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+        }
 
         const cartItems = window.CartManager.getCart();
+        const allProducts = await window.ProductManager.getAll();
+
         let subtotal = 0;
         let fullItemsData = [];
         
         cartItems.forEach(item => {
-            const product = window.ProductManager.getById(item.productId);
+            const product = allProducts.find(p => String(p.id) === String(item.productId));
             if(product) {
-                subtotal += product.price * item.quantity;
+                const price = parseFloat(product.price);
+                subtotal += price * item.quantity;
                 fullItemsData.push({
                     productId: product.id,
                     name: product.name,
-                    price: product.price,
+                    price: price,
                     quantity: item.quantity
                 });
             }
@@ -123,8 +136,8 @@ function setupCheckoutForm() {
         message += `\n*Total da Compra:* ${window.formatCurrency(subtotal)}`;
         const encodedMessage = encodeURIComponent(message);
         
-        // Registra o pedido como pendente
-        window.OrderManager.add({
+        // Registra o pedido no Banco de Dados
+        await window.OrderManager.add({
             userId: window.userId,
             userName: window.userName || "Cliente Padrão",
             items: fullItemsData,
@@ -135,24 +148,26 @@ function setupCheckoutForm() {
         window.CartManager.clear();
         
         const container = document.getElementById('checkout-container');
-        container.innerHTML = `
-            <div style="padding: 2rem; background-color: var(--clr-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 700px; margin: 0 auto; text-align: center;">
-                <i class='bx bxs-check-circle' style="font-size: 5rem; color: #10B981; margin-bottom: 0.5rem;" id="status-icon"></i>
-                <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="status-title">Pedido Registrado!</h2>
-                <p style="color: var(--clr-text-light); margin-bottom: 2rem;" id="status-desc">Você será redirecionado para o WhatsApp para enviar o pedido à loja.</p>
-                
-                <div style="margin-top: 1.5rem;">
-                    <a href="https://wa.me/${whatsappNumber}?text=${encodedMessage}" target="_blank" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                        <i class='bx bxl-whatsapp' style="font-size: 1.25rem;"></i> Enviar Pedido no WhatsApp
-                    </a>
+        if (container) {
+            container.innerHTML = `
+                <div style="padding: 2rem; background-color: var(--clr-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 700px; margin: 0 auto; text-align: center;">
+                    <i class='bx bxs-check-circle' style="font-size: 5rem; color: #10B981; margin-bottom: 0.5rem;" id="status-icon"></i>
+                    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="status-title">Pedido Registrado!</h2>
+                    <p style="color: var(--clr-text-light); margin-bottom: 2rem;" id="status-desc">Você será redirecionado para o WhatsApp para enviar o pedido à loja.</p>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <a href="https://wa.me/${whatsappNumber}?text=${encodedMessage}" target="_blank" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class='bx bxl-whatsapp' style="font-size: 1.25rem;"></i> Enviar Pedido no WhatsApp
+                        </a>
+                    </div>
+                    
+                    <div style="margin-top: 1rem;" id="back-btn-box">
+                        <a href="produtos.html" class="btn" style="border: 1px solid var(--clr-border); background: transparent; color: var(--clr-text); width: 100%;">Voltar para Loja de Produtos</a>
+                    </div>
                 </div>
-                
-                <div style="margin-top: 1rem;" id="back-btn-box">
-                    <a href="produtos.html" class="btn" style="border: 1px solid var(--clr-border); background: transparent; color: var(--clr-text); width: 100%;">Voltar para Loja de Produtos</a>
-                </div>
-            </div>
-        `;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         // Redirecionamento automático após 1.5s
         setTimeout(() => {

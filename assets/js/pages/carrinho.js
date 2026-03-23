@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.updateItemQuantity = (id, delta) => {
             const cartItems = window.CartManager.getCart();
-            const item = cartItems.find(i => i.productId === id);
+            const item = cartItems.find(i => String(i.productId) === String(id));
             if (item) {
                 window.CartManager.updateQuantity(id, item.quantity + delta);
             }
@@ -31,21 +31,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const btn = document.getElementById('checkout-btn');
-            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Redirecionando...";
-            btn.style.opacity = '0.7';
-            btn.disabled = true;
+            if(btn) {
+                btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Redirecionando...";
+                btn.style.opacity = '0.7';
+                btn.disabled = true;
+            }
 
             setTimeout(() => {
                 window.location.href = 'pagamento.html';
             }, 800);
         };
 
-        function renderCart() {
+        async function renderCart() {
             const container = document.getElementById('cart-content');
+            if (!container) return;
+
             const cartItems = window.CartManager.getCart();
 
             if (cartItems.length === 0) {
-                if(!container.querySelector('.bxs-check-circle')){ // Avoid overriding the checkout success msg
+                if(!container.querySelector('.bxs-check-circle')){ 
                     container.innerHTML = `
                         <div class="empty-cart">
                             <i class='bx bx-shopping-bag' style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
@@ -58,13 +62,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Mostrar mini loader
+            container.style.opacity = '0.6';
+            
+            const allProducts = await window.ProductManager.getAll();
+            container.style.opacity = '1';
+
             let itemsHTML = '';
             let subtotal = 0;
 
             cartItems.forEach(item => {
-                const product = window.ProductManager.getById(item.productId);
+                const product = allProducts.find(p => String(p.id) === String(item.productId));
                 if (product) {
-                    const itemTotal = product.price * item.quantity;
+                    const price = parseFloat(product.price);
+                    const itemTotal = price * item.quantity;
                     subtotal += itemTotal;
 
                     itemsHTML += `
