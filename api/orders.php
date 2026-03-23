@@ -13,6 +13,10 @@ try {
             break;
 
         case 'save':
+            $raw_data = file_get_contents('php://input');
+            $data = json_decode($raw_data, true);
+            if (!$data) throw new Exception("Dados de pedido inválidos");
+            
             session_start();
             $external_id = $data['external_id'] ?? $data['externalId'] ?? ('ORD' . rand(1000, 9999));
             $user_id = $data['user_id'] ?? $data['userId'] ?? $_SESSION['user_id'] ?? null;
