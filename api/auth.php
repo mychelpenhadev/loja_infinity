@@ -231,4 +231,3 @@ if ($action === 'update_profile') {
 }
 
 echo json_encode(["status" => "error", "message" => "Ação inválida."]);
-?>

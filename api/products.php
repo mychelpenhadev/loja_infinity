@@ -1,4 +1,5 @@
 <?php
+ob_start();
 header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'auth.php'; // Para checagem de admin se necessário
@@ -73,4 +74,3 @@ try {
     http_response_code(400);
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }
-?>

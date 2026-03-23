@@ -47,4 +47,3 @@ catch (Throwable $e) {
         ]
     ]));
 }
-?>
