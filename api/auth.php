@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         catch (PDOException $e) {
-            echo json_encode(["status" => "error", "message" => "Erro de Banco de Dados."]);
+            echo json_encode(["status" => "error", "message" => "Erro SQL: " . $e->getMessage()]);
         }
         exit;
     }
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         catch (PDOException $e) {
-            echo json_encode(["status" => "error", "message" => "Erro de Banco de Dados."]);
+            echo json_encode(["status" => "error", "message" => "Erro SQL: " . $e->getMessage()]);
         }
         exit;
     }
