@@ -1197,6 +1197,23 @@ button {
   }
   
   .mobile-bottom-nav { display: flex !important; }
+  
+  .hero-image {
+    height: 300px !important;
+  }
+  
+  .slider-caption {
+    padding: 1rem !important;
+  }
+  
+  .slider-title {
+    font-size: 1.1rem !important;
+  }
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
 }
 
 a, button, input, select {

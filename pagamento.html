@@ -93,8 +93,9 @@
         }
 
         @media (max-width: 992px) {
-            .payment-layout { grid-template-columns: 1fr; }
-            .order-summary { position: relative; top: 0; }
+            .payment-layout { display: flex; flex-direction: column-reverse; }
+            .order-summary { position: relative; top: 0; width: 100%; margin-bottom: 2rem; }
+            .payment-methods { width: 100%; }
         }
         @media (max-width: 576px) {
             .payment-tabs { flex-direction: column; }
@@ -133,7 +134,7 @@
     <main class="section">
         <div class="container" id="checkout-container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h1 class="section-title" style="margin-bottom: 0;">Finalizar Pagamento</h1>
+                <h1 class="section-title" style="margin-bottom: 0;">Confirmar Compra</h1>
                 <a href="carrinho.html" class="btn" style="background-color: transparent; color: var(--clr-text); border: 1px solid var(--clr-border);">
                     <i class='bx bx-arrow-back'></i> Voltar
                 </a>
@@ -211,13 +212,6 @@
                         </a>
                     </div>
                 </div>
-                <div class="footer-col">
-                    <h3>Pagamento</h3>
-                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 1rem;">
-                        <i class='bx bxl-visa' style='font-size: 36px; color: var(--clr-text);'></i>
-                        <i class='bx bxl-mastercard' style='font-size: 36px; color: var(--clr-text);'></i>
-                        <img src="https://cdn.worldvectorlogo.com/logos/pix-bc.svg" alt="Pix" style="height: 20px; opacity: 0.9;">
-                    </div>
                 </div>
             </div>
             <div class="footer-bottom">

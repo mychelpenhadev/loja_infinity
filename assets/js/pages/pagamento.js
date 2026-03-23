@@ -49,7 +49,7 @@ function renderCheckoutSummary() {
     const total = subtotal + shipping;
 
     container.innerHTML = `
-        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Resumo para Pagamento</h2>
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Retirada na loja</h2>
         
         <div class="summary-row">
             <span>Subtotal (${window.CartManager.getTotalItems()} itens)</span>
@@ -66,7 +66,7 @@ function renderCheckoutSummary() {
         </div>
 
         <button type="submit" form="payment-form" id="confirm-btn" class="btn btn-primary" style="width: 100%; margin-top: 2rem; padding: 1rem;">
-            Confirmar Produtos <i class='bx bxl-whatsapp' ></i>
+            Confirmar Compra <i class='bx bxl-whatsapp' ></i>
         </button>
         
         <p style="text-align: center; margin-top: 1rem; color: var(--clr-text-light); font-size: 0.75rem;">
