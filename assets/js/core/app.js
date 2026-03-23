@@ -193,12 +193,12 @@ function injectChatbot() {
       chatBody.scrollTop = chatBody.scrollHeight;
   };
 
-  const getAIResponse = (userText) => {
+  const getAIResponse = async (userText) => {
       const lower = userText.toLowerCase();
 
       // Busca na Base de Dados
       if (window.ProductManager) {
-          const products = window.ProductManager.getAll();
+          const products = await window.ProductManager.getAll();
           
           // Match Exato
           const exactMatch = products.find(p => p.name.toLowerCase() === lower);
@@ -217,7 +217,13 @@ function injectChatbot() {
           // Match Relacionado (Busca em Nome, Categoria e Descrição)
           // Ignora palavras curtas demais
           if (lower.length > 2) {
-              const related = products.filter(p => p.name.toLowerCase().includes(lower) || p.category.toLowerCase().includes(lower) || p.description.toLowerCase().includes(lower));
+              const related = products.filter(p => {
+                  const name = (p.name || "").toLowerCase();
+                  const cat = (p.category || "").toLowerCase();
+                  const desc = (p.description || "").toLowerCase();
+                  return name.includes(lower) || cat.includes(lower) || desc.includes(lower);
+              });
+
               if (related.length > 0) {
                  let html = `Não encontrei esse nome exato, mas achei <b>${related.length}</b> oferta(s) parecidas que podem te interessar: <br><br>`;
                  related.slice(0, 3).forEach(p => {
@@ -248,7 +254,7 @@ function injectChatbot() {
       }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
       const text = chatInput.value.trim();
       if (!text) return;
       
@@ -262,10 +268,12 @@ function injectChatbot() {
       chatBody.appendChild(typingIndicator);
       chatBody.scrollTop = chatBody.scrollHeight;
 
+      const aiResponse = await getAIResponse(text);
+
       setTimeout(() => {
           chatBody.removeChild(typingIndicator);
-          addMessage(getAIResponse(text), 'ai');
-      }, 1000 + Math.random() * 1500);
+          addMessage(aiResponse, 'ai');
+      }, 500 + Math.random() * 1000);
   };
 
   chatSend.onclick = handleSend;
