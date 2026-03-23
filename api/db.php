@@ -15,13 +15,24 @@ if (file_exists($envPath)) {
     }
 }
 
+// Suporte para variáveis de ambiente do sistema (como no Railway/Vercel)
+$host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: $host);
+$user = getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: $user);
+$pass = getenv('DB_PASS') ?: (getenv('MYSQLPASSWORD') ?: $pass);
+$dbname = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: $dbname);
+$port = getenv('MYSQLPORT') ?: '3306';
+
+// Ajustar host para incluir porta se necessário
+if ($port !== '3306' && !str_contains($host, ':')) {
+    $host .= ":$port";
+}
+
 try {
-    $pdo = new PDO("mysql:host=$host", $user, $pass);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->query("CREATE DATABASE IF NOT EXISTS $dbname");
-    $pdo->query("USE $dbname");
 }
 catch (PDOException $e) {
-    die(json_encode(["error" => "ERRO DE CONEXÃO BD: " . $e->getMessage()]));
+    header('Content-Type: application/json');
+    die(json_encode(["status" => "error", "message" => "O banco de dados não está pronto ou os dados estão incorretos: " . $e->getMessage()]));
 }
 ?>
