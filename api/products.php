@@ -3,6 +3,7 @@ ob_start();
 header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'auth.php'; // Para checagem de admin se necessário
+ob_clean(); // Remove qualquer saída acidental das dependências
 
 $action = $_GET['action'] ?? 'list';
 

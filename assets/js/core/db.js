@@ -42,11 +42,14 @@ const ProductManager = {
       });
       
       const text = await response.text();
+      const cleanedText = text.trim();
       try {
-        return JSON.parse(text);
+        return JSON.parse(cleanedText);
       } catch (e) {
         console.error("Resposta não-JSON do servidor:", text);
-        return { status: 'error', message: 'Servidor retornou formato inválido. Status: ' + response.status };
+        // Exibir os primeiros 50 caracteres do texto para o desenvolvedor ver se há lixo
+        const snippet = text.length > 50 ? text.substring(0, 50) + "..." : text;
+        return { status: 'error', message: 'Servidor retornou formato inválido. Status: ' + response.status + ' Info: ' + snippet };
       }
     } catch (err) {
       console.error("Erro na requisição fetch:", err);
