@@ -55,7 +55,9 @@ try {
         `profile_picture` LONGTEXT DEFAULT NULL,
         `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
         PRIMARY KEY (`id`),
-        UNIQUE KEY `email` (`email`)
+        UNIQUE KEY `email` (`email`),
+        UNIQUE KEY `cpf` (`cpf`),
+        UNIQUE KEY `telefone` (`telefone`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
     // 5. Inserir WhatsApp padrão

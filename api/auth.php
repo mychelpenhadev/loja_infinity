@@ -19,12 +19,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
         try {
+            // 1. Verificar Email
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
                 echo json_encode(["status" => "error", "message" => "Este e-mail já está cadastrado."]);
                 exit;
             }
+
+            // 2. Verificar CPF (se fornecido)
+            if (!empty($cpf)) {
+                $stmt = $pdo->prepare("SELECT id FROM users WHERE cpf = ?");
+                $stmt->execute([$cpf]);
+                if ($stmt->fetch()) {
+                    echo json_encode(["status" => "error", "message" => "Este CPF já está cadastrado em outra conta."]);
+                    exit;
+                }
+            }
+
+            // 3. Verificar Telefone (se fornecido)
+            if (!empty($telefone)) {
+                $stmt = $pdo->prepare("SELECT id FROM users WHERE telefone = ?");
+                $stmt->execute([$telefone]);
+                if ($stmt->fetch()) {
+                    echo json_encode(["status" => "error", "message" => "Este número de telefone já está cadastrado em outra conta."]);
+                    exit;
+                }
+            }
+
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (name, cpf, telefone, email, password, role) VALUES (?, ?, ?, ?, ?, ?)");
             if ($stmt->execute([$name, $cpf, $telefone, $email, $hash, $role])) {
