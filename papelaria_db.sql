@@ -1,5 +1,3 @@
-CREATE DATABASE IF NOT EXISTS papelaria_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;  
-USE papelaria_db;  
 -- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
 --
 -- Host: localhost    Database: papelaria_db
@@ -43,7 +41,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Administrador Geral','admin@infinity.com.br','$2y$10$GRyOdnNNddoIlz3w.jsPEuLrc6Rq3/En.Apo5cNjF7rLcUyZPx5J6','admin','2026-03-21 09:13:43');
+INSERT INTO `users` (id, name, email, password, role, created_at) VALUES (1,'Administrador Geral','admin@infinity.com.br','$2y$10$GRyOdnNNddoIlz3w.jsPEuLrc6Rq3/En.Apo5cNjF7rLcUyZPx5J6','admin','2026-03-21 09:13:43');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
