@@ -30,8 +30,12 @@ const ProductManager = {
       const response = await fetch('api/products.php?action=list');
       const data = await response.json();
       
-      sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE, JSON.stringify(data));
-      sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP, (now + 60000).toString());
+      try {
+        sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE, JSON.stringify(data));
+        sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP, (now + 60000).toString());
+      } catch (e) {
+        console.warn("sessionStorage quota exceeded, products will not be cached.", e);
+      }
       
       ProductManager._cache = data;
       return data;
@@ -248,8 +252,12 @@ const ConfigManager = {
       const data = await response.json();
       ConfigManager._cache = data;
       
-      sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE, JSON.stringify(data));
-      sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE_EXP, (now + 300000).toString()); // Cache de 5 minutos para configurações
+      try {
+        sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE, JSON.stringify(data));
+        sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE_EXP, (now + 300000).toString()); 
+      } catch (e) {
+        console.warn("sessionStorage quota exceeded, config will not be cached.", e);
+      }
     } catch (err) {
       console.error("Erro ao inicializar ConfigManager:", err);
     }
