@@ -18,10 +18,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 if (backLink && backText) {
                     if (referrer.includes('index.php') || referrer.includes('index.html') || (referrer === window.location.origin + '/') || referrer === '') {
-                        backLink.href = 'index.php';
+                        backLink.href = 'index.php#prod-' + productId;
                         backText.textContent = 'Voltar para o Início';
                     } else if (referrer.includes('produtos.html')) {
-                        backLink.href = referrer; // Keep query params like category
+                        // If it already has a hash, remove it before adding the new one
+                        const baseReferrer = referrer.split('#')[0];
+                        backLink.href = baseReferrer + '#prod-' + productId;
                         backText.textContent = 'Voltar para a Coleção';
                     } else {
                         // Default browser back if it's from within the site but unknown

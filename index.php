@@ -185,7 +185,7 @@ function generateStars($rating) {
                     <p>Nenhum produto em destaque encontrado.</p>
                 <?php else: ?>
                     <?php foreach(array_slice($featuredProducts, 0, 4) as $product): ?>
-                        <div class="product-card">
+                        <div class="product-card" id="prod-<?= $product['id'] ?>">
                             <?php if ($product['rating'] >= 4.8): ?>
                                 <span class="product-badge">Novidade</span>
                             <?php endif; ?>

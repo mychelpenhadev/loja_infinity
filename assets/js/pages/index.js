@@ -18,7 +18,7 @@
                     products.forEach(product => {
                         const isNew = product.rating >= 4.8;
                         container.innerHTML += `
-                            <div class="product-card">
+                            <div class="product-card" id="prod-${product.id}">
                                 ${isNew ? '<span class="product-badge">Novidade</span>' : ''}
                                 <div class="product-actions">
                                     <button class="icon-btn" onclick="window.location.href='detalhes.html?id=${product.id}'" title="Ver Detalhes">

@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = filtered.map(product => {
             const isNew = parseFloat(product.rating) >= 4.8;
             return `
-                <div class="product-card">
+                <div class="product-card" id="prod-${product.id}">
                     ${isNew ? '<span class="product-badge">Novidade</span>' : ''}
                     
                     <div class="product-actions">
