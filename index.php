@@ -1,13 +1,40 @@
 <?php
-require_once 'api/db.php';
+define('CACHE_FILE', __DIR__ . '/api/cache/home_data.json');
+define('CACHE_TIME', 600); // 10 minutes
 
-// Fetch Featured Products (8)
-$stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 8");
-$featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$data = null;
+if (file_exists(CACHE_FILE) && (time() - filemtime(CACHE_FILE) < CACHE_TIME)) {
+    $data = json_decode(file_get_contents(CACHE_FILE), true);
+}
 
-// Fetch Novidades for Slider (5)
-$stmt = $pdo->query("SELECT * FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
-$sliderProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if (!$data) {
+    try {
+        require_once 'api/db.php';
+        
+        // Fetch Featured Products (8)
+        $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 8");
+        $featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Fetch Novidades for Slider (5)
+        $stmt = $pdo->query("SELECT * FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
+        $sliderProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $data = [
+            'featured' => $featuredProducts,
+            'slider' => $sliderProducts,
+            'timestamp' => time()
+        ];
+        
+        file_put_contents(CACHE_FILE, json_encode($data));
+    } catch (Exception $e) {
+        // Fallback or empty
+        $featuredProducts = [];
+        $sliderProducts = [];
+    }
+} else {
+    $featuredProducts = $data['featured'];
+    $sliderProducts = $data['slider'];
+}
 
 // Utils
 function formatCurrency($val) {
@@ -18,7 +45,7 @@ function generateStars($rating) {
     $html = "";
     for($i=0; $i<$full; $i++) $html .= "<i class='bx bxs-star'></i>";
     if($rating - $full >= 0.5) $html .= "<i class='bx bxs-star-half'></i>";
-    for($i=strlen($html)/24; $i<5; $i++) $html .= "<i class='bx bx-star'></i>"; // approximation
+    while(mb_strlen(strip_tags($html)) < 5) $html .= "<i class='bx bx-star'></i>";
     return $html;
 }
 ?>
@@ -33,11 +60,6 @@ function generateStars($rating) {
     
     <!-- Preload Critical Assets -->
     <link rel="preload" href="assets/img/logoPNG.png" as="image">
-    <?php if (!empty($featuredProducts)): ?>
-        <?php foreach(array_slice($featuredProducts, 0, 4) as $p): ?>
-            <link rel="preload" href="<?= $p['image'] ?>" as="image">
-        <?php endforeach; ?>
-    <?php endif; ?>
 
     <script>
         (function() {
