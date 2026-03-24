@@ -16,13 +16,23 @@ try {
             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
             $offset = ($page - 1) * $limit;
             $category = $_GET['cat'] ?? null;
+            $search = $_GET['search'] ?? null;
             
-            $where = "";
+            $conditions = [];
             $params = [];
+            
             if ($category && $category !== 'all') {
-                $where = "WHERE category LIKE ?";
+                $conditions[] = "category LIKE ?";
                 $params[] = "%$category%";
             }
+            
+            if ($search) {
+                $conditions[] = "(name LIKE ? OR description LIKE ?)";
+                $params[] = "%$search%";
+                $params[] = "%$search%";
+            }
+            
+            $where = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
             
             // Get total for pagination
             $countStmt = $pdo->prepare("SELECT COUNT(*) FROM products $where");
