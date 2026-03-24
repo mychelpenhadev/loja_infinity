@@ -1,7 +1,9 @@
 <?php
+ob_start();
 header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'security.php';
+ob_clean();
 
 $action = $_GET['action'] ?? 'list';
 
@@ -19,7 +21,6 @@ try {
             $data = json_decode($raw_data, true);
             if (!$data) throw new Exception("Dados de pedido inválidos");
             
-            session_start();
             $external_id = $data['external_id'] ?? $data['externalId'] ?? ('ORD' . rand(1000, 9999));
             $user_id = $data['user_id'] ?? $data['userId'] ?? $_SESSION['user_id'] ?? null;
             $user_name = $data['user_name'] ?? $data['userName'] ?? $_SESSION['user_name'] ?? 'Visitante';

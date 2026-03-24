@@ -1,7 +1,9 @@
 <?php
+ob_start();
 header('Content-Type: application/json');
 require_once 'security.php';
 require_once 'db.php';
+ob_clean();
 
 $action = $_GET['action'] ?? 'get';
 
@@ -16,7 +18,7 @@ try {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                 echo json_encode(["value" => $row['config_value'] ?? null]);
             } else {
-                $stmt = $pdo->query("SELECT * FROM configs");
+                $stmt = $pdo->query("SELECT config_key, config_value FROM configs");
                 $configs = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
                 echo json_encode($configs);
             }

@@ -215,7 +215,12 @@
                     tableBody.appendChild(tr);
                 });
             } catch(e) {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color: #EF4444;">Erro ao carregar os produtos.</td></tr>';
+                const errorMsg = e.message || 'Erro desconhecido';
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; color: #EF4444;">
+                    <i class='bx bx-error-circle' style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                    Erro ao carregar os produtos.<br>
+                    <small style="opacity: 0.8;">Detalhes: ${errorMsg}</small>
+                </td></tr>`;
                 window.showToast('Erro ao carregar produtos.', 'error');
             }
         }
