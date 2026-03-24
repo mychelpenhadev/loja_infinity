@@ -10,14 +10,39 @@ $action = $_GET['action'] ?? 'list';
 try {
     switch ($action) {
         case 'list':
-            header('Cache-Control: public, max-age=60'); // Cache for 60s
-            $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC");
-            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $json = json_encode($products, JSON_UNESCAPED_UNICODE);
-            if ($json === false) {
-                throw new Exception("Erro ao serializar produtos: " . json_last_error_msg());
+            header('Cache-Control: public, max-age=60');
+            
+            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 12;
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $offset = ($page - 1) * $limit;
+            $category = $_GET['cat'] ?? null;
+            
+            $where = "";
+            $params = [];
+            if ($category && $category !== 'all') {
+                $where = "WHERE category LIKE ?";
+                $params[] = "%$category%";
             }
-            echo $json;
+            
+            // Get total for pagination
+            $countStmt = $pdo->prepare("SELECT COUNT(*) FROM products $where");
+            $countStmt->execute($params);
+            $total = $countStmt->fetchColumn();
+            
+            // Get paginated products
+            $stmt = $pdo->prepare("SELECT * FROM products $where ORDER BY created_at DESC LIMIT $limit OFFSET $offset");
+            $stmt->execute($params);
+            $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            echo json_encode([
+                "products" => $products,
+                "pagination" => [
+                    "total" => (int)$total,
+                    "page" => $page,
+                    "limit" => $limit,
+                    "pages" => ceil($total / $limit)
+                ]
+            ], JSON_UNESCAPED_UNICODE);
             break;
 
         case 'save':

@@ -1,6 +1,7 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const container = document.getElementById('featured-products');
-            const allProducts = await window.ProductManager.getAll();
+            const data = await window.ProductManager.getAll({ limit: 8 });
+            const allProducts = data.products || [];
             const products = allProducts.slice(0, 4); 
             
             if (products.length === 0) {

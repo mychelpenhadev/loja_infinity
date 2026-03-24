@@ -39,8 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     currentCategory = e.target.getAttribute('data-cat');
-                    updateActivePill(currentCategory);
-                    renderProducts();
+                    loadProducts(1);
                 });
             });
 

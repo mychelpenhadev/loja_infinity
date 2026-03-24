@@ -17,27 +17,34 @@ const COLOR_CATEGORIES = ['linhas', 'las', 'croche', 'barbantes', 'bordados'];
 const ProductManager = {
   _cache: null,
 
-  getAll: async () => {
+  getAll: async (params = {}) => {
     const now = Date.now();
-    const cached = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE);
-    const exp = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP);
-
-    if (cached && exp && now < parseInt(exp)) {
-      return JSON.parse(cached);
+    // Cache is only for full list without params, for backward compatibility or general use
+    const hasParams = Object.keys(params).length > 0;
+    const cacheKey = hasParams ? STORAGE_KEYS.PRODUCTS_CACHE + '_' + JSON.stringify(params) : STORAGE_KEYS.PRODUCTS_CACHE;
+    
+    if (!hasParams) {
+      const cached = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE);
+      const exp = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP);
+      if (cached && exp && now < parseInt(exp)) {
+        return JSON.parse(cached);
+      }
     }
 
     try {
-      const response = await fetch('api/products.php?action=list');
+      const query = new URLSearchParams(params).toString();
+      const response = await fetch(`api/products.php?action=list&${query}`);
       const data = await response.json();
       
-      try {
-        sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE, JSON.stringify(data));
-        sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP, (now + 60000).toString());
-      } catch (e) {
-        console.warn("sessionStorage quota exceeded, products will not be cached.", e);
+      if (!hasParams) {
+        try {
+          sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE, JSON.stringify(data));
+          sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP, (now + 60000).toString());
+        } catch (e) {
+          console.warn("sessionStorage quota exceeded", e);
+        }
       }
       
-      ProductManager._cache = data;
       return data;
     } catch (err) {
       console.error("Erro ao buscar produtos:", err);

@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mostrar mini loader
             container.style.opacity = '0.6';
             
-            const allProducts = await window.ProductManager.getAll();
+            const data = await window.ProductManager.getAll({ limit: 100 }); // Busca mais para o carrinho
+            const allProducts = data.products || [];
             container.style.opacity = '1';
 
             let itemsHTML = '';
