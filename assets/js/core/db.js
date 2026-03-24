@@ -249,7 +249,7 @@ const ConfigManager = {
       ConfigManager._cache = data;
       
       sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE, JSON.stringify(data));
-      sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE_EXP, (now + 300000).toString()); // 5 min cache for config
+      sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE_EXP, (now + 300000).toString()); // Cache de 5 minutos para configurações
     } catch (err) {
       console.error("Erro ao inicializar ConfigManager:", err);
     }

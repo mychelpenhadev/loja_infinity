@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     picPreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=random`;
                     window.pendingProfilePic = null;
                     window.deleteProfilePic = true;
-                    if(picInput) picInput.value = ''; // Clear file input
+                    if(picInput) picInput.value = ''; // Limpa o campo de arquivo
                     window.showToast("Foto removida. Salve o perfil para confirmar.", "success");
                 };
             }

@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     `;
                 }
 
-                // Add styles for selected color
+                // Adicionar estilos para a cor selecionada
                 const style = document.createElement('style');
                 style.textContent = `
                     .color-option.active {
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         window.showToast(`Adicionado ${quantity} uni. (${selectedColor || ''}) ao carrinho!`);
                         quantity = 1;
                         display.value = quantity;
-                        // Reset selection
+                        // Resetar seleção
                         if (colorOptions) colorOptions.forEach(o => o.classList.remove('active'));
                         if (colorLabel) colorLabel.textContent = '';
                         selectedColor = null;

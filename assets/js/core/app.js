@@ -77,7 +77,7 @@ async function checkAuth() {
               } else {
                   btn.innerHTML = `<i class='bx bxs-user-circle' title="Minha Conta" style="font-size: 1.5rem; color: var(--clr-accent);"></i>`;
               }
-              // Native href to login.html works, relying on login.js to show profile
+              // O href nativo para login.html funciona, dependendo do login.js para exibir o perfil
           });
           
           
@@ -131,7 +131,7 @@ function injectMobileNav() {
 
 
 function injectChatbot() {
-  if (document.querySelector('.chatbot-fab')) return; // do not duplicate
+  if (document.querySelector('.chatbot-fab')) return; // não duplicar
   
   
   const chatBtn = document.createElement('button');
@@ -175,7 +175,7 @@ function injectChatbot() {
       chatWin.classList.remove('active');
   };
 
-// Profile modal removed as per user request (moved to login.html)
+// Modal de perfil removido conforme solicitado pelo usuário (movido para login.html)
   
   const chatInput = document.getElementById('chat-input');
   const chatSend = document.getElementById('chat-send-btn');

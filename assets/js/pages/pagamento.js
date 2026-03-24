@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Auth Protection & Empty Cart Check
+    // 1. Proteção de Autenticação e Verificação de Carrinho Vazio
     // Como a checagem global do app.js pode não ter finalizado ainda, checamos assincronamente.
     try {
         const response = await fetch('api/auth.php?action=check');
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = 'login.html';
             return;
         }
-        // Ensure local variables are set if global ones aren't ready
+        // Garantir que as variáveis locais sejam definidas se as globais não estiverem prontas
         window.userId = data.id;
         window.userName = data.name;
     } catch(err) {
