@@ -41,12 +41,28 @@
             }
         });
 
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
         function setupSearchHandler() {
             const adminSearch = document.getElementById('admin-search');
             if (adminSearch) {
-                adminSearch.addEventListener('input', (e) => {
-                    searchQuery = e.target.value.toLowerCase();
+                const debouncedSearch = debounce((value) => {
+                    searchQuery = value.toLowerCase();
                     renderTable(1);
+                }, 400);
+
+                adminSearch.addEventListener('input', (e) => {
+                    debouncedSearch(e.target.value);
                 });
             }
         }
