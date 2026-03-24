@@ -1,26 +1,27 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Proteção de Autenticação e Verificação de Carrinho Vazio
-    // Como a checagem global do app.js pode não ter finalizado ainda, checamos assincronamente.
-    try {
-        const response = await fetch('api/auth.php?action=check');
-        const data = await response.json();
-        if (!data.loggedIn) {
+    // Aguardar o Auth ser checado pelo app.js (flag global)
+    const checkAuthStatus = () => {
+        if (!window.authChecked) {
+            setTimeout(checkAuthStatus, 50);
+            return;
+        }
+        
+        if (!window.isLoggedIn) {
             window.location.href = 'login.html';
             return;
         }
-        // Garantir que as variáveis locais sejam definidas se as globais não estiverem prontas
-        window.userId = data.id;
-        window.userName = data.name;
-    } catch(err) {
-        window.location.href = 'login.html';
-        return;
-    }
 
-    const cart = window.CartManager.getCart();
-    if (cart.length === 0) {
-        window.location.href = 'carrinho.html';
-        return;
-    }
+        const cart = window.CartManager.getCart();
+        if (cart.length === 0) {
+            window.location.href = 'carrinho.html';
+            return;
+        }
+
+        renderCheckoutSummary();
+        setupCheckoutForm();
+    };
+
+    checkAuthStatus();
 
     renderCheckoutSummary();
     setupCheckoutForm();
