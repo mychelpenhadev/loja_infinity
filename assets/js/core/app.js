@@ -335,7 +335,7 @@ window.generateStars = (rating) => {
 };
 
 
-window.handleAddToCart = (productId) => {
+window.handleAddToCart = async (productId, quantity = 1, color = null) => {
   if (!window.isLoggedIn) {
       window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
       setTimeout(() => {
@@ -343,11 +343,25 @@ window.handleAddToCart = (productId) => {
       }, 1500);
       return;
   }
-  window.CartManager.add(productId, 1);
+
+  // Se não tem cor, verifica se a categoria exige cor
+  if (!color) {
+      const product = await window.ProductManager.getById(productId);
+      if (product) {
+          const cat = (product.category || '').toLowerCase();
+          if (window.COLOR_CATEGORIES.includes(cat)) {
+              // Redireciona para detalhes para escolher a cor
+              window.location.href = `detalhes.html?id=${productId}`;
+              return;
+          }
+      }
+  }
+
+  window.CartManager.add(productId, quantity, color);
   window.showToast('Produto adicionado ao carrinho!');
 };
 
-window.handleBuyNow = (productId, quantity = 1) => {
+window.handleBuyNow = async (productId, quantity = 1, color = null) => {
   if (!window.isLoggedIn) {
       window.showToast('Faça login para comprar!', 'error');
       setTimeout(() => {
@@ -355,7 +369,20 @@ window.handleBuyNow = (productId, quantity = 1) => {
       }, 1500);
       return;
   }
-  window.CartManager.add(productId, quantity);
+
+  // Se não tem cor, verifica se a categoria exige cor
+  if (!color) {
+      const product = await window.ProductManager.getById(productId);
+      if (product) {
+          const cat = (product.category || '').toLowerCase();
+          if (window.COLOR_CATEGORIES.includes(cat)) {
+              window.location.href = `detalhes.html?id=${productId}`;
+              return;
+          }
+      }
+  }
+
+  window.CartManager.add(productId, quantity, color);
   window.location.href = 'carrinho.html';
 };
 

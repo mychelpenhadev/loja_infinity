@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             let quantity = 1;
             let selectedColor = null;
 
-            const COLOR_CATEGORIES = ['linhas', 'las', 'croche'];
+            const COLOR_CATEGORIES = window.COLOR_CATEGORIES || ['linhas', 'las', 'croche'];
             const COLOR_PALETTE = [
                 { name: 'Branco', hex: '#FFFFFF' },
                 { name: 'Preto', hex: '#000000' },

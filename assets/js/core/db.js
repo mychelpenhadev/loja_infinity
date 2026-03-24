@@ -12,6 +12,8 @@ const STORAGE_KEYS = {
   CONFIG_CACHE_EXP: 'papelaria_config_exp'
 };
 
+const COLOR_CATEGORIES = ['linhas', 'las', 'croche', 'barbantes', 'bordados'];
+
 const ProductManager = {
   _cache: null,
 
@@ -286,6 +288,7 @@ window.ProductManager = ProductManager;
 window.CartManager = CartManager;
 window.OrderManager = OrderManager;
 window.ConfigManager = ConfigManager;
+window.COLOR_CATEGORIES = COLOR_CATEGORIES;
 window.STORAGE_KEYS = STORAGE_KEYS;
 window.formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
