@@ -9,13 +9,14 @@ const STORAGE_KEYS = {
   PRODUCTS_CACHE: 'papelaria_products_cache',
   PRODUCTS_CACHE_EXP: 'papelaria_products_exp',
   CONFIG_CACHE: 'papelaria_config_cache',
-  CONFIG_CACHE_EXP: 'papelaria_config_exp'
+  CONFIG_CACHE_EXP: 'papelaria_config_exp',
+  PRODUCT_DETAIL_PREFIX: 'papelaria_prod_'
 };
 
 const COLOR_CATEGORIES = ['linhas', 'las', 'croche', 'barbantes', 'bordados'];
 
 const ProductManager = {
-  _cache: null,
+  _cache: {},
 
   getAll: async (params = {}) => {
     const now = Date.now();
