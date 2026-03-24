@@ -11,6 +11,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Mostrar loader
             if(container) container.innerHTML = '<div style="text-align:center; padding: 5rem;"><i class="bx bx-loader-alt bx-spin" style="font-size: 4rem; color: var(--clr-primary);"></i><p style="margin-top:1rem;">Buscando detalhes do produto...</p></div>';
 
+            const setupBackLink = () => {
+                const backLink = document.getElementById('back-link');
+                const backText = document.getElementById('back-text');
+                const referrer = document.referrer;
+                
+                if (backLink && backText) {
+                    if (referrer.includes('index.php') || referrer.includes('index.html') || (referrer === window.location.origin + '/') || referrer === '') {
+                        backLink.href = 'index.php';
+                        backText.textContent = 'Voltar para o Início';
+                    } else if (referrer.includes('produtos.html')) {
+                        backLink.href = referrer; // Keep query params like category
+                        backText.textContent = 'Voltar para a Coleção';
+                    } else {
+                        // Default browser back if it's from within the site but unknown
+                        backLink.addEventListener('click', (e) => {
+                            if (window.history.length > 1) {
+                                e.preventDefault();
+                                window.history.back();
+                            }
+                        });
+                    }
+                }
+            };
+            setupBackLink();
+            
             const product = await window.ProductManager.getById(productId);
 
             if (!product) {
