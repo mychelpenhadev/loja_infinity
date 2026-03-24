@@ -37,8 +37,19 @@
             if (isAuthorized) {
                 await renderTable();
                 setupImageHandler();
+                setupSearchHandler();
             }
         });
+
+        function setupSearchHandler() {
+            const adminSearch = document.getElementById('admin-search');
+            if (adminSearch) {
+                adminSearch.addEventListener('input', (e) => {
+                    searchQuery = e.target.value.toLowerCase();
+                    renderTable(1);
+                });
+            }
+        }
 
         window.openModal = () => {
             document.getElementById('modal-title').innerText = 'Novo Produto';
@@ -184,6 +195,7 @@
 
         let currentPage = 1;
         let totalPages = 1;
+        let searchQuery = '';
 
         async function renderTable(page = 1) {
             currentPage = page;
@@ -191,7 +203,11 @@
             tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;"><i class="bx bx-loader-alt bx-spin"></i> Carregando produtos...</td></tr>';
             
             try {
-                const data = await window.ProductManager.getAll({ page: currentPage, limit: 10 });
+                const data = await window.ProductManager.getAll({ 
+                    page: currentPage, 
+                    limit: 10,
+                    search: searchQuery
+                });
                 const products = data.products || [];
                 const pagination = data.pagination || {};
                 totalPages = pagination.pages || 1;

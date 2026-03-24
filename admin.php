@@ -245,9 +245,16 @@ if (!isAdmin()) {
                     <h1 class="section-title" style="margin-bottom: 0;">Gerenciar Produtos</h1>
                     <p style="color: var(--clr-text-light);">Crie, edite e remova produtos do catálogo.</p>
                 </div>
-                <button class="btn btn-primary" onclick="openModal()">
-                    <i class='bx bx-plus'></i> Novo Produto
-                </button>
+                <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                    <div class="admin-search-box" style="position: relative;">
+                        <i class='bx bx-search' style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--clr-text-light); font-size: 1.25rem;"></i>
+                        <input type="text" id="admin-search" placeholder="Pesquisar produto pelo nome..." 
+                            style="padding: 0.75rem 1rem 0.75rem 2.75rem; border-radius: var(--radius-md); border: 1px solid var(--clr-border); background: var(--clr-surface); color: var(--clr-text); width: 300px; font-family: inherit;">
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal()">
+                        <i class='bx bx-plus'></i> Novo Produto
+                    </button>
+                </div>
             </div>
             <div class="admin-table-container">
                 <table class="admin-table">
