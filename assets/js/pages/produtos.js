@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const subFilters = document.getElementById('sub-filters-costura');
                 if (subFilters) {
                     const isCosturaRelada = cat === 'costura' || 
-                        ['agulhas', 'armarinhos', 'botoes', 'barbantes', 'beleza', 'bordados', 'cama', 'croche', 'fitas', 'las', 'linhas', 'patchwork', 'embalagens', 'scrap', 'marcas'].includes(cat);
+                        ['agulhas', 'armarinhos', 'botoes', 'barbantes', 'bordados', 'cama', 'croche', 'fitas', 'las', 'linhas', 'embalagens'].includes(cat);
                     subFilters.style.display = isCosturaRelada ? 'contents' : 'none';
                 }
 
