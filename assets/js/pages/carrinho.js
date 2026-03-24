@@ -62,13 +62,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Mostrar mini loader
-            container.style.opacity = '0.6';
+            // Mostrar loader real
+            container.innerHTML = `
+                <div style="text-align: center; padding: 4rem; color: var(--clr-primary);">
+                    <i class='bx bx-loader-alt bx-spin' style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <p>Preparando seu carrinho adorável...</p>
+                </div>
+            `;
             
             const productIds = [...new Set(cartItems.map(item => item.productId))];
             const allProducts = await window.ProductManager.getBatch(productIds);
-            
-            container.style.opacity = '1';
 
             let itemsHTML = '';
             let subtotal = 0;

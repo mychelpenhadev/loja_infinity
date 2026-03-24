@@ -58,9 +58,24 @@ const ProductManager = {
   },
   
   getById: async (id) => {
+    if (ProductManager._cache[id]) return ProductManager._cache[id];
+    
+    // Check sessionStorage
+    const cached = sessionStorage.getItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id);
+    if (cached) {
+      const data = JSON.parse(cached);
+      ProductManager._cache[id] = data;
+      return data;
+    }
+
     try {
       const response = await fetch(`api/products.php?action=get&id=${id}`);
-      return await response.json();
+      const data = await response.json();
+      if (data) {
+        ProductManager._cache[id] = data;
+        sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id, JSON.stringify(data));
+      }
+      return data;
     } catch (err) {
       console.error("Erro ao buscar produto:", err);
       return null;
@@ -69,12 +84,41 @@ const ProductManager = {
 
   getBatch: async (ids) => {
     if (!ids || ids.length === 0) return [];
+    
+    const results = [];
+    const missingIds = [];
+
+    ids.forEach(id => {
+      if (ProductManager._cache[id]) {
+        results.push(ProductManager._cache[id]);
+      } else {
+        const cached = sessionStorage.getItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id);
+        if (cached) {
+          const data = JSON.parse(cached);
+          ProductManager._cache[id] = data;
+          results.push(data);
+        } else {
+          missingIds.push(id);
+        }
+      }
+    });
+
+    if (missingIds.length === 0) return results;
+
     try {
-      const response = await fetch(`api/products.php?action=get_batch&ids=${ids.join(',')}`);
-      return await response.json();
+      const response = await fetch(`api/products.php?action=get_batch&ids=${missingIds.join(',')}`);
+      const data = await response.json();
+      
+      data.forEach(p => {
+        ProductManager._cache[p.id] = p;
+        sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + p.id, JSON.stringify(p));
+        results.push(p);
+      });
+      
+      return results;
     } catch (err) {
       console.error("Erro ao buscar produtos em lote:", err);
-      return [];
+      return results;
     }
   },
   
