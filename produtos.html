@@ -134,17 +134,40 @@
     <main class="section">
         <div class="container">
             <h1 class="section-title" style="margin-bottom: 2rem;">Nossa Coleção</h1>
+            <style>
+                .topic-select {
+                    background-color: var(--clr-bg-alt) !important;
+                    color: var(--clr-text) !important;
+                    border: 1px solid var(--clr-border);
+                    border-radius: var(--radius-md);
+                    padding: 0.5rem 1rem;
+                    font-family: var(--font-body);
+                    font-weight: 600;
+                    cursor: pointer;
+                    min-width: 180px;
+                    outline: none;
+                    transition: var(--transition);
+                }
+                .topic-select:focus {
+                    border-color: var(--clr-primary);
+                    box-shadow: 0 0 0 2px rgba(255, 182, 193, 0.3);
+                }
+                .topic-select option {
+                    background-color: var(--clr-surface);
+                    color: var(--clr-text);
+                }
+            </style>
             <div class="filter-header" style="justify-content: center;">
-                <div class="search-bar" style="max-width: 800px; width: 100%;">
-                    <select id="topic-filter" style="border: none; background: transparent; color: var(--clr-text); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-weight: 600; cursor: pointer; min-width: 140px;">
-                        <option value="all">Todos os Produtos</option>
-                        <option value="promocoes">Promoções</option>
-                        <option value="novidades">Novidades</option>
-                        <option value="criancas">Crianças</option>
-                        <option value="mochilas">Mochilas</option>
-                        <option value="materiais">Materiais Escolares</option>
-                        <option value="costura">Costura & Bordados</option>
-                        <optgroup label="Subcategorias Costura">
+                <div class="search-bar" style="max-width: 800px; width: 100%; gap: 0.5rem; background: var(--clr-surface);">
+                    <select id="topic-filter" class="topic-select">
+                        <option value="all">📚 Todos os Produtos</option>
+                        <option value="promocoes">🏷️ Promoções</option>
+                        <option value="novidades">✨ Novidades</option>
+                        <option value="criancas">🧸 Crianças</option>
+                        <option value="mochilas">🎒 Mochilas</option>
+                        <option value="materiais">✏️ Materiais Escolares</option>
+                        <option value="costura">🧵 Costura & Bordados</option>
+                        <optgroup label="🧵 Subcategorias Costura">
                             <option value="agulhas">Agulhas</option>
                             <option value="armarinhos">Armarinhos</option>
                             <option value="botoes">Botões e Zíper</option>
@@ -159,12 +182,14 @@
                         </optgroup>
                     </select>
                     
-                    <select id="brand-filter" style="display: none; border: none; background: transparent; color: var(--clr-text-light); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-size: 0.875rem;">
+                    <select id="brand-filter" class="topic-select" style="display: none; min-width: 140px; font-size: 0.875rem;">
                         <option value="all">Todas as Marcas</option>
                     </select>
 
-                    <i class='bx bx-search' style="color: var(--clr-text-light); font-size: 1.25rem; margin-right: 0.5rem;"></i>
-                    <input type="text" id="search-input" placeholder="Buscar na coleção...">
+                    <div style="display: flex; align-items: center; flex-grow: 1; background: var(--clr-bg); border-radius: var(--radius-md); padding-left: 0.75rem; border: 1px solid var(--clr-border);">
+                        <i class='bx bx-search' style="color: var(--clr-text-light); font-size: 1.25rem;"></i>
+                        <input type="text" id="search-input" placeholder="O que você procura hoje?" style="border: none; background: transparent; padding: 0.75rem; width: 100%; color: var(--clr-text); outline: none;">
+                    </div>
                 </div>
             </div>
             <div class="product-grid" id="catalog-grid">
