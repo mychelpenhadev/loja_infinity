@@ -140,12 +140,10 @@
                     <button class="filter-pill" data-cat="promocoes">Promoções</button>
                     <button class="filter-pill" data-cat="novidades">Novidades</button>
                     <button class="filter-pill" data-cat="criancas">Crianças</button>
-                    <button class="filter-pill" data-cat="cadernos">Cadernos</button>
-                    <button class="filter-pill" data-cat="canetas">Canetas & Lápis</button>
                     <button class="filter-pill" data-cat="mochilas">Mochilas</button>
                     <button class="filter-pill" data-cat="materiais">Materiais Escolares</button>
                     <button class="filter-pill" data-cat="costura">Costura & Bordados</button>
-                    <div id="sub-filters-costura" style="display: contents;">
+                    <div id="sub-filters-costura" style="display: none;">
                         <button class="filter-pill sub-pill" data-cat="agulhas">Agulhas</button>
                         <button class="filter-pill sub-pill" data-cat="armarinhos">Armarinhos</button>
                         <button class="filter-pill sub-pill" data-cat="botoes">Botões e Zíper</button>
@@ -160,14 +158,21 @@
                     </div>
                 </div>
                 <div class="search-bar">
-                    <select id="brand-filter" style="display: none; border: none; background: transparent; color: var(--clr-text); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-weight: 500;">
-                        <option value="all">Todas as Marcas</option>
+                    <select id="brand-filter" style="border: none; background: transparent; color: var(--clr-text); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-weight: 500;">
+                        <option value="all">Todas as Categorias</option>
+                        <option value="costura">Costura</option>
+                        <option value="bordados">Bordados</option>
+                        <option value="materiais">Materiais Escolares</option>
                     </select>
                     <i class='bx bx-search' style="color: var(--clr-text-light); font-size: 1.25rem;"></i>
                     <input type="text" id="search-input" placeholder="Buscar produtos...">
                 </div>
             </div>
             <div class="product-grid" id="catalog-grid">
+                <div style="grid-column: 1/-1; text-align:center; padding: 4rem; color: var(--clr-primary);">
+                    <i class='bx bx-loader-alt bx-spin' style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <p>Carregando nossa coleção especial...</p>
+                </div>
             </div>
         </div>
     </main>
