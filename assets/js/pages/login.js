@@ -214,27 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            window.handleGoogleLogin = async (response) => {
-                window.showToast('Autenticando com o Google...', 'success');
-                try {
-                    const res = await fetch('api/auth.php?action=google_login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ token: response.credential })
-                    });
-                    const data = await res.json();
-                    if (data.status === 'success') {
-                        window.showToast(data.message, 'success');
-                        setTimeout(() => {
-                            window.location.href = data.role === 'admin' ? 'admin.php' : 'index.html';
-                        }, 1000);
-                    } else {
-                        window.showToast(data.message, 'error');
-                    }
-                } catch(err) {
-                    window.showToast('Erro de conexão ao Google.', 'error');
-                }
-            };
+            // O handleGoogleLogin foi movido para o login.html (escopo global) 
+            // para garantir que esteja disponível assim que a biblioteca do Google carregar.
 
             window.pendingProfilePic = null;
             window.deleteProfilePic = false;

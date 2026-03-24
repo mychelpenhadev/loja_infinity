@@ -13,6 +13,35 @@
         })();
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        // Função global para o Google Login (mais confiável no mobile fora do DOMContentLoaded)
+        window.handleGoogleLogin = async (response) => {
+            console.log("Recebendo resposta do Google...");
+            // Usamos alert se showToast não estiver pronto (raro, mas possível no mobile lento)
+            let notify = window.showToast || alert;
+            notify('Autenticando com o Google...', 'success');
+            
+            try {
+                const res = await fetch('api/auth.php?action=google_login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.credential })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    notify(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = data.role === 'admin' ? 'admin.php' : 'index.html';
+                    }, 1000);
+                } else {
+                    notify(data.message, 'error');
+                }
+            } catch(err) {
+                console.error("Google Auth Error:", err);
+                notify('Erro de conexão ao Google.', 'error');
+            }
+        };
+    </script>
     <style>
         .auth-container {
             display: flex;
@@ -266,8 +295,8 @@
         <div id="g_id_onload"
              data-client_id="375279591438-7uirtbvgbtsd2c2pjti9kmmhal8r2sr3.apps.googleusercontent.com"
              data-context="signin"
-             data-ux_mode="redirect"
-             data-login_uri="api/auth.php?action=google_login"
+             data-ux_mode="popup"
+             data-callback="handleGoogleLogin"
              data-auto_prompt="false">
         </div>
 
