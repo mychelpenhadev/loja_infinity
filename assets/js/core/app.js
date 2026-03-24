@@ -58,6 +58,7 @@ function updateCartBadge() {
 window.isLoggedIn = false;
 window.userId = null;
 window.userName = null;
+window.authChecked = false;
 
 async function checkAuth() {
   try {
@@ -67,6 +68,7 @@ async function checkAuth() {
       window.isLoggedIn = data.loggedIn;
       window.userId = data.id || null;
       window.userName = data.name || null;
+      window.authChecked = true;
       window.dispatchEvent(new Event('cartUpdated'));
       
       const userBtns = document.querySelectorAll('a[href="login.html"]');

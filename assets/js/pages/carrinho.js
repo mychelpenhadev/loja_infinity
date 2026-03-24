@@ -49,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const cartItems = window.CartManager.getCart();
 
             if (cartItems.length === 0) {
+                // Se ainda não checou o login, espera um pouco para não mostrar "Vazio" falso
+                if (!window.authChecked) {
+                    return; // Mantém o que estiver no container (o spinner do HTML)
+                }
+
                 if(!container.querySelector('.bxs-check-circle')){ 
                     container.innerHTML = `
                         <div class="empty-cart">
