@@ -145,6 +145,24 @@ try {
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
             echo json_encode($product);
             break;
+
+        case 'get_batch':
+            $ids = $_GET['ids'] ?? '';
+            if (!$ids) {
+                echo json_encode([]);
+                break;
+            }
+            $idArray = explode(',', $ids);
+            $idArray = array_filter($idArray, 'is_numeric');
+            if (empty($idArray)) {
+                echo json_encode([]);
+                break;
+            }
+            $placeholders = implode(',', array_fill(0, count($idArray), '?'));
+            $stmt = $pdo->prepare("SELECT * FROM products WHERE id IN ($placeholders)");
+            $stmt->execute($idArray);
+            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+            break;
     }
 } catch (Exception $e) {
     http_response_code(400);

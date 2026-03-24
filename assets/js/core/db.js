@@ -66,6 +66,17 @@ const ProductManager = {
       return null;
     }
   },
+
+  getBatch: async (ids) => {
+    if (!ids || ids.length === 0) return [];
+    try {
+      const response = await fetch(`api/products.php?action=get_batch&ids=${ids.join(',')}`);
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao buscar produtos em lote:", err);
+      return [];
+    }
+  },
   
   add: async (product) => {
     try {
