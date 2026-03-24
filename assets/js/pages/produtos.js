@@ -48,6 +48,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 filterBtns.forEach(b => b.classList.remove('active'));
                 const activeBtn = document.querySelector(`.filter-pill[data-cat="${cat}"]`);
                 if (activeBtn) activeBtn.classList.add('active');
+                
+                // Mostrar sub-filtros apenas se estiver em Costura ou um sub-tópico de Costura
+                const subFilters = document.getElementById('sub-filters-costura');
+                if (subFilters) {
+                    const isCosturaRelada = cat === 'costura' || 
+                        ['agulhas', 'armarinhos', 'botoes', 'barbantes', 'beleza', 'bordados', 'cama', 'croche', 'fitas', 'las', 'linhas', 'patchwork', 'embalagens', 'scrap', 'marcas'].includes(cat);
+                    subFilters.style.display = isCosturaRelada ? 'contents' : 'none';
+                }
+
                 updateBrandFilterList(cat);
             }
 
