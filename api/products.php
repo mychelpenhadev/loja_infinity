@@ -10,13 +10,22 @@ $action = $_GET['action'] ?? 'list';
 try {
     switch ($action) {
         case 'list':
-            header('Cache-Control: public, max-age=60');
-            
             $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 12;
             $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-            $offset = ($page - 1) * $limit;
             $category = $_GET['cat'] ?? null;
             $search = $_GET['search'] ?? null;
+
+            // Sistema de Cache para Listagem
+            $cacheDir = __DIR__ . "/cache";
+            if (!is_dir($cacheDir)) mkdir($cacheDir, 0777, true);
+            $cacheFile = $cacheDir . "/list_" . md5($category . $search . $page . $limit) . ".json";
+            
+            if (empty($search) && file_exists($cacheFile) && (time() - filemtime($cacheFile) < 300)) {
+                echo file_get_contents($cacheFile);
+                exit;
+            }
+            
+            $offset = ($page - 1) * $limit;
             
             $conditions = [];
             $params = [];
@@ -47,7 +56,7 @@ try {
             $stmt->execute($params);
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            echo json_encode([
+            $response = json_encode([
                 "products" => $products,
                 "pagination" => [
                     "total" => (int)$total,
@@ -56,6 +65,12 @@ try {
                     "pages" => ceil($total / $limit)
                 ]
             ], JSON_UNESCAPED_UNICODE);
+
+            if (empty($search)) {
+                file_put_contents($cacheFile, $response);
+            }
+
+            echo $response;
             break;
 
         case 'save':
