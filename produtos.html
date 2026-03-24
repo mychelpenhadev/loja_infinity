@@ -10,6 +10,13 @@
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
+
+            if (window.location.hash && window.location.hash.startsWith('#prod-')) {
+                const style = document.createElement('style');
+                style.id = 'fast-scroll-hide';
+                style.textContent = 'body { visibility: hidden !important; }';
+                document.head.appendChild(style);
+            }
         })();
     </script>
     <style>

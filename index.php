@@ -69,6 +69,26 @@ function generateStars($rating) {
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Fast Scroll for anchors
+            if (window.location.hash && window.location.hash.startsWith('#prod-')) {
+                // Hide body temporarily to avoid flash
+                const style = document.createElement('style');
+                style.id = 'fast-scroll-hide';
+                style.textContent = 'body { visibility: hidden !important; }';
+                document.head.appendChild(style);
+                
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        const target = document.querySelector(window.location.hash);
+                        if (target) {
+                            target.scrollIntoView({ block: 'start' });
+                        }
+                        const hideStyle = document.getElementById('fast-scroll-hide');
+                        if (hideStyle) hideStyle.remove();
+                    }, 50);
+                });
+            }
         })();
     </script>
 </head>

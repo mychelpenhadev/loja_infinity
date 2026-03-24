@@ -37,6 +37,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateActivePill(currentCategory);
             renderProducts();
             renderPagination();
+
+            // Handle Fast Scroll from anchor
+            if (window.location.hash && window.location.hash.startsWith('#prod-')) {
+                setTimeout(() => {
+                    const target = document.querySelector(window.location.hash);
+                    if (target) {
+                        target.scrollIntoView({ block: 'start' });
+                    }
+                    const hideStyle = document.getElementById('fast-scroll-hide');
+                    if (hideStyle) hideStyle.remove();
+                }, 100);
+            }
         } catch (e) {
             container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 3rem; color: #EF4444;"><i class='bx bx-error-circle' style="font-size: 3rem;"></i><p>Erro ao carregar os produtos. Detalhes: ${e.message}</p></div>`;
         }
