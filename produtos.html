@@ -156,6 +156,28 @@
                     background-color: var(--clr-surface);
                     color: var(--clr-text);
                 }
+
+                @media (max-width: 768px) {
+                    .filter-header {
+                        padding: 1rem !important;
+                    }
+                    .search-bar {
+                        flex-direction: column !important;
+                        background: transparent !important;
+                        border: none !important;
+                        gap: 0.75rem !important;
+                        max-width: 100% !important;
+                    }
+                    .topic-select {
+                        width: 100% !important;
+                        min-width: 100% !important;
+                        margin: 0 !important;
+                        border-right: 1px solid var(--clr-border) !important;
+                    }
+                    .search-bar > div {
+                        width: 100% !important;
+                    }
+                }
             </style>
             <div class="filter-header" style="justify-content: center;">
                 <div class="search-bar" style="max-width: 800px; width: 100%; gap: 0.5rem; background: var(--clr-surface);">
