@@ -91,8 +91,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if ($action === 'google_login') {
-        $token = $data['token'] ?? '';
+        // Obter token (credential) - suporta JSON (Popup) e POST (Redirect)
+        $token = $data['token'] ?? $_POST['credential'] ?? '';
+        $isRedirect = isset($_POST['credential']);
+
         if (!$token) {
+            if ($isRedirect) {
+                header('Location: ../login.html?error=no_token');
+                exit;
+            }
             echo json_encode(["status" => "error", "message" => "Autenticação falhou."]);
             exit;
         }
@@ -101,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             require_once __DIR__ . '/../vendor/autoload.php';
             $client = new Google_Client(['client_id' => '375279591438-7uirtbvgbtsd2c2pjti9kmmhal8r2sr3.apps.googleusercontent.com']);
             $payload = $client->verifyIdToken($token);
+            
             if ($payload) {
                 $email = $payload['email'];
                 $name = $payload['name'] ?? 'Usuário Google';
@@ -117,6 +125,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['profile_picture'] = $user['profile_picture'];
                     $_SESSION['user_telefone'] = $user['telefone'];
                     $_SESSION['user_cpf'] = $user['cpf'];
+                    
+                    if ($isRedirect) {
+                        $target = $user['role'] === 'admin' ? '../admin.php' : '../index.html';
+                        header("Location: $target");
+                        exit;
+                    }
                     echo json_encode(["status" => "success", "message" => "Bem-vindo de volta, " . $user['name'] . "!", "role" => $user['role'], "id" => $user['id'], "profile_picture" => $user['profile_picture']]);
                 } else {
                     $randomPass = bin2hex(random_bytes(8));
@@ -131,12 +145,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['profile_picture'] = $picture;
                     $_SESSION['user_telefone'] = null;
                     $_SESSION['user_cpf'] = null;
+
+                    if ($isRedirect) {
+                        header('Location: ../index.html');
+                        exit;
+                    }
                     echo json_encode(["status" => "success", "message" => "Conta criada com sucesso pelo Google!", "role" => $role, "id" => $_SESSION['user_id'], "profile_picture" => $picture]);
                 }
             } else {
+                if ($isRedirect) {
+                    header('Location: ../login.html?error=invalid_token');
+                    exit;
+                }
                 echo json_encode(["status" => "error", "message" => "Token inválido ou expirado."]);
             }
         } catch(Exception $e) {
+            if ($isRedirect) {
+                header('Location: ../login.html?error=' . urlencode($e->getMessage()));
+                exit;
+            }
             echo json_encode(["status" => "error", "message" => "Erro na verificação do Google: " . $e->getMessage()]);
         }
         exit;

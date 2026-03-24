@@ -90,10 +90,26 @@ document.addEventListener('DOMContentLoaded', () => {
                             setupWhatsAppSupport();
                         }
                     } else {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        if(urlParams.get('action') === 'register') {
-                            switchToRegister();
-                        }
+                const urlParams = new URLSearchParams(window.location.search);
+                if(urlParams.get('action') === 'register') {
+                    switchToRegister();
+                }
+                
+                if (urlParams.has('error')) {
+                    const error = urlParams.get('error');
+                    let msg = 'Ocorreu um erro na autenticação.';
+                    if (error === 'no_token') msg = 'Token do Google não recebido.';
+                    else if (error === 'invalid_token') msg = 'Token do Google inválido.';
+                    else msg = decodeURIComponent(error);
+                    
+                    if (window.showToast) {
+                        window.showToast(msg, 'error');
+                    } else {
+                        alert(msg);
+                    }
+                    // Limpa a URL sem recarregar
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
                     }
                 });
 
