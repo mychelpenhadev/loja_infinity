@@ -1,3 +1,27 @@
+<?php
+require_once 'api/db.php';
+
+// Fetch Featured Products (8)
+$stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 8");
+$featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch Novidades for Slider (5)
+$stmt = $pdo->query("SELECT * FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
+$sliderProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Utils
+function formatCurrency($val) {
+    return 'R$ ' . number_format($val, 2, ',', '.');
+}
+function generateStars($rating) {
+    $full = floor($rating);
+    $html = "";
+    for($i=0; $i<$full; $i++) $html .= "<i class='bx bxs-star'></i>";
+    if($rating - $full >= 0.5) $html .= "<i class='bx bxs-star-half'></i>";
+    for($i=strlen($html)/24; $i<5; $i++) $html .= "<i class='bx bx-star'></i>"; // approximation
+    return $html;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
@@ -5,7 +29,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css?v=15">
+    <link rel="stylesheet" href="assets/css/style.css?v=16">
+    
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="assets/img/logoPNG.png" as="image">
+    <?php if (!empty($featuredProducts)): ?>
+        <?php foreach(array_slice($featuredProducts, 0, 4) as $p): ?>
+            <link rel="preload" href="<?= $p['image'] ?>" as="image">
+        <?php endforeach; ?>
+    <?php endif; ?>
+
     <script>
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
@@ -77,12 +110,25 @@
             </div>
             <div class="hero-image">
                 <div class="hero-slider" id="hero-slider">
-                    <!-- Dynamic content from index.js -->
-                    <div class="slider-loading">
-                        <i class='bx bx-loader-alt bx-spin'></i>
-                    </div>
+                    <?php if (empty($sliderProducts)): ?>
+                        <div class="slider-loading"><i class='bx bx-loader-alt bx-spin'></i></div>
+                    <?php else: ?>
+                        <?php foreach($sliderProducts as $index => $p): ?>
+                            <div class="slider-item <?= $index === 0 ? 'active' : '' ?>" data-id="<?= $p['id'] ?>" onclick="window.location.href='detalhes.html?id=<?= $p['id'] ?>'">
+                                <img src="<?= $p['image'] ?>" alt="<?= htmlspecialchars($p['name']) ?>" fetchpriority="<?= $index === 0 ? 'high' : 'low' ?>">
+                                <div class="slider-caption">
+                                    <h3 class="slider-title"><?= htmlspecialchars($p['name']) ?></h3>
+                                    <span class="slider-price"><?= formatCurrency($p['price']) ?></span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
-                <div class="slider-dots" id="slider-dots"></div>
+                <div class="slider-dots" id="slider-dots">
+                    <?php foreach($sliderProducts as $index => $p): ?>
+                        <span class="dot <?= $index === 0 ? 'active' : '' ?>" data-index="<?= $index ?>"></span>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
     </section>
@@ -135,6 +181,49 @@
                 <p class="section-subtitle">Os produtos mais amados pelos nossos criativos</p>
             </div>
             <div class="product-grid" id="featured-products">
+                <?php if (empty($featuredProducts)): ?>
+                    <p>Nenhum produto em destaque encontrado.</p>
+                <?php else: ?>
+                    <?php foreach(array_slice($featuredProducts, 0, 4) as $product): ?>
+                        <div class="product-card">
+                            <?php if ($product['rating'] >= 4.8): ?>
+                                <span class="product-badge">Novidade</span>
+                            <?php endif; ?>
+                            
+                            <div class="product-actions">
+                                <button class="icon-btn" onclick="window.location.href='detalhes.html?id=<?= $product['id'] ?>'" title="Ver Detalhes">
+                                    <i class='bx bx-show'></i>
+                                </button>
+                            </div>
+
+                            <a href="detalhes.html?id=<?= $product['id'] ?>" class="product-image-container">
+                                <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" loading="eager" fetchpriority="high">
+                            </a>
+                            
+                            <div class="product-info">
+                                <span class="product-category"><?= htmlspecialchars($product['category']) ?></span>
+                                <a href="detalhes.html?id=<?= $product['id'] ?>" class="product-title"><?= htmlspecialchars($product['name']) ?></a>
+                                
+                                <div class="product-rating">
+                                    <?= generateStars($product['rating']) ?>
+                                    <span style="color: var(--clr-text-light); margin-left: auto; font-size: 0.75rem;">(<?= rand(10, 60) ?>)</span>
+                                </div>
+
+                                <div class="product-footer">
+                                    <span class="product-price"><?= formatCurrency($product['price']) ?></span>
+                                    <div style="display: flex; gap: 0.5rem;">
+                                        <button class="btn" style="padding: 0.5rem 0.75rem; font-size: 0.875rem; background-color: var(--clr-primary); color: white;" onclick="window.handleBuyNow('<?= $product['id'] ?>')">
+                                            Comprar
+                                        </button>
+                                        <button class="btn-add" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;" onclick="window.handleAddToCart('<?= $product['id'] ?>')" title="Adicionar ao Carrinho">
+                                            <i class='bx bx-cart-add'></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </section>
