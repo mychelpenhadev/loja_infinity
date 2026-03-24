@@ -134,38 +134,37 @@
     <main class="section">
         <div class="container">
             <h1 class="section-title" style="margin-bottom: 2rem;">Nossa Coleção</h1>
-            <div class="filter-header">
-                <div class="category-filters" id="category-filters">
-                    <button class="filter-pill active" data-cat="all">Todos</button>
-                    <button class="filter-pill" data-cat="promocoes">Promoções</button>
-                    <button class="filter-pill" data-cat="novidades">Novidades</button>
-                    <button class="filter-pill" data-cat="criancas">Crianças</button>
-                    <button class="filter-pill" data-cat="mochilas">Mochilas</button>
-                    <button class="filter-pill" data-cat="materiais">Materiais Escolares</button>
-                    <button class="filter-pill" data-cat="costura">Costura & Bordados</button>
-                    <div id="sub-filters-costura" style="display: none;">
-                        <button class="filter-pill sub-pill" data-cat="agulhas">Agulhas</button>
-                        <button class="filter-pill sub-pill" data-cat="armarinhos">Armarinhos</button>
-                        <button class="filter-pill sub-pill" data-cat="botoes">Botões e Zíper</button>
-                        <button class="filter-pill sub-pill" data-cat="barbantes">Barbantes</button>
-                        <button class="filter-pill sub-pill" data-cat="bordados">Bordados e Viés</button>
-                        <button class="filter-pill sub-pill" data-cat="cama">Cama, Mesa e Banho</button>
-                        <button class="filter-pill sub-pill" data-cat="croche">Crochê e Tricô</button>
-                        <button class="filter-pill sub-pill" data-cat="fitas">Fitas e Laços</button>
-                        <button class="filter-pill sub-pill" data-cat="las">Lãs e Fios</button>
-                        <button class="filter-pill sub-pill" data-cat="linhas">Linhas Costura</button>
-                        <button class="filter-pill sub-pill" data-cat="embalagens">Embalagens</button>
-                    </div>
-                </div>
-                <div class="search-bar">
-                    <select id="brand-filter" style="border: none; background: transparent; color: var(--clr-text); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-weight: 500;">
-                        <option value="all">Todas as Categorias</option>
-                        <option value="costura">Costura</option>
-                        <option value="bordados">Bordados</option>
+            <div class="filter-header" style="justify-content: center;">
+                <div class="search-bar" style="max-width: 800px; width: 100%;">
+                    <select id="topic-filter" style="border: none; background: transparent; color: var(--clr-text); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-weight: 600; cursor: pointer; min-width: 140px;">
+                        <option value="all">Todos os Produtos</option>
+                        <option value="promocoes">Promoções</option>
+                        <option value="novidades">Novidades</option>
+                        <option value="criancas">Crianças</option>
+                        <option value="mochilas">Mochilas</option>
                         <option value="materiais">Materiais Escolares</option>
+                        <option value="costura">Costura & Bordados</option>
+                        <optgroup label="Subcategorias Costura">
+                            <option value="agulhas">Agulhas</option>
+                            <option value="armarinhos">Armarinhos</option>
+                            <option value="botoes">Botões e Zíper</option>
+                            <option value="barbantes">Barbantes</option>
+                            <option value="bordados">Bordados e Viés</option>
+                            <option value="cama">Cama, Mesa e Banho</option>
+                            <option value="croche">Crochê e Tricô</option>
+                            <option value="fitas">Fitas e Laços</option>
+                            <option value="las">Lãs e Fios</option>
+                            <option value="linhas">Linhas Costura</option>
+                            <option value="embalagens">Embalagens</option>
+                        </optgroup>
                     </select>
-                    <i class='bx bx-search' style="color: var(--clr-text-light); font-size: 1.25rem;"></i>
-                    <input type="text" id="search-input" placeholder="Buscar produtos...">
+                    
+                    <select id="brand-filter" style="display: none; border: none; background: transparent; color: var(--clr-text-light); outline: none; padding-right: 0.5rem; border-right: 1px solid var(--clr-border); margin-right: 0.5rem; font-family: var(--font-body); font-size: 0.875rem;">
+                        <option value="all">Todas as Marcas</option>
+                    </select>
+
+                    <i class='bx bx-search' style="color: var(--clr-text-light); font-size: 1.25rem; margin-right: 0.5rem;"></i>
+                    <input type="text" id="search-input" placeholder="Buscar na coleção...">
                 </div>
             </div>
             <div class="product-grid" id="catalog-grid">

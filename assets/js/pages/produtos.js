@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('catalog-grid');
     const searchInput = document.getElementById('search-input');
-    const filterBtns = document.querySelectorAll('.filter-pill');
+    const topicFilter = document.getElementById('topic-filter');
     const brandSelect = document.getElementById('brand-filter');
     
     let allProducts = [];
@@ -63,54 +63,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (brandSelect) {
-        brandSelect.addEventListener('change', (e) => {
-            const val = e.target.value;
-            if (['costura', 'bordados', 'materiais'].includes(val)) {
-                currentCategory = val;
-                loadProducts(1);
-            } else {
-                currentBrand = val;
-                renderProducts();
-            }
+    if (topicFilter) {
+        topicFilter.addEventListener('change', (e) => {
+            currentCategory = e.target.value;
+            loadProducts(1);
         });
     }
 
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            currentCategory = e.target.getAttribute('data-cat');
-            loadProducts(1);
+    if (brandSelect) {
+        brandSelect.addEventListener('change', (e) => {
+            currentBrand = e.target.value;
+            renderProducts();
         });
-    });
+    }
 
     function updateActivePill(cat) {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        const activeBtn = document.querySelector(`.filter-pill[data-cat="${cat}"]`);
-        if (activeBtn) activeBtn.classList.add('active');
-        
-        const subFilters = document.getElementById('sub-filters-costura');
-        if (subFilters) {
-            const isCosturaRelada = cat === 'costura' || 
-                ['agulhas', 'armarinhos', 'botoes', 'barbantes', 'bordados', 'cama', 'croche', 'fitas', 'las', 'linhas', 'embalagens'].includes(cat);
-            subFilters.style.display = isCosturaRelada ? 'contents' : 'none';
+        if (topicFilter && topicFilter.value !== cat) {
+            topicFilter.value = cat;
         }
-
-        // Manter o select visível com as opções fixas + marcas dinâmicas se for o caso
         updateBrandFilterList(cat);
     }
 
     function updateBrandFilterList(cat) {
         if (!brandSelect) return;
         
-        // Opções fixas solicitadas pelo usuário
-        const fixedOptions = `
-            <option value="all">Todas as Categorias</option>
-            <option value="costura" ${cat === 'costura' ? 'selected' : ''}>Costura</option>
-            <option value="bordados" ${cat === 'bordados' ? 'selected' : ''}>Bordados</option>
-            <option value="materiais" ${cat === 'materiais' ? 'selected' : ''}>Materiais Escolares</option>
-        `;
-
-        // Se for uma categoria que tem marcas específicas configuradas, adicionamos elas
         let dynamicBrands = [];
         if (cat === 'costura' || cat === 'mochilas') {
             const configKey = cat === 'costura' ? 'brandsCostura' : 'brandsMochilas';
@@ -121,10 +97,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (dynamicBrands.length > 0) {
-            brandSelect.innerHTML = fixedOptions + '<hr>' + 
-                dynamicBrands.map(b => `<option value="${b.toLowerCase()}">Marca: ${b}</option>`).join('');
+            brandSelect.style.display = 'inline-block';
+            brandSelect.innerHTML = '<option value="all">Todas as Marcas</option>' + 
+                dynamicBrands.map(b => `<option value="${b.toLowerCase()}">${b}</option>`).join('');
         } else {
-            brandSelect.innerHTML = fixedOptions;
+            brandSelect.style.display = 'none';
         }
         
         currentBrand = 'all';
