@@ -27,9 +27,12 @@ try {
             }
             
             if ($search) {
-                $conditions[] = "(name LIKE ? OR description LIKE ?)";
-                $params[] = "%$search%";
-                $params[] = "%$search%";
+                $search = trim($search);
+                // We use a more flexible matching: exact prefix first, then anywhere
+                $conditions[] = "(name LIKE ? OR name LIKE ? OR description LIKE ?)";
+                $params[] = "$search%"; // Prefix match
+                $params[] = "%$search%"; // General match
+                $params[] = "%$search%"; // Description match
             }
             
             $where = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
@@ -39,8 +42,8 @@ try {
             $countStmt->execute($params);
             $total = $countStmt->fetchColumn();
             
-            // Get paginated products
-            $stmt = $pdo->prepare("SELECT * FROM products $where ORDER BY created_at DESC LIMIT $limit OFFSET $offset");
+            // Get paginated products - ORDER BY name ASC as requested
+            $stmt = $pdo->prepare("SELECT * FROM products $where ORDER BY name ASC LIMIT $limit OFFSET $offset");
             $stmt->execute($params);
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
