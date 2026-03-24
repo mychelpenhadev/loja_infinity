@@ -72,22 +72,25 @@ function generateStars($rating) {
             
             // Fast Scroll for anchors
             if (window.location.hash && window.location.hash.startsWith('#prod-')) {
-                // Hide body temporarily to avoid flash
                 const style = document.createElement('style');
                 style.id = 'fast-scroll-hide';
                 style.textContent = 'body { visibility: hidden !important; }';
                 document.head.appendChild(style);
                 
-                window.addEventListener('load', () => {
-                    setTimeout(() => {
-                        const target = document.querySelector(window.location.hash);
-                        if (target) {
-                            target.scrollIntoView({ block: 'start' });
-                        }
-                        const hideStyle = document.getElementById('fast-scroll-hide');
-                        if (hideStyle) hideStyle.remove();
-                    }, 50);
-                });
+                let attempts = 0;
+                const check = () => {
+                    attempts++;
+                    const target = document.querySelector(window.location.hash);
+                    if (target) {
+                        target.scrollIntoView();
+                        if (style.parentNode) style.parentNode.removeChild(style);
+                    } else if (attempts < 20) {
+                        setTimeout(check, 50);
+                    } else {
+                        if (style.parentNode) style.parentNode.removeChild(style);
+                    }
+                };
+                check();
             }
         })();
     </script>
