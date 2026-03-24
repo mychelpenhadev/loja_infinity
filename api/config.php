@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+require_once 'security.php';
 require_once 'db.php';
 
 $action = $_GET['action'] ?? 'get';

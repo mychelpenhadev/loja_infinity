@@ -1,7 +1,4 @@
-<?php
-ob_start();
-session_start();
-require_once 'db.php';
+require_once 'security.php';
 header('Content-Type: application/json');
 ob_clean();
 $action = $_GET['action'] ?? '';
@@ -253,16 +250,8 @@ if ($action === 'update_profile') {
 }
 
 
-function isAdmin() {
-    return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
+if (empty($action)) {
+    echo json_encode(["status" => "error", "message" => "Ação não informada."]);
+} else {
+    echo json_encode(["status" => "error", "message" => "Ação '$action' inválida para este endpoint."]);
 }
-
-function requireAdmin() {
-    if (!isAdmin()) {
-        http_response_code(403);
-        echo json_encode(["status" => "error", "message" => "Acesso negado. Apenas administradores podem realizar esta ação."]);
-        exit;
-    }
-}
-
-echo json_encode(["status" => "error", "message" => "Ação inválida."]);

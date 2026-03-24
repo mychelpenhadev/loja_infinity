@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 require_once 'db.php';
-require_once 'auth.php';
+require_once 'security.php';
 
 $action = $_GET['action'] ?? 'list';
 

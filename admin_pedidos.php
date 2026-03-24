@@ -1,5 +1,5 @@
 <?php
-require_once 'api/auth.php';
+require_once 'api/security.php';
 if (!isAdmin()) {
     header('Location: login.html');
     exit;
