@@ -6,37 +6,56 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
 
     public function __construct($pdo) {
         $this->pdo = $pdo;
+        // Tentar criar a tabela se não existir (silenciosamente)
+        try {
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS sessions (
+                id VARCHAR(128) NOT NULL PRIMARY KEY,
+                data TEXT NOT NULL,
+                last_access INT(11) NOT NULL,
+                INDEX idx_last_access (last_access)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        } catch (Exception $e) {
+            // Ignorar erro se a tabela já existir ou sem permissão
+        }
     }
 
-    public function open($savePath, $sessionName): bool {
+    public function open($savePath, $sessionName) {
         return true;
     }
 
-    public function close(): bool {
+    public function close() {
         return true;
     }
 
-    public function read($id): string|false {
-        $stmt = $this->pdo->prepare("SELECT data FROM sessions WHERE id = ?");
-        $stmt->execute([$id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? $row['data'] : '';
+    public function read($id) {
+        try {
+            $stmt = $this->pdo->prepare("SELECT data FROM sessions WHERE id = ?");
+            $stmt->execute([$id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $row ? $row['data'] : '';
+        } catch (Exception $e) { return ''; }
     }
 
-    public function write($id, $data): bool {
-        $stmt = $this->pdo->prepare("REPLACE INTO sessions (id, data, last_access) VALUES (?, ?, ?)");
-        return $stmt->execute([$id, $data, time()]);
+    public function write($id, $data) {
+        try {
+            $stmt = $this->pdo->prepare("REPLACE INTO sessions (id, data, last_access) VALUES (?, ?, ?)");
+            return $stmt->execute([$id, $data, time()]);
+        } catch (Exception $e) { return false; }
     }
 
-    public function destroy($id): bool {
-        $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE id = ?");
-        return $stmt->execute([$id]);
+    public function destroy($id) {
+        try {
+            $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE id = ?");
+            return $stmt->execute([$id]);
+        } catch (Exception $e) { return false; }
     }
 
-    public function gc($maxLifetime): int|false {
-        $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE last_access < ?");
-        $stmt->execute([time() - $maxLifetime]);
-        return true;
+    public function gc($maxLifetime) {
+        try {
+            $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE last_access < ?");
+            $stmt->execute([time() - $maxLifetime]);
+            return true;
+        } catch (Exception $e) { return 0; }
     }
 }
 
