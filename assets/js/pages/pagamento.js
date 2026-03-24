@@ -44,7 +44,8 @@ async function renderCheckoutSummary() {
     
     // Mostrar loader mini
     container.style.opacity = '0.6';
-    const allProducts = await window.ProductManager.getAll();
+    const productIds = [...new Set(cartItems.map(item => item.productId))];
+    const allProducts = await window.ProductManager.getBatch(productIds);
     container.style.opacity = '1';
 
     let subtotal = 0;
@@ -96,7 +97,8 @@ function setupCheckoutForm() {
         }
 
         const cartItems = window.CartManager.getCart();
-        const allProducts = await window.ProductManager.getAll();
+        const productIds = [...new Set(cartItems.map(item => item.productId))];
+        const allProducts = await window.ProductManager.getBatch(productIds);
 
         let subtotal = 0;
         let fullItemsData = [];
