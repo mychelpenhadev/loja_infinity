@@ -39,6 +39,23 @@ try {
 
             if ($id && is_numeric($id)) {
                 // Update
+                // Handle image (if it's base64, save to file)
+                if (strpos($image, 'data:image/') === 0) {
+                    list($type, $imgData) = explode(';', $image);
+                    list(, $imgData) = explode(',', $imgData);
+                    $imgData = base64_decode($imgData);
+                    
+                    $extension = explode('/', $type)[1];
+                    if ($extension === 'jpeg') $extension = 'jpg';
+                    
+                    $filename = 'prod_' . ($id ?: 'new') . '_' . time() . '.' . $extension;
+                    $uploadPath = __DIR__ . '/../uploads/products/' . $filename;
+                    
+                    if (file_put_contents($uploadPath, $imgData)) {
+                        $image = 'uploads/products/' . $filename;
+                    }
+                }
+
                 $stmt = $pdo->prepare("UPDATE products SET name=?, price=?, category=?, brand=?, image=?, video=?, description=? WHERE id=?");
                 $stmt->execute([$name, $price, $category, $brand, $image, $video, $description, $id]);
             } else {
@@ -46,6 +63,25 @@ try {
                 $stmt = $pdo->prepare("INSERT INTO products (name, price, category, brand, image, video, description, rating) VALUES (?, ?, ?, ?, ?, ?, ?, 5.0)");
                 $stmt->execute([$name, $price, $category, $brand, $image, $video, $description]);
                 $id = $pdo->lastInsertId();
+
+                // If image was base64, we need to update it now with the correct filename using ID
+                if (strpos($image, 'data:image/') === 0) {
+                    list($type, $imgData) = explode(';', $image);
+                    list(, $imgData) = explode(',', $imgData);
+                    $imgData = base64_decode($imgData);
+                    
+                    $extension = explode('/', $type)[1];
+                    if ($extension === 'jpeg') $extension = 'jpg';
+                    
+                    $filename = 'prod_' . $id . '_' . time() . '.' . $extension;
+                    $uploadPath = __DIR__ . '/../uploads/products/' . $filename;
+                    
+                    if (file_put_contents($uploadPath, $imgData)) {
+                        $newPath = 'uploads/products/' . $filename;
+                        $stmt = $pdo->prepare("UPDATE products SET image=? WHERE id=?");
+                        $stmt->execute([$newPath, $id]);
+                    }
+                }
             }
 
             echo json_encode(["status" => "success", "id" => $id]);
