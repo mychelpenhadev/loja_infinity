@@ -110,7 +110,8 @@ function setupCheckoutForm() {
                     productId: product.id,
                     name: product.name,
                     price: price,
-                    quantity: item.quantity
+                    quantity: item.quantity,
+                    color: item.color
                 });
             }
         });
@@ -128,7 +129,8 @@ function setupCheckoutForm() {
         message += `*Produtos:*\n`;
         
         fullItemsData.forEach(item => {
-            message += `- ${item.quantity}x ${item.name} (${window.formatCurrency(item.price)})\n`;
+            const colorStr = item.color ? ` (Cor: ${item.color})` : '';
+            message += `- ${item.quantity}x ${item.name}${colorStr} (${window.formatCurrency(item.price)})\n`;
         });
         
         message += `\n*Total da Compra:* ${window.formatCurrency(subtotal)}`;

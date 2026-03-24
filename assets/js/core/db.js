@@ -113,15 +113,20 @@ const CartManager = {
 
   getCart: () => JSON.parse(localStorage.getItem(CartManager.getCartKey()) || '[]'),
   
-  add: (productId, quantity = 1) => {
+  add: (productId, quantity = 1, color = null) => {
     const key = CartManager.getCartKey();
     const cart = JSON.parse(localStorage.getItem(key) || '[]');
-    const existing = cart.find(item => String(item.productId) === String(productId));
+    
+    // Procura item com mesmo ID E mesma cor
+    const existing = cart.find(item => 
+      String(item.productId) === String(productId) && 
+      item.color === color
+    );
     
     if (existing) {
       existing.quantity += quantity;
     } else {
-      cart.push({ productId, quantity });
+      cart.push({ productId, quantity, color });
     }
     
     localStorage.setItem(key, JSON.stringify(cart));
@@ -129,21 +134,26 @@ const CartManager = {
     return true;
   },
   
-  remove: (productId) => {
+  remove: (productId, color = null) => {
     const key = CartManager.getCartKey();
     const cart = JSON.parse(localStorage.getItem(key) || '[]');
-    const filtered = cart.filter(item => String(item.productId) !== String(productId));
+    const filtered = cart.filter(item => 
+      !(String(item.productId) === String(productId) && item.color === color)
+    );
     localStorage.setItem(key, JSON.stringify(filtered));
     window.dispatchEvent(new Event('cartUpdated'));
     return true;
   },
   
-  updateQuantity: (productId, quantity) => {
-    if (quantity <= 0) return CartManager.remove(productId);
+  updateQuantity: (productId, quantity, color = null) => {
+    if (quantity <= 0) return CartManager.remove(productId, color);
     
     const key = CartManager.getCartKey();
     const cart = JSON.parse(localStorage.getItem(key) || '[]');
-    const item = cart.find(i => String(i.productId) === String(productId));
+    const item = cart.find(i => 
+      String(i.productId) === String(productId) && 
+      i.color === color
+    );
     if (item) {
       item.quantity = quantity;
       localStorage.setItem(key, JSON.stringify(cart));

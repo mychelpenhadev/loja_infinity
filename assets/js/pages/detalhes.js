@@ -30,9 +30,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.title = `${product.name} | Infinity Variedades`;
 
             let quantity = 1;
+            let selectedColor = null;
+
+            const COLOR_CATEGORIES = ['linhas', 'las', 'croche'];
+            const COLOR_PALETTE = [
+                { name: 'Branco', hex: '#FFFFFF' },
+                { name: 'Preto', hex: '#000000' },
+                { name: 'Vermelho', hex: '#EF4444' },
+                { name: 'Azul Marinho', hex: '#1E3A8A' },
+                { name: 'Rosa Bebê', hex: '#FBCFE8' },
+                { name: 'Amarelo Canário', hex: '#FDE047' },
+                { name: 'Verde Bandeira', hex: '#059669' },
+                { name: 'Cinza Mescla', hex: '#94A3B8' },
+                { name: 'Marrom Café', hex: '#451A03' }
+            ];
 
             const renderContent = () => {
                 if(!container) return;
+                
+                const needsColor = COLOR_CATEGORIES.includes(product.category.toLowerCase()) || 
+                                 (product.category_id && COLOR_CATEGORIES.includes(product.category_id.toLowerCase()));
+
+                let colorHtml = '';
+                if (needsColor) {
+                    colorHtml = `
+                        <div class="color-selection" style="margin: 2rem 0; padding: 1.5rem; background: var(--clr-bg); border-radius: var(--radius-md); border: 1px solid var(--clr-border);">
+                            <h3 style="font-size: 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <i class='bx bx-palette'></i> Escolha uma Cor: <span id="selected-color-name" style="color: var(--clr-primary); font-weight: 700;"></span>
+                            </h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                                ${COLOR_PALETTE.map(color => `
+                                    <div class="color-option" data-color="${color.name}" title="${color.name}" 
+                                         style="width: 35px; height: 35px; border-radius: 50%; background-color: ${color.hex}; cursor: pointer; border: 2px solid ${color.hex === '#FFFFFF' ? '#e2e8f0' : 'transparent'}; box-shadow: var(--shadow-sm); transition: var(--transition);">
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <p style="font-size: 0.75rem; color: var(--clr-text-light); margin-top: 0.75rem;">* Seleção obrigatória para este item.</p>
+                        </div>
+                    `;
+                }
                 
                 container.innerHTML = `
                     <div class="details-grid">
@@ -56,6 +92,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 ${window.formatCurrency(product.price)}
                             </div>
 
+                            ${colorHtml}
+
                             <div class="cart-actions" style="flex-wrap: wrap; gap: 1rem;">
                                 <div class="qty-controls">
                                     <button class="qty-btn" id="btn-minus"><i class='bx bx-minus'></i></button>
@@ -75,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <h3 style="margin-bottom: 1rem; font-size: 1.125rem;">Por que amamos este produto?</h3>
                                 <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;">
                                     <li style="display: flex; align-items: center; gap: 0.5rem;"><i class='bx bx-check' style="color: #10B981; font-size: 1.25rem;"></i> Qualidade Premium Garantida</li>
-                                    <li style="display: flex; align-items: center; gap: 0.5rem;"><i class='bx bx-check' style="color: #10B981; font-size: 1.25rem;"></i> Design Exclusivo</li>
+                                    <li style="display: flex; align-items: center; gap: 0.5rem;"><i class='bx bx-check' style="color: #10B981; font-size: 1.25rem;"></i> Cores Vivas e Duradouras</li>
                                     <li style="display: flex; align-items: center; gap: 0.5rem;"><i class='bx bx-check' style="color: #10B981; font-size: 1.25rem;"></i> Compra 100% Segura</li>
                                 </ul>
                             </div>
@@ -94,15 +132,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                     `;
                 }
 
-                attachEvents();
+                // Add styles for selected color
+                const style = document.createElement('style');
+                style.textContent = `
+                    .color-option.active {
+                        transform: scale(1.2);
+                        border: 3px solid var(--clr-primary) !important;
+                        box-shadow: 0 0 10px rgba(var(--clr-primary-rgb), 0.5);
+                    }
+                `;
+                document.head.appendChild(style);
+
+                attachEvents(needsColor);
             };
 
-            const attachEvents = () => {
+            const attachEvents = (needsColor) => {
                 const btnMinus = document.getElementById('btn-minus');
                 const btnPlus = document.getElementById('btn-plus');
                 const display = document.getElementById('qty-display');
                 const btnAddCart = document.getElementById('btn-add-cart');
                 const btnBuyNow = document.getElementById('btn-buy-now');
+                const colorOptions = document.querySelectorAll('.color-option');
+                const colorLabel = document.getElementById('selected-color-name');
+
+                if (colorOptions) {
+                    colorOptions.forEach(opt => {
+                        opt.addEventListener('click', () => {
+                            colorOptions.forEach(o => o.classList.remove('active'));
+                            opt.classList.add('active');
+                            selectedColor = opt.dataset.color;
+                            if (colorLabel) colorLabel.textContent = selectedColor;
+                        });
+                    });
+                }
 
                 if (btnMinus) {
                     btnMinus.addEventListener('click', () => {
@@ -124,21 +186,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 if (btnAddCart) {
                     btnAddCart.addEventListener('click', () => {
+                        if (needsColor && !selectedColor) {
+                            window.showToast('Por favor, selecione uma cor antes de continuar!', 'warning');
+                            return;
+                        }
                         if (!window.isLoggedIn) {
                             window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
                             setTimeout(() => { window.location.href = 'login.html'; }, 1500);
                             return;
                         }
-                        window.CartManager.add(product.id, quantity);
-                        window.showToast(`Adicionado ${quantity} uni. ao carrinho!`);
+                        window.CartManager.add(product.id, quantity, selectedColor);
+                        window.showToast(`Adicionado ${quantity} uni. (${selectedColor || ''}) ao carrinho!`);
                         quantity = 1;
                         display.value = quantity;
+                        // Reset selection
+                        if (colorOptions) colorOptions.forEach(o => o.classList.remove('active'));
+                        if (colorLabel) colorLabel.textContent = '';
+                        selectedColor = null;
                     });
                 }
 
                 if (btnBuyNow) {
                     btnBuyNow.addEventListener('click', () => {
-                        window.handleBuyNow(product.id, quantity);
+                        if (needsColor && !selectedColor) {
+                            window.showToast('Por favor, selecione uma cor antes de continuar!', 'warning');
+                            return;
+                        }
+                        window.handleBuyNow(product.id, quantity, selectedColor);
                     });
                 }
             };

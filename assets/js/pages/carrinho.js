@@ -3,17 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
             window.addEventListener('cartUpdated', renderCart);
         });
 
-        window.updateItemQuantity = (id, delta) => {
+        window.updateItemQuantity = (id, delta, color = null) => {
             const cartItems = window.CartManager.getCart();
-            const item = cartItems.find(i => String(i.productId) === String(id));
+            const item = cartItems.find(i => String(i.productId) === String(id) && i.color === color);
             if (item) {
-                window.CartManager.updateQuantity(id, item.quantity + delta);
+                window.CartManager.updateQuantity(id, item.quantity + delta, color);
             }
         };
 
-        window.removeItem = (id) => {
+        window.removeItem = (id, color = null) => {
             if (confirm('Deseja realmente remover este item do carrinho?')) {
-                window.CartManager.remove(id);
+                window.CartManager.remove(id, color);
                 window.showToast('Item removido com sucesso.', 'success');
             }
         };
@@ -78,8 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const itemTotal = price * item.quantity;
                     subtotal += itemTotal;
 
+                    const colorInfo = item.color ? `<p class="cart-item-color" style="font-size: 0.875rem; color: var(--clr-primary); font-weight: 600; margin: 0.25rem 0;">Cor: ${item.color}</p>` : '';
+
                     itemsHTML += `
-                        <div class="cart-item">
+                        <div class="cart-item" data-color="${item.color || ''}">
                             <img src="${product.image}" alt="${product.name}" class="cart-item-img">
                             
                             <div class="cart-item-info">
@@ -87,16 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <h3 class="cart-item-title">
                                     <a href="detalhes.html?id=${product.id}">${product.name}</a>
                                 </h3>
+                                ${colorInfo}
                                 <div class="qty-controls">
-                                    <button class="qty-btn" onclick="updateItemQuantity('${product.id}', -1)"><i class='bx bx-minus'></i></button>
+                                    <button class="qty-btn" onclick="updateItemQuantity('${product.id}', -1, ${item.color ? `'${item.color}'` : 'null'})"><i class='bx bx-minus'></i></button>
                                     <input type="text" class="qty-input" value="${item.quantity}" readonly>
-                                    <button class="qty-btn" onclick="updateItemQuantity('${product.id}', 1)"><i class='bx bx-plus'></i></button>
+                                    <button class="qty-btn" onclick="updateItemQuantity('${product.id}', 1, ${item.color ? `'${item.color}'` : 'null'})"><i class='bx bx-plus'></i></button>
                                 </div>
                             </div>
 
                             <span class="cart-item-price">${window.formatCurrency(itemTotal)}</span>
                             
-                            <button class="btn-remove" onclick="removeItem('${product.id}')" title="Remover item">
+                            <button class="btn-remove" onclick="removeItem('${product.id}', ${item.color ? `'${item.color}'` : 'null'})" title="Remover item">
                                 <i class='bx bx-trash'></i>
                             </button>
                         </div>
