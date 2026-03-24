@@ -182,11 +182,20 @@
             });
         }
 
-        async function renderTable() {
+        let currentPage = 1;
+        let totalPages = 1;
+
+        async function renderTable(page = 1) {
+            currentPage = page;
             if (!tableBody) return;
             tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;"><i class="bx bx-loader-alt bx-spin"></i> Carregando produtos...</td></tr>';
+            
             try {
-                const products = await window.ProductManager.getAll();
+                const data = await window.ProductManager.getAll({ page: currentPage, limit: 10 });
+                const products = data.products || [];
+                const pagination = data.pagination || {};
+                totalPages = pagination.pages || 1;
+
                 tableBody.innerHTML = '';
 
                 if (products.length === 0) {
@@ -214,6 +223,8 @@
                     `;
                     tableBody.appendChild(tr);
                 });
+
+                renderAdminPagination();
             } catch(e) {
                 const errorMsg = e.message || 'Erro desconhecido';
                 tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 2rem; color: #EF4444;">
@@ -223,4 +234,31 @@
                 </td></tr>`;
                 window.showToast('Erro ao carregar produtos.', 'error');
             }
+        }
+
+        function renderAdminPagination() {
+            let container = document.getElementById('admin-pagination');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'admin-pagination';
+                container.className = 'admin-table-footer';
+                container.style.padding = '1rem';
+                container.style.borderTop = '1px solid var(--clr-border)';
+                container.style.display = 'flex';
+                container.style.justifyContent = 'center';
+                container.style.gap = '1rem';
+                document.querySelector('.admin-table-container').appendChild(container);
+            }
+
+            if (totalPages <= 1) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            container.innerHTML = `
+                <button class="btn" ${currentPage === 1 ? 'disabled' : ''} onclick="renderTable(${currentPage - 1})">Anterior</button>
+                <span style="align-self: center;">Página ${currentPage} de ${totalPages}</span>
+                <button class="btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="renderTable(${currentPage + 1})">Próxima</button>
+            `;
         }
