@@ -20,13 +20,15 @@ const ProductManager = {
 
   getAll: async (params = {}) => {
     const now = Date.now();
-    // Cache is only for full list without params, for backward compatibility or general use
-    const hasParams = Object.keys(params).length > 0;
-    const cacheKey = hasParams ? STORAGE_KEYS.PRODUCTS_CACHE + '_' + JSON.stringify(params) : STORAGE_KEYS.PRODUCTS_CACHE;
+    const cacheKey = 'papelaria_prods_list_' + JSON.stringify(params);
+    const expKey = cacheKey + '_exp';
+
+    // Se houver busca (search), ignoramos o cache para garantir precisão em tempo real
+    const hasSearch = params.search && params.search.trim().length > 0;
     
-    if (!hasParams) {
-      const cached = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE);
-      const exp = sessionStorage.getItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP);
+    if (!hasSearch) {
+      const cached = sessionStorage.getItem(cacheKey);
+      const exp = sessionStorage.getItem(expKey);
       if (cached && exp && now < parseInt(exp)) {
         return JSON.parse(cached);
       }
@@ -37,19 +39,17 @@ const ProductManager = {
       const response = await fetch(`api/products.php?action=list&${query}`);
       const data = await response.json();
       
-      if (!hasParams) {
+      if (!hasSearch) {
         try {
-          sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE, JSON.stringify(data));
-          sessionStorage.setItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP, (now + 60000).toString());
-        } catch (e) {
-          console.warn("sessionStorage quota exceeded", e);
-        }
+          sessionStorage.setItem(cacheKey, JSON.stringify(data));
+          sessionStorage.setItem(expKey, (now + 600000).toString()); // 10 min
+        } catch (e) { console.warn("Cache quota", e); }
       }
       
       return data;
     } catch (err) {
-      console.error("Erro ao buscar produtos:", err);
-      throw err;
+      console.error("Erro ao carregar produtos:", err);
+      return { products: [], pagination: {} };
     }
   },
 
