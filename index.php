@@ -41,11 +41,15 @@ function formatCurrency($val) {
     return 'R$ ' . number_format($val, 2, ',', '.');
 }
 function generateStars($rating) {
+    $rating = (float)$rating;
     $full = floor($rating);
+    $half = ($rating - $full) >= 0.5;
     $html = "";
-    for($i=0; $i<$full; $i++) $html .= "<i class='bx bxs-star'></i>";
-    if($rating - $full >= 0.5) $html .= "<i class='bx bxs-star-half'></i>";
-    while(mb_strlen(strip_tags($html)) < 5) $html .= "<i class='bx bx-star'></i>";
+    for($i=1; $i<=5; $i++) {
+        if($i <= $full) $html .= "<i class='bx bxs-star'></i>";
+        else if($i == $full + 1 && $half) $html .= "<i class='bx bxs-star-half'></i>";
+        else $html .= "<i class='bx bx-star'></i>";
+    }
     return $html;
 }
 ?>
