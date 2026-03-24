@@ -289,7 +289,20 @@ if (!isAdmin()) {
                             <option value="canetas">Canetas & Lápis</option>
                             <option value="mochilas">Mochilas</option>
                             <option value="materiais escolares">Materiais Escolares</option>
-                            <option value="costura">Costura & Bordados</option>
+                            <optgroup label="Costura e Bordados">
+                                <option value="costura">Geral Costura</option>
+                                <option value="agulhas">Agulhas</option>
+                                <option value="armarinhos">Armarinhos</option>
+                                <option value="botoes">Botões e Zíper</option>
+                                <option value="barbantes">Barbantes</option>
+                                <option value="bordados">Bordados e Viés</option>
+                                <option value="cama">Cama, Mesa e Banho</option>
+                                <option value="croche">Crochê e Tricô</option>
+                                <option value="fitas">Fitas e Laços</option>
+                                <option value="las">Lãs e Fios</option>
+                                <option value="linhas">Linhas Costura e Bordar</option>
+                                <option value="embalagens">Papelaria e Embalagens</option>
+                            </optgroup>
                             <option value="outros">Outros</option>
                         </select>
                     </div>
