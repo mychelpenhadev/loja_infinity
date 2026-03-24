@@ -1,3 +1,4 @@
+<?php
 require_once 'security.php';
 header('Content-Type: application/json');
 ob_clean();
