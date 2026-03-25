@@ -207,14 +207,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const data = await res.json();
                     if (data.status === 'success') {
-                        window.showToast(data.message, 'success');
-                        setTimeout(() => {
-                            if (data.require_verification) {
-                                window.location.href = `verificar.html?email=${encodeURIComponent(data.email)}`;
-                            } else {
+                        if (data.require_verification) {
+                            window.showToast(data.message, 'success');
+                            // Troca de formulário para verificação
+                            document.getElementById('register-form').style.display = 'none';
+                            document.getElementById('verification-step').style.display = 'block';
+                            document.getElementById('verif-email-display').textContent = data.email;
+                            document.querySelector('#register-view h1').textContent = "Verifique seu E-mail";
+                            document.querySelector('#register-view p').textContent = "Quase pronto! Insira o código enviado.";
+                        } else {
+                            window.showToast(data.message, 'success');
+                            setTimeout(() => {
                                 window.location.href = 'index.html';
-                            }
-                        }, 1500);
+                            }, 1500);
+                        }
                     } else {
                         window.showToast(data.message, 'error');
                     }
@@ -222,6 +228,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.showToast('Erro de conexão.', 'error');
                 }
             });
+
+            // Lógica do botão de confirmação de código (integrada)
+            const btnConfirmCode = document.getElementById('btn-confirm-code');
+            if(btnConfirmCode) {
+                btnConfirmCode.addEventListener('click', async () => {
+                    const email = document.getElementById('verif-email-display').textContent;
+                    const code = document.getElementById('reg-verify-code').value;
+                    
+                    if(code.length < 6) {
+                        window.showToast('Digite o código de 6 dígitos.', 'error');
+                        return;
+                    }
+
+                    btnConfirmCode.disabled = true;
+                    btnConfirmCode.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Verificando...";
+
+                    try {
+                        const res = await fetch('api/auth.php?action=verify_code', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, code })
+                        });
+                        const data = await res.json();
+                        if (data.status === 'success') {
+                            window.showToast(data.message, 'success');
+                            setTimeout(() => window.location.href = 'index.html', 1000);
+                        } else {
+                            window.showToast(data.message, 'error');
+                            btnConfirmCode.disabled = false;
+                            btnConfirmCode.innerHTML = "Confirmar E-mail <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
+                        }
+                    } catch (e) {
+                        window.showToast('Erro ao validar código.', 'error');
+                        btnConfirmCode.disabled = false;
+                        btnConfirmCode.innerHTML = "Confirmar E-mail <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
+                    }
+                });
+            }
 
             // O handleGoogleLogin foi movido para o login.html (escopo global) 
             // para garantir que esteja disponível assim que a biblioteca do Google carregar.
