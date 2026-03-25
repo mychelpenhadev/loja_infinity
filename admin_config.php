@@ -152,22 +152,6 @@ if (!isAdmin()) {
                         <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Número com DDI e DDD (ex: 5511999999999) para receber os pedidos.</small>
                     </div>
 
-                    <h3 style="margin-bottom: 1.5rem; margin-top: 2rem; color: var(--clr-primary); border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem;">
-                        <i class='bx bx-filter'></i> Marcas Pesquisáveis
-                    </h3>
-                    
-                    <div class="form-group">
-                        <label>Marcas - Costura e Bordados</label>
-                        <input type="text" id="config-brands-costura" class="form-control" placeholder="Ex: Amigurumi, Anne, Duna">
-                        <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Separadas por vírgula. Ex: Amigurumi, Anne. Deixe vazio para usar padrão.</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Marcas - Canetas e Lápis</label>
-                        <input type="text" id="config-brands-canetas" class="form-control" placeholder="Ex: Bic, Faber-Castell">
-                        <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Separadas por vírgula. Ex: Bic, Faber-Castell. Deixe vazio para usar padrão.</small>
-                    </div>
-                    
                     <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">
                         <i class='bx bx-save'></i> Salvar Configurações
                     </button>
