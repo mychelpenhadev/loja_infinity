@@ -473,7 +473,11 @@ function generateStars($rating) {
     </script>
 
     <script src="assets/js/core/db.js?v=13"></script>
-    <script src="assets/js/core/app.js?v=14"></script>
+    <script src="assets/js/core/db.js?v=4"></script>
+    <script src="assets/js/core/app.js?v=4"></script>
     <script src="assets/js/pages/index.js?v=13"></script>
+    <?php require_once 'api/security.php'; if(isAdmin()): ?>
+    <script src="assets/js/core/admin_notifications.js?v=4"></script>
+    <?php endif; ?>
 </body>
 </html>
