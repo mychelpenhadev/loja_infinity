@@ -228,6 +228,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 if ($action === 'check') {
     if (isset($_SESSION['user_id'])) {
+        $stmt = $pdo->prepare("SELECT is_verified FROM users WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id']]);
+        $verified = $stmt->fetchColumn();
+        
+        if ($verified == 0) {
+            session_destroy();
+            echo json_encode(["loggedIn" => false, "require_verification" => true]);
+            exit;
+        }
+
         echo json_encode([
             "loggedIn" => true,
             "id" => $_SESSION['user_id'],

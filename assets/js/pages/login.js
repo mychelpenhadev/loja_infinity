@@ -131,6 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         setTimeout(() => {
                             window.location.href = data.role === 'admin' ? 'admin.php' : 'index.html';
                         }, 1000);
+                    } else if (data.require_verification) {
+                        window.showToast(data.message, 'warning');
+                        setTimeout(() => {
+                            window.location.href = `verificar.html?email=${encodeURIComponent(data.email)}`;
+                        }, 1500);
                     } else {
                         window.showToast(data.message, 'error');
                     }
@@ -204,7 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.status === 'success') {
                         window.showToast(data.message, 'success');
                         setTimeout(() => {
-                            window.location.href = 'index.html';
+                            if (data.require_verification) {
+                                window.location.href = `verificar.html?email=${encodeURIComponent(data.email)}`;
+                            } else {
+                                window.location.href = 'index.html';
+                            }
                         }, 1500);
                     } else {
                         window.showToast(data.message, 'error');
