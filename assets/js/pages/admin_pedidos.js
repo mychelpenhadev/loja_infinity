@@ -60,7 +60,7 @@ window.deleteOrder = async (orderId) => {
     }
 };
 
-async function renderOrdersTable() {
+window.renderOrdersTable = async function() {
     const tbody = document.getElementById('table-orders-body');
     if (!tbody) return;
 
