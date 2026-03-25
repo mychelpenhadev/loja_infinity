@@ -357,8 +357,19 @@
                         <label for="reg-email">E-mail (Gmail)</label>
                         <input type="email" id="reg-email" class="form-control" required placeholder="seu@gmail.com">
                     </div>
-                    <div class="form-group">
-                        <label for="reg-password">Senha</label>
+
+                    <!-- Div de Verificação Integrada (Passo 2) -->
+                    <div id="verification-area" style="display: none; background: rgba(59, 130, 246, 0.05); padding: 1.5rem; border-radius: var(--radius-md); border: 1px dashed var(--clr-primary); margin: 1rem 0;">
+                        <label style="display: block; text-align: center; margin-bottom: 0.5rem; color: var(--clr-primary); font-weight: 600;">
+                            <i class='bx bx-mail-send'></i> Código enviado para seu Gmail
+                        </label>
+                        <input type="text" id="reg-verify-code" class="form-control" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; font-weight: bold;" placeholder="000000">
+                        <small style="display: block; text-align: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--clr-text-light);">
+                            Verifique sua caixa de entrada e spam.
+                        </small>
+                    </div>
+
+                    <div class="form-group" id="reg-pass-group">
                         <div class="password-container">
                             <input type="password" id="reg-password" class="form-control" required placeholder="Crie uma senha forte">
                             <i class='bx bx-show password-toggle' onclick="togglePassword('reg-password', this)" title="Mostrar Senha"></i>
@@ -372,28 +383,13 @@
                             <i class='bx bx-show password-toggle' onclick="togglePassword('reg-password-confirm', this)" title="Mostrar Senha"></i>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-full" id="btn-register-submit" style="height: 48px; margin-top: 0.5rem;">
+                    <button type="submit" class="btn btn-primary btn-full" id="btn-register-main" style="height: 48px; margin-top: 0.5rem;">
                         Criar Conta <i class='bx bx-user-plus' style="margin-left: 0.5rem;"></i>
                     </button>
-                </form>
-
-                <!-- Passo 2: Verificação de Código (Inicialmente Oculto) -->
-                <div id="verification-step" style="display: none; text-align: center; margin-top: 1rem;">
-                    <div class="divider">Verificação de Segurança</div>
-                    <p style="color: var(--clr-text-light); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                        Enviamos um código para <br><strong id="verif-email-display">...@gmail.com</strong>
-                    </p>
-                    <div class="form-group">
-                        <label>Insira o Código de 6 Dígitos</label>
-                        <input type="text" id="reg-verify-code" class="form-control" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; font-weight: bold;" placeholder="000000">
-                    </div>
-                    <button type="button" id="btn-confirm-code" class="btn btn-secondary btn-full" style="height: 48px; margin-top: 1.5rem;">
-                        Confirmar E-mail <i class='bx bx-check-shield' style="margin-left: 0.5rem;"></i>
+                    <button type="button" class="btn btn-secondary btn-full" id="btn-verify-confirm" style="height: 48px; margin-top: 0.5rem; display: none;">
+                        Confirmar Código <i class='bx bx-check-shield' style="margin-left: 0.5rem;"></i>
                     </button>
-                    <p style="margin-top: 1rem; font-size: 0.8rem;">
-                        Não recebeu? <a href="#" id="resend-code" style="color: var(--clr-primary);">Reenviar código</a>
-                    </p>
-                </div>
+                </form>
 
                 <div class="auth-toggle">
                     Já tem uma conta? <a href="#" id="show-login">Faça Login</a>
@@ -528,8 +524,8 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/core/db.js?v=12"></script>
-    <script src="assets/js/core/app.js?v=12"></script>
-    <script src="assets/js/pages/login.js?v=12"></script>
+    <script src="assets/js/core/db.js?v=15"></script>
+    <script src="assets/js/core/app.js?v=15"></script>
+    <script src="assets/js/pages/login.js?v=15"></script>
 </body>
 </html>

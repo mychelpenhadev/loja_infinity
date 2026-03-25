@@ -208,18 +208,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await res.json();
                     if (data.status === 'success') {
                         if (data.require_verification) {
-                            window.showToast(data.message, 'success');
-                            // Troca de formulário para verificação
-                            document.getElementById('register-form').style.display = 'none';
-                            document.getElementById('verification-step').style.display = 'block';
-                            document.getElementById('verif-email-display').textContent = data.email;
-                            document.querySelector('#register-view h1').textContent = "Verifique seu E-mail";
-                            document.querySelector('#register-view p').textContent = "Quase pronto! Insira o código enviado.";
+                            window.showToast("Código enviado com sucesso!", 'success');
+                            
+                            // Mostra área de código abaixo do gmail
+                            document.getElementById('verification-area').style.display = 'block';
+                            
+                            // Troca os botões
+                            document.getElementById('btn-register-main').style.display = 'none';
+                            document.getElementById('btn-verify-confirm').style.display = 'block';
+                            
+                            // Opcional: Desabilita campos já preenchidos
+                            ['reg-name', 'reg-cpf', 'reg-telefone', 'reg-email', 'reg-password', 'reg-password-confirm'].forEach(id => {
+                                document.getElementById(id).disabled = true;
+                            });
+
+                            document.querySelector('#register-view h1').textContent = "Confirme seu E-mail";
                         } else {
                             window.showToast(data.message, 'success');
-                            setTimeout(() => {
-                                window.location.href = 'index.html';
-                            }, 1500);
+                            setTimeout(() => window.location.href = 'index.html', 1500);
                         }
                     } else {
                         window.showToast(data.message, 'error');
@@ -229,11 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Lógica do botão de confirmação de código (integrada)
-            const btnConfirmCode = document.getElementById('btn-confirm-code');
-            if(btnConfirmCode) {
-                btnConfirmCode.addEventListener('click', async () => {
-                    const email = document.getElementById('verif-email-display').textContent;
+            // Lógica do botão de confirmação de código (NOVO BOTÃO INTEGRADO)
+            const btnVerifyConfirm = document.getElementById('btn-verify-confirm');
+            if(btnVerifyConfirm) {
+                btnVerifyConfirm.addEventListener('click', async () => {
+                    const email = document.getElementById('reg-email').value;
                     const code = document.getElementById('reg-verify-code').value;
                     
                     if(code.length < 6) {
@@ -241,8 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
 
-                    btnConfirmCode.disabled = true;
-                    btnConfirmCode.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Verificando...";
+                    btnVerifyConfirm.disabled = true;
+                    btnVerifyConfirm.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Ativando Conta...";
 
                     try {
                         const res = await fetch('api/auth.php?action=verify_code', {
@@ -256,13 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             setTimeout(() => window.location.href = 'index.html', 1000);
                         } else {
                             window.showToast(data.message, 'error');
-                            btnConfirmCode.disabled = false;
-                            btnConfirmCode.innerHTML = "Confirmar E-mail <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
+                            btnVerifyConfirm.disabled = false;
+                            btnVerifyConfirm.innerHTML = "Confirmar Código <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
                         }
                     } catch (e) {
                         window.showToast('Erro ao validar código.', 'error');
-                        btnConfirmCode.disabled = false;
-                        btnConfirmCode.innerHTML = "Confirmar E-mail <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
+                        btnVerifyConfirm.disabled = false;
+                        btnVerifyConfirm.innerHTML = "Confirmar Código <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
                     }
                 });
             }
