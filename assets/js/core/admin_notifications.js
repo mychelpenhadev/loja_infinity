@@ -7,6 +7,7 @@
 
     async function checkNewOrders() {
         try {
+            console.log("[Notificações] Verificando novos pedidos...");
             // Consulta apenas o último pedido para economizar banda
             const response = await fetch('api/orders.php?action=list&limit=1', { credentials: 'include' });
             const data = await response.json();
@@ -14,6 +15,7 @@
             if (data && data.length > 0) {
                 const latestOrder = data[0];
                 const latestId = parseInt(latestOrder.id);
+                console.log("[Notificações] Último ID no banco:", latestId, "| Último notificado:", lastOrderId);
 
                 // Na primeira vez, apenas registramos o ID atual sem notificar
                 if (!lastOrderId) {
@@ -23,6 +25,7 @@
                 }
 
                 if (latestId > parseInt(lastOrderId)) {
+                    console.log("[Notificações] NOVO PEDIDO DETECTADO!", latestId);
                     const userName = latestOrder.user_name || 'Alguém';
                     showFloatingNotification(userName, latestOrder.total);
                     
@@ -31,8 +34,9 @@
                     localStorage.setItem('last_notified_order_id', latestId);
                     
                     // Se estivermos na página de pedidos, atualizamos a tabela automaticamente
-                    if (window.location.pathname.includes('admin_pedidos.php') && typeof renderOrdersTable === 'function') {
-                        renderOrdersTable();
+                    if (window.location.pathname.includes('admin_pedidos.php') && typeof window.renderOrdersTable === 'function') {
+                        console.log("[Notificações] Atualizando tabela de pedidos...");
+                        window.renderOrdersTable();
                     }
                 }
             }
@@ -116,8 +120,8 @@
         }, 8000);
     }
 
-    // Pooling a cada 20 segundos para ser bem reativo
-    setInterval(checkNewOrders, 20000);
+    // Pooling a cada 8 segundos para ser bem reativo
+    setInterval(checkNewOrders, 8000);
     // Verificar imediatamente ao carregar
-    setTimeout(checkNewOrders, 2000);
+    setTimeout(checkNewOrders, 1000);
 })();
