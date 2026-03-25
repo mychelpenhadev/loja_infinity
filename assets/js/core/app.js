@@ -149,31 +149,96 @@ function injectSearchOverlay() {
     overlay.innerHTML = `
         <div class="search-form">
             <i class='bx bx-search search-submit-icon'></i>
-            <input type="text" id="search-input-field" placeholder="O que você está procurando?">
+            <input type="text" id="search-input-field" placeholder="O que você está procurando?" autocomplete="off">
             <button class="search-close-btn" id="search-close-btn"><i class='bx bx-x'></i></button>
+            <div class="search-suggestions" id="search-suggestions"></div>
         </div>
     `;
     document.body.appendChild(overlay);
 
     const input = document.getElementById('search-input-field');
     const closeBtn = document.getElementById('search-close-btn');
+    const suggestions = document.getElementById('search-suggestions');
 
-    const handleSearch = () => {
-        const query = input.value.trim();
+    const handleSearch = (query) => {
+        query = query || input.value.trim();
         if (query) {
+            hideSuggestions();
             window.location.href = `produtos.html?q=${encodeURIComponent(query)}`;
         }
     };
+
+    const hideSuggestions = () => suggestions.classList.remove('visible');
+
+    const showSuggestions = (products, query) => {
+        if (!products || products.length === 0) {
+            suggestions.innerHTML = `<div class="suggestion-empty">Nenhum produto encontrado</div>`;
+        } else {
+            suggestions.innerHTML = products.slice(0, 5).map(p => {
+                const imgSrc = p.image && !p.image.startsWith('data:') ? p.image : 'assets/img/logoPNG.png';
+                const price = parseFloat(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                return `<div class="suggestion-item" data-id="${p.id}" data-name="${p.name}">
+                    <img class="suggestion-img" src="${imgSrc}" onerror="this.src='assets/img/logoPNG.png'" alt="">
+                    <div class="suggestion-info">
+                        <div class="suggestion-name">${p.name}</div>
+                        <div class="suggestion-price">${price}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            
+            if (products.length > 5) {
+                suggestions.innerHTML += `<div class="suggestion-see-all" data-query="${query}">
+                    <i class='bx bx-search-alt'></i> Ver todos os ${products.length} resultados
+                </div>`;
+            }
+        }
+        suggestions.classList.add('visible');
+    };
+
+    // Clique nas sugestões
+    suggestions.addEventListener('click', (e) => {
+        const item = e.target.closest('.suggestion-item');
+        const seeAll = e.target.closest('.suggestion-see-all');
+        if (item) {
+            window.location.href = `detalhes.html?id=${item.dataset.id}`;
+        } else if (seeAll) {
+            handleSearch(seeAll.dataset.query);
+        }
+    });
+
+    // Debounce de 250ms
+    let debounceTimer;
+    input.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = input.value.trim();
+        if (query.length < 2) { hideSuggestions(); return; }
+        
+        debounceTimer = setTimeout(async () => {
+            try {
+                const res = await fetch(`api/products.php?action=list&search=${encodeURIComponent(query)}&limit=10`);
+                const data = await res.json();
+                showSuggestions(data.products || [], query);
+            } catch(e) { hideSuggestions(); }
+        }, 250);
+    });
 
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSearch();
     });
 
+    // Fechar ao clicar fora
+    document.addEventListener('click', (e) => {
+        if (!overlay.contains(e.target) && !e.target.closest('#search-toggle')) {
+            hideSuggestions();
+        }
+    });
+
     closeBtn.onclick = () => {
         overlay.classList.remove('active');
+        hideSuggestions();
+        input.value = '';
     };
     
-    // Global listener for search toggle buttons (they will be added to HTML)
     document.addEventListener('click', (e) => {
         if (e.target.closest('#search-toggle')) {
             overlay.classList.add('active');

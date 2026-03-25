@@ -1404,3 +1404,98 @@ a, button, input, select {
         right: 60px;
     }
 }
+
+/* Search Autocomplete Dropdown */
+.search-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--clr-surface);
+    border: 1px solid var(--clr-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    z-index: 3000;
+    overflow: hidden;
+    display: none;
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.search-suggestions.visible {
+    display: block;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.15s;
+    border-bottom: 1px solid var(--clr-border);
+    text-decoration: none;
+    color: var(--clr-text);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover {
+    background-color: rgba(var(--clr-primary-rgb, 255, 182, 193), 0.1);
+}
+
+.suggestion-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--clr-border);
+    flex-shrink: 0;
+    background: var(--clr-bg);
+}
+
+.suggestion-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.suggestion-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-price {
+    font-size: 0.8rem;
+    color: var(--clr-accent);
+    font-weight: 600;
+}
+
+.suggestion-empty {
+    padding: 1rem;
+    text-align: center;
+    color: var(--clr-text-light);
+    font-size: 0.875rem;
+}
+
+.suggestion-see-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--clr-accent);
+    cursor: pointer;
+    background: rgba(var(--clr-primary-rgb, 255, 182, 193), 0.05);
+    transition: background-color 0.15s;
+}
+
+.suggestion-see-all:hover {
+    background: rgba(var(--clr-primary-rgb, 255, 182, 193), 0.15);
+}
