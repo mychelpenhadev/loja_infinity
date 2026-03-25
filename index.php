@@ -189,48 +189,7 @@ function generateStars($rating) {
             </div>
         </div>
     </section>
-    <section class="section" style="background-color: var(--clr-bg);">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">O que você procura?</h2>
-                <p class="section-subtitle">Navegue pelas nossas principais categorias</p>
-            </div>
-            <div class="categories-grid">
-                <a href="produtos.html?cat=cadernos" class="category-card">
-                    <div class="cat-icon"><i class='bx bxs-book-heart'></i></div>
-                    <span class="cat-title">Cadernos</span>
-                </a>
-                <a href="produtos.html?cat=canetas" class="category-card">
-                    <div class="cat-icon"><i class='bx bxs-pen'></i></div>
-                    <span class="cat-title">Canetas & Lápis</span>
-                </a>
-                <a href="produtos.html?cat=mochilas" class="category-card">
-                    <div class="cat-icon"><i class='bx bxs-backpack'></i></div>
-                    <span class="cat-title">Mochilas</span>
-                </a>
-                <a href="produtos.html?cat=materiais" class="category-card">
-                    <div class="cat-icon"><i class='bx bxs-edit-alt'></i></div>
-                    <span class="cat-title">Materiais Escolares</span>
-                </a>
-                <a href="produtos.html?cat=costura" class="category-card" id="btn-costura-modal">
-                    <div class="cat-icon"><i class='bx bxs-palette'></i></div>
-                    <span class="cat-title">Costura & Bordados</span>
-                </a>
-                <a href="produtos.html?cat=criancas" class="category-card">
-                    <div class="cat-icon"><i class='bx bxs-face'></i></div>
-                    <span class="cat-title">Crianças</span>
-                </a>
-                <a href="produtos.html?cat=promocoes" class="category-card">
-                    <div class="cat-icon"><i class='bx bxs-purchase-tag'></i></div>
-                    <span class="cat-title">Promoções</span>
-                </a>
-                <a href="produtos.html?cat=novidades" class="category-card">
-                    <div class="cat-icon"><i class='bx bxs-rocket'></i></div>
-                    <span class="cat-title">Novidades</span>
-                </a>
-            </div>
-        </div>
-    </section>
+    <section class="section">
     <section class="section">
         <div class="container">
             <div class="section-header">
