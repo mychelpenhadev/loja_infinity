@@ -109,6 +109,7 @@
 
             products.forEach(p => {
                 const tr = document.createElement('tr');
+                tr.setAttribute('data-product-id', p.id);
                 tr.innerHTML = `
                     <td>
                         <div class="prod-cell">
@@ -152,11 +153,34 @@
         };
 
         window.deleteProduct = async (id) => {
-            if (confirm('Tem certeza que deseja excluir permanentemente este produto?')) {
-                await window.ProductManager.remove(id);
-                window.CartManager.remove(id); 
-                window.showToast('Produto removido com sucesso!', 'success');
-                await renderTable();
+            const row = document.querySelector(`tr[data-product-id="${id}"]`);
+            if (!row) return;
+
+            // Remove otimisticamente do DOM imediatamente
+            row.style.transition = 'opacity 0.2s';
+            row.style.opacity = '0.3';
+            row.style.pointerEvents = 'none';
+
+            try {
+                const res = await fetch(`api/products.php?action=delete&id=${id}`, { credentials: 'include' });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    row.remove();
+                    window.ProductManager.clearCache();
+                    window.showToast('Produto removido!', 'success');
+                    const remaining = tableBody.querySelectorAll('tr[data-product-id]');
+                    if (remaining.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">Nenhum produto cadastrado.</td></tr>';
+                    }
+                } else {
+                    row.style.opacity = '1';
+                    row.style.pointerEvents = '';
+                    window.showToast('Erro ao excluir: ' + (data.message || ''), 'error');
+                }
+            } catch(e) {
+                row.style.opacity = '1';
+                row.style.pointerEvents = '';
+                window.showToast('Erro de conexão ao excluir.', 'error');
             }
         };
 
@@ -194,9 +218,9 @@
                     }
 
                     if (result && result.status === 'success') {
-                        window.showToast(id ? 'Produto atualizado com sucesso!' : 'Produto adicionado ao catálogo!', 'success');
-                        closeModal();
-                        await renderTable();
+                        closeModal(); // Fecha imediatamente
+                        window.showToast(id ? 'Produto atualizado!' : 'Produto adicionado!', 'success');
+                        renderTable(); // Atualiza em background sem await
                     } else {
                         window.showToast('Erro ao salvar: ' + (result ? result.message : 'Resposta inválida do servidor'), 'error');
                     }
@@ -237,6 +261,7 @@
 
                 products.forEach(p => {
                     const tr = document.createElement('tr');
+                    tr.setAttribute('data-product-id', p.id);
                     tr.innerHTML = `
                         <td>
                             <div class="prod-cell">
