@@ -183,11 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 
-                if (!email.toLowerCase().endsWith('@gmail.com')) {
-                    window.showToast('O e-mail precisa terminar com @gmail.com', 'error');
-                    return;
-                }
-                
                 const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
                 if (!passRegex.test(password)) {
                     window.showToast('A senha não atende aos requisitos de segurança.', 'error');
@@ -207,26 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     const data = await res.json();
                     if (data.status === 'success') {
-                        if (data.require_verification) {
-                            window.showToast("Código enviado com sucesso!", 'success');
-                            
-                            // Mostra área de código abaixo do gmail
-                            document.getElementById('verification-area').style.display = 'block';
-                            
-                            // Troca os botões
-                            document.getElementById('btn-register-main').style.display = 'none';
-                            document.getElementById('btn-verify-confirm').style.display = 'block';
-                            
-                            // Opcional: Desabilita campos já preenchidos
-                            ['reg-name', 'reg-cpf', 'reg-telefone', 'reg-email', 'reg-password', 'reg-password-confirm'].forEach(id => {
-                                document.getElementById(id).disabled = true;
-                            });
-
-                            document.querySelector('#register-view h1').textContent = "Confirme seu E-mail";
-                        } else {
-                            window.showToast(data.message, 'success');
-                            setTimeout(() => window.location.href = 'index.html', 1500);
-                        }
+                        window.showToast(data.message, 'success');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1500);
                     } else {
                         window.showToast(data.message, 'error');
                     }
@@ -234,44 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.showToast('Erro de conexão.', 'error');
                 }
             });
-
-            // Lógica do botão de confirmação de código (NOVO BOTÃO INTEGRADO)
-            const btnVerifyConfirm = document.getElementById('btn-verify-confirm');
-            if(btnVerifyConfirm) {
-                btnVerifyConfirm.addEventListener('click', async () => {
-                    const email = document.getElementById('reg-email').value;
-                    const code = document.getElementById('reg-verify-code').value;
-                    
-                    if(code.length < 6) {
-                        window.showToast('Digite o código de 6 dígitos.', 'error');
-                        return;
-                    }
-
-                    btnVerifyConfirm.disabled = true;
-                    btnVerifyConfirm.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Ativando Conta...";
-
-                    try {
-                        const res = await fetch('api/auth.php?action=verify_code', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email, code })
-                        });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            window.showToast(data.message, 'success');
-                            setTimeout(() => window.location.href = 'index.html', 1000);
-                        } else {
-                            window.showToast(data.message, 'error');
-                            btnVerifyConfirm.disabled = false;
-                            btnVerifyConfirm.innerHTML = "Confirmar Código <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
-                        }
-                    } catch (e) {
-                        window.showToast('Erro ao validar código.', 'error');
-                        btnVerifyConfirm.disabled = false;
-                        btnVerifyConfirm.innerHTML = "Confirmar Código <i class='bx bx-check-shield' style='margin-left: 0.5rem;'></i>";
-                    }
-                });
-            }
 
             // O handleGoogleLogin foi movido para o login.html (escopo global) 
             // para garantir que esteja disponível assim que a biblioteca do Google carregar.

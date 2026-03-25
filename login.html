@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Conta | Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css?v=10">
+    <link rel="stylesheet" href="assets/css/style.css?v=20">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
@@ -357,19 +357,8 @@
                         <label for="reg-email">E-mail (Gmail)</label>
                         <input type="email" id="reg-email" class="form-control" required placeholder="seu@gmail.com">
                     </div>
-
-                    <!-- Div de Verificação Integrada (Passo 2) -->
-                    <div id="verification-area" style="display: none; background: rgba(59, 130, 246, 0.05); padding: 1.5rem; border-radius: var(--radius-md); border: 1px dashed var(--clr-primary); margin: 1rem 0;">
-                        <label style="display: block; text-align: center; margin-bottom: 0.5rem; color: var(--clr-primary); font-weight: 600;">
-                            <i class='bx bx-mail-send'></i> Código enviado para seu Gmail
-                        </label>
-                        <input type="text" id="reg-verify-code" class="form-control" maxlength="6" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5rem; font-weight: bold;" placeholder="000000">
-                        <small style="display: block; text-align: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--clr-text-light);">
-                            Verifique sua caixa de entrada e spam.
-                        </small>
-                    </div>
-
-                    <div class="form-group" id="reg-pass-group">
+                    <div class="form-group">
+                        <label for="reg-password">Senha</label>
                         <div class="password-container">
                             <input type="password" id="reg-password" class="form-control" required placeholder="Crie uma senha forte">
                             <i class='bx bx-show password-toggle' onclick="togglePassword('reg-password', this)" title="Mostrar Senha"></i>
@@ -383,11 +372,8 @@
                             <i class='bx bx-show password-toggle' onclick="togglePassword('reg-password-confirm', this)" title="Mostrar Senha"></i>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-full" id="btn-register-main" style="height: 48px; margin-top: 0.5rem;">
+                    <button type="submit" class="btn btn-primary btn-full" style="height: 48px; margin-top: 0.5rem;">
                         Criar Conta <i class='bx bx-user-plus' style="margin-left: 0.5rem;"></i>
-                    </button>
-                    <button type="button" class="btn btn-secondary btn-full" id="btn-verify-confirm" style="height: 48px; margin-top: 0.5rem; display: none;">
-                        Confirmar Código <i class='bx bx-check-shield' style="margin-left: 0.5rem;"></i>
                     </button>
                 </form>
 
@@ -524,8 +510,8 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/core/db.js?v=15"></script>
-    <script src="assets/js/core/app.js?v=15"></script>
-    <script src="assets/js/pages/login.js?v=15"></script>
+    <script src="assets/js/core/db.js?v=20"></script>
+    <script src="assets/js/core/app.js?v=20"></script>
+    <script src="assets/js/pages/login.js?v=20"></script>
 </body>
 </html>
