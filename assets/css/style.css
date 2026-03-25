@@ -1,11 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap');
 :root {
   --clr-primary: #FFC107;
+  --clr-primary-rgb: 255, 193, 7;
   --clr-secondary: #00BFFF;
+  --clr-secondary-rgb: 0, 191, 255;
   --clr-accent: #0044CC;
-  --clr-accent-hover: #003399;
-  --clr-bg: #FAFAFC;
+  --clr-accent-rgb: 0, 68, 204;
   --clr-surface: #FFFFFF;
+  --clr-surface-rgb: 255, 255, 255;
   --clr-text: #2D3748;
   --clr-text-light: #718096;
   --clr-border: #E2E8F0;
@@ -22,12 +24,16 @@
 [data-theme='dark'] {
   --clr-bg: #0F172A;
   --clr-surface: #1E293B;
+  --clr-surface-rgb: 30, 41, 59;
   --clr-text: #F8FAFC;
   --clr-text-light: #94A3B8;
   --clr-border: #334155;
   --clr-primary: #FFCA28;
+  --clr-primary-rgb: 255, 202, 40;
   --clr-secondary: #33CCFF;
+  --clr-secondary-rgb: 51, 204, 255;
   --clr-accent: #3366FF;
+  --clr-accent-rgb: 51, 102, 255;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.25);
@@ -64,11 +70,14 @@ img {
   height: auto;
   display: block;
 }
-button {
+button, input, select, textarea {
   cursor: pointer;
   border: none;
   background: none;
   font-family: var(--font-body);
+}
+input, textarea {
+  cursor: text;
 }
 .container {
   width: 100%;
@@ -80,7 +89,7 @@ button {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(var(--clr-surface), 0.8);
+  background: rgba(var(--clr-surface-rgb), 0.8);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--clr-border);

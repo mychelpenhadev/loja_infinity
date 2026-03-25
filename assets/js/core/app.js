@@ -2,6 +2,7 @@ const normalizeString = (str) => (str || "").normalize("NFD").replace(/[\u0300-\
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   updateCartBadge();
+  injectSearchOverlay();
   injectChatbot();
   injectMobileNav();
   checkAuth();
@@ -138,6 +139,7 @@ function injectSearchOverlay() {
     const input = document.getElementById('search-input-field');
     const closeBtn = document.getElementById('search-close-btn');
     const suggestions = document.getElementById('search-suggestions');
+    if (!input || !closeBtn || !suggestions) return;
 
     let allProducts = null;
     const loadAllProducts = async () => {
@@ -169,7 +171,8 @@ function injectSearchOverlay() {
         } else {
             suggestions.innerHTML = products.slice(0, 5).map(p => {
                 const imgSrc = p.image && !p.image.startsWith('data:') ? p.image : 'assets/img/logoPNG.png';
-                const price = parseFloat(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const priceVal = parseFloat(p.price) || 0;
+                const price = priceVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 return `<div class="suggestion-item" data-id="${p.id}" data-name="${p.name}">
                     <img class="suggestion-img" src="${imgSrc}" onerror="this.src='assets/img/logoPNG.png'" alt="">
                     <div class="suggestion-info">
@@ -211,10 +214,20 @@ function injectSearchOverlay() {
     };
 
     document.addEventListener('click', (e) => {
-        if (e.target.closest('#search-toggle')) {
+        const toggle = e.target.closest('#search-toggle');
+        if (toggle) {
             overlay.classList.add('active');
             loadAllProducts();
             setTimeout(() => input.focus(), 80);
+        }
+    });
+
+    // Close on ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+            hideSuggestions();
+            input.value = '';
         }
     });
 }
