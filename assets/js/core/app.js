@@ -140,6 +140,53 @@ function injectMobileNav() {
     document.body.appendChild(nav);
 }
 
+function injectSearchOverlay() {
+    if (document.getElementById('search-overlay')) return;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'search-overlay';
+    overlay.id = 'search-overlay';
+    overlay.innerHTML = `
+        <div class="search-form">
+            <i class='bx bx-search search-submit-icon'></i>
+            <input type="text" id="search-input-field" placeholder="O que você está procurando?">
+            <button class="search-close-btn" id="search-close-btn"><i class='bx bx-x'></i></button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    const input = document.getElementById('search-input-field');
+    const closeBtn = document.getElementById('search-close-btn');
+
+    const handleSearch = () => {
+        const query = input.value.trim();
+        if (query) {
+            window.location.href = `produtos.html?q=${encodeURIComponent(query)}`;
+        }
+    };
+
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleSearch();
+    });
+
+    closeBtn.onclick = () => {
+        overlay.classList.remove('active');
+    };
+    
+    // Global listener for search toggle buttons (they will be added to HTML)
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#search-toggle')) {
+            overlay.classList.add('active');
+            setTimeout(() => input.focus(), 100);
+        }
+    });
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    injectSearchOverlay();
+});
+
 
 function injectChatbot() {
   if (document.querySelector('.chatbot-fab')) return; // não duplicar

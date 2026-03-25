@@ -123,6 +123,9 @@ function generateStars($rating) {
                 <a href="admin.php" class="action-btn" title="Painel Admin" style="display: none;">
                     <i class='bx bxs-dashboard'></i>
                 </a>
+                <button class="action-btn" id="search-toggle" title="Pesquisar">
+                    <i class='bx bx-search'></i>
+                </button>
                 <button class="action-btn" id="theme-toggle" title="Mudar Tema">
                     <i class='bx bxs-moon'></i>
                 </button>
