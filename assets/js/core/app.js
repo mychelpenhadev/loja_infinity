@@ -160,6 +160,26 @@ function injectSearchOverlay() {
     const closeBtn = document.getElementById('search-close-btn');
     const suggestions = document.getElementById('search-suggestions');
 
+    // Cache local de todos os produtos — carregado uma vez
+    let allProducts = null;
+
+    const loadAllProducts = async () => {
+        if (allProducts) return; // já carregado
+        try {
+            const res = await fetch('api/products.php?action=list&limit=500');
+            const data = await res.json();
+            allProducts = data.products || [];
+        } catch(e) { allProducts = []; }
+    };
+
+    const filterLocal = (query) => {
+        const q = query.toLowerCase();
+        return (allProducts || []).filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            (p.description && p.description.toLowerCase().includes(q))
+        );
+    };
+
     const handleSearch = (query) => {
         query = query || input.value.trim();
         if (query) {
@@ -185,7 +205,6 @@ function injectSearchOverlay() {
                     </div>
                 </div>`;
             }).join('');
-            
             if (products.length > 5) {
                 suggestions.innerHTML += `<div class="suggestion-see-all" data-query="${query}">
                     <i class='bx bx-search-alt'></i> Ver todos os ${products.length} resultados
@@ -195,42 +214,26 @@ function injectSearchOverlay() {
         suggestions.classList.add('visible');
     };
 
-    // Clique nas sugestões
     suggestions.addEventListener('click', (e) => {
         const item = e.target.closest('.suggestion-item');
         const seeAll = e.target.closest('.suggestion-see-all');
-        if (item) {
-            window.location.href = `detalhes.html?id=${item.dataset.id}`;
-        } else if (seeAll) {
-            handleSearch(seeAll.dataset.query);
-        }
+        if (item) window.location.href = `detalhes.html?id=${item.dataset.id}`;
+        else if (seeAll) handleSearch(seeAll.dataset.query);
     });
 
-    // Debounce de 250ms
-    let debounceTimer;
+    // Filtragem local instantânea — zero latência de rede
     input.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
         const query = input.value.trim();
-        if (query.length < 2) { hideSuggestions(); return; }
-        
-        debounceTimer = setTimeout(async () => {
-            try {
-                const res = await fetch(`api/products.php?action=list&search=${encodeURIComponent(query)}&limit=10`);
-                const data = await res.json();
-                showSuggestions(data.products || [], query);
-            } catch(e) { hideSuggestions(); }
-        }, 250);
+        if (query.length < 1) { hideSuggestions(); return; }
+        showSuggestions(filterLocal(query), query);
     });
 
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSearch();
     });
 
-    // Fechar ao clicar fora
     document.addEventListener('click', (e) => {
-        if (!overlay.contains(e.target) && !e.target.closest('#search-toggle')) {
-            hideSuggestions();
-        }
+        if (!overlay.contains(e.target) && !e.target.closest('#search-toggle')) hideSuggestions();
     });
 
     closeBtn.onclick = () => {
@@ -238,11 +241,13 @@ function injectSearchOverlay() {
         hideSuggestions();
         input.value = '';
     };
-    
+
+    // Abrir lupa + pré-carregar produtos imediatamente
     document.addEventListener('click', (e) => {
         if (e.target.closest('#search-toggle')) {
             overlay.classList.add('active');
-            setTimeout(() => input.focus(), 100);
+            loadAllProducts(); // carrega em background enquanto o usuário começa a digitar
+            setTimeout(() => input.focus(), 80);
         }
     });
 }
