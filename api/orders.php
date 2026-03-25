@@ -11,7 +11,10 @@ try {
     switch ($action) {
         case 'list':
             requireAdmin();
-            $stmt = $pdo->query("SELECT * FROM orders ORDER BY created_at DESC");
+            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : null;
+            $sql = "SELECT * FROM orders ORDER BY created_at DESC";
+            if ($limit) $sql .= " LIMIT " . $limit;
+            $stmt = $pdo->query($sql);
             $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($orders);
             break;

@@ -163,6 +163,7 @@ if (!isAdmin()) {
     
     <script src="assets/js/core/db.js?v=3"></script>
     <script src="assets/js/core/app.js?v=3"></script>
-    <script src="assets/js/pages/admin_config.js?v=3"></script>
+    <script src="assets/js/pages/admin_config.js?v=4"></script>
+    <script src="assets/js/core/admin_notifications.js?v=4"></script>
 </body>
 </html>
