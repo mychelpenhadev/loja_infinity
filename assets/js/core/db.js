@@ -70,15 +70,18 @@ const ProductManager = {
     }
 
     try {
+      console.log(`[DB] Buscando produto na API para ID: ${id}`);
       const response = await fetch(`api/products.php?action=get&id=${id}`);
       const data = await response.json();
+      console.log(`[DB] Resposta da API para ID ${id}:`, data);
+      
       if (data) {
         ProductManager._cache[id] = data;
         sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id, JSON.stringify(data));
       }
       return data;
     } catch (err) {
-      console.error("Erro ao buscar produto:", err);
+      console.error("[DB] Erro ao buscar produto na API:", err);
       return null;
     }
   },

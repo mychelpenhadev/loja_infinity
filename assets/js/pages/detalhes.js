@@ -1,9 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const productId = urlParams.get('id');
+            const productId = urlParams.get('id') || urlParams.get('product_id');
             const container = document.getElementById('product-content');
 
-            if (!productId) {
+            console.log('[Debug] ID do produto da URL:', productId);
+
+            if (!productId || productId === 'undefined' || productId === 'null') {
+                console.error('[Debug] ID do produto inválido:', productId);
                 if(container) container.innerHTML = `<h2 style="text-align:center; padding: 4rem;">ID do produto inválido ou não fornecido.</h2>`;
                 return;
             }
