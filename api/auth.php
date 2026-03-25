@@ -1,6 +1,35 @@
 <?php
 ob_start();
 require_once 'security.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+function sendVerificationEmail($toEmail, $code) {
+    if (!file_exists(__DIR__ . '/mail_config.php')) return false;
+    $config = require __DIR__ . '/mail_config.php';
+    if ($config['username'] === 'seu-email@gmail.com') return false; // Not configured
+
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = $config['host'];
+        $mail->SMTPAuth   = $config['auth'];
+        $mail->Username   = $config['username'];
+        $mail->Password   = $config['password'];
+        $mail->SMTPSecure = $config['secure'];
+        $mail->Port       = $config['port'];
+        $mail->setFrom($config['from_email'], $config['from_name']);
+        $mail->addAddress($toEmail);
+        $mail->isHTML(true);
+        $mail->Subject = 'Confirme seu e-mail - ' . $config['from_name'];
+        $mail->Body    = "Seu código de verificação é: <b>$code</b><br><br>Insira este código no site para ativar sua conta.";
+        $mail->AltBody = "Seu código de verificação é: $code";
+        $mail->send();
+        return true;
+    } catch (Exception $e) { return false; }
+}
+
 header('Content-Type: application/json');
 ob_clean();
 $action = $_GET['action'] ?? '';
@@ -47,14 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO users (name, cpf, telefone, email, password, role) VALUES (?, ?, ?, ?, ?, ?)");
-            if ($stmt->execute([$name, $cpf, $telefone, $email, $hash, $role])) {
-                $_SESSION['user_id'] = $pdo->lastInsertId();
-                $_SESSION['user_name'] = $name;
-                $_SESSION['user_role'] = $role;
-                $_SESSION['user_telefone'] = $telefone;
-                $_SESSION['user_cpf'] = $cpf;
-                echo json_encode(["status" => "success", "message" => "Conta criada com sucesso."]);
+            $code = sprintf("%06d", mt_rand(1, 999999));
+            $stmt = $pdo->prepare("INSERT INTO users (name, cpf, telefone, email, password, role, is_verified, verification_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            if ($stmt->execute([$name, $cpf, $telefone, $email, $hash, $role, 0, $code])) {
+                sendVerificationEmail($email, $code);
+                echo json_encode(["status" => "success", "message" => "Conta criada! Verifique seu e-mail para confirmar o código.", "require_verification" => true, "email" => $email]);
             }
             else {
                 echo json_encode(["status" => "error", "message" => "Ocorreu um erro ao salvar o registro."]);
@@ -69,10 +95,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = isset($data['email']) ? trim($data['email']) : trim($_POST['email'] ?? '');
         $password = isset($data['password']) ? $data['password'] : ($_POST['password'] ?? '');
         try {
-            $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, password, role, profile_picture FROM users WHERE email = ?");
-            $stmt->execute([$email]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($user && password_verify($password, $user['password'])) {
+                if ($user['is_verified'] == 0) {
+                    echo json_encode(["status" => "error", "message" => "E-mail não verificado.", "require_verification" => true, "email" => $email]);
+                    exit;
+                }
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
                 $_SESSION['user_role'] = $user['role'];
@@ -137,8 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $randomPass = bin2hex(random_bytes(8));
                     $hash = password_hash($randomPass, PASSWORD_DEFAULT);
                     $role = 'cliente';
-                    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, profile_picture) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->execute([$name, $email, $hash, $role, $picture]);
+                    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, profile_picture, is_verified) VALUES (?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$name, $email, $hash, $role, $picture, 1]);
                     
                     $_SESSION['user_id'] = $pdo->lastInsertId();
                     $_SESSION['user_name'] = $name;
@@ -166,6 +193,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
             echo json_encode(["status" => "error", "message" => "Erro na verificação do Google: " . $e->getMessage()]);
+        }
+        exit;
+    if ($action === 'verify_code') {
+        $email = $data['email'] ?? '';
+        $code = $data['code'] ?? '';
+        
+        $stmt = $pdo->prepare("SELECT id, name, role, telefone, cpf FROM users WHERE email = ? AND verification_code = ?");
+        $stmt->execute([$email, $code]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user) {
+            $stmt = $pdo->prepare("UPDATE users SET is_verified = 1, verification_code = NULL WHERE id = ?");
+            $stmt->execute([$user['id']]);
+            
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['user_telefone'] = $user['telefone'];
+            $_SESSION['user_cpf'] = $user['cpf'];
+            
+            echo json_encode(["status" => "success", "message" => "E-mail verificado com sucesso!"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Código inválido."]);
         }
         exit;
     }
