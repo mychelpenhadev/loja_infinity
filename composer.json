@@ -1,6 +1,7 @@
 {
     "require": {
         "google/apiclient": "^2.19",
-        "ext-pdo_mysql": "*"
+        "ext-pdo_mysql": "*",
+        "phpmailer/phpmailer": "^7.0"
     }
 }

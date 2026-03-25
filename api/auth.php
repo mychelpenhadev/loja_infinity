@@ -187,6 +187,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 echo json_encode(["status" => "error", "message" => "Token inválido ou expirado."]);
             }
+            }
         } catch(Exception $e) {
             if ($isRedirect) {
                 header('Location: ../login.html?error=' . urlencode($e->getMessage()));
@@ -195,6 +196,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(["status" => "error", "message" => "Erro na verificação do Google: " . $e->getMessage()]);
         }
         exit;
+    }
+
     if ($action === 'verify_code') {
         $email = $data['email'] ?? '';
         $code = $data['code'] ?? '';
