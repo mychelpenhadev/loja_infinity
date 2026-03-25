@@ -1,3 +1,4 @@
+const normalizeString = (str) => (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   updateCartBadge();
@@ -217,12 +218,6 @@ function injectSearchOverlay() {
         }
     });
 }
-document.addEventListener('DOMContentLoaded', () => {
-    injectSearchOverlay();
-});
-window.normalizeString = (str) => {
-    return (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-};
 function injectChatbot() {
   if (document.querySelector('.chatbot-fab')) return;
   const chatBtn = document.createElement('button');
@@ -273,9 +268,6 @@ function injectChatbot() {
       }
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
-  };
-  const normalizeString = (str) => {
-      return (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   };
   const calculateFuzzyScore = (str1, str2) => {
       const s1 = normalizeString(str1).replace(/[^a-z0-9]/g, '');
