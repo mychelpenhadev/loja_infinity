@@ -124,7 +124,7 @@ function generateStars($rating) {
                     <i class='bx bx-user'></i>
                 </a>
                 <a href="admin.php" class="action-btn" title="Painel Admin" style="display: none;">
-                    <i class='bx bxs-dashboard'></i>
+                    <i class='bx bx-cog'></i>
                 </a>
                 <button class="action-btn" id="theme-toggle" title="Mudar Tema">
                     <i class='bx bxs-moon'></i>
