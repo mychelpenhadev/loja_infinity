@@ -11,11 +11,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loader) {
       loader.classList.add('fade-out');
       document.body.classList.remove('loading-state');
+      // Remove element quickly after fade
       setTimeout(() => {
         if(loader.parentNode) loader.remove();
-      }, 600);
+      }, 200);
     }
+    prefetchLinks();
   });
+
+  const prefetchLinks = () => {
+    const links = document.querySelectorAll('a[href$=".html"], a[href$=".php"]');
+    links.forEach(link => {
+      link.addEventListener('mouseenter', () => {
+        const url = link.href;
+        if (url && !url.includes('#') && !document.querySelector(`link[href="${url}"]`)) {
+          const prefetch = document.createElement('link');
+          prefetch.rel = 'prefetch';
+          prefetch.href = url;
+          document.head.appendChild(prefetch);
+        }
+      }, { once: true });
+    });
+  };
   window.addEventListener('cartUpdated', updateCartBadge);
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {

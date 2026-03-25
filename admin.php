@@ -12,7 +12,7 @@ if (!isAdmin()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin | Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css?v=27">
+    <link rel="stylesheet" href="assets/css/style.css?v=28">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
@@ -342,8 +342,8 @@ if (!isAdmin()) {
             </form>
         </div>
     </div>
-    <script src="assets/js/core/db.js?v=27"></script>
-    <script src="assets/js/core/app.js?v=27"></script>
+    <script src="assets/js/core/db.js?v=28"></script>
+    <script src="assets/js/core/app.js?v=28"></script>
     <script src="assets/js/pages/admin.js?v=4"></script>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>
 </body>
