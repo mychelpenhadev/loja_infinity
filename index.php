@@ -53,7 +53,7 @@ function generateStars($rating) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css?v=26">
+    <link rel="stylesheet" href="assets/css/style.css?v=27">
 
     <link rel="preload" href="assets/img/logoPNG.png" as="image">
     <script>
@@ -449,8 +449,8 @@ function generateStars($rating) {
             }
         });
     </script>
-    <script src="assets/js/core/db.js?v=26"></script>
-    <script src="assets/js/core/app.js?v=26"></script>
+    <script src="assets/js/core/db.js?v=27"></script>
+    <script src="assets/js/core/app.js?v=27"></script>
     <script src="assets/js/pages/index.js?v=13"></script>
     <?php require_once 'api/security.php'; if(isAdmin()): ?>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>

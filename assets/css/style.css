@@ -337,27 +337,34 @@ input, textarea {
   display: inline-block;
 }
 .hero-grid {
-  display: flex !important;
-  flex-direction: column !important;
+  display: grid !important;
+  grid-template-columns: 1.2fr 0.8fr !important;
+  gap: 4rem;
   align-items: center !important;
-  text-align: center !important;
-  gap: 3rem;
-  width: 100% !important;
+  text-align: left !important;
+  width: 100%;
+}
+@media (max-width: 992px) {
+  .hero-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    text-align: center !important;
+  }
 }
 .hero-content {
-  max-width: 900px !important;
-  margin: 0 auto !important;
+  max-width: 100% !important;
+  margin: 0 !important;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start !important;
 }
 .hero-content h1 {
-  font-size: 5rem;
-  line-height: 1.05;
-  margin-bottom: 2rem;
-  letter-spacing: -3px;
+  font-size: 4rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -2px;
   font-weight: 800;
-  text-align: center !important;
+  text-align: left !important;
 }
 .hero-content h1 span {
   background: linear-gradient(135deg, var(--clr-accent), var(--clr-secondary), var(--clr-primary));
@@ -369,11 +376,11 @@ input, textarea {
 .hero-content p {
   font-family: var(--font-body) !important;
   color: var(--clr-text-light);
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   line-height: 1.6;
-  margin: 0 auto 3rem !important;
-  max-width: 650px;
-  text-align: center !important;
+  margin: 0 0 2.5rem !important;
+  max-width: 550px;
+  text-align: left !important;
 }
 .btn {
   display: inline-flex;
@@ -402,8 +409,7 @@ input, textarea {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 800px;
-  margin: 3rem auto 0 !important;
+  margin: 0 !important;
 }
 .hero-image img {
   width: 100%;
