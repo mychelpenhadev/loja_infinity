@@ -46,6 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(["status" => "error", "message" => "Preencha todos os campos."]);
             exit;
         }
+        if (!str_ends_with(strtolower($email), '@gmail.com')) {
+            echo json_encode(["status" => "error", "message" => "Apenas contas @gmail.com são permitidas."]);
+            exit;
+        }
         try {
             // 1. Verificar Email
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
