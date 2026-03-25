@@ -1,12 +1,10 @@
 <?php
-// session_db.php - Custom Database Session Handler
 
 class DatabaseSessionHandler implements SessionHandlerInterface {
     private $pdo;
-
     public function __construct($pdo) {
         $this->pdo = $pdo;
-        // Tentar criar a tabela se não existir (silenciosamente)
+
         try {
             $this->pdo->exec("CREATE TABLE IF NOT EXISTS sessions (
                 id VARCHAR(128) NOT NULL PRIMARY KEY,
@@ -15,18 +13,15 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
                 INDEX idx_last_access (last_access)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         } catch (Exception $e) {
-            // Ignorar erro se a tabela já existir ou sem permissão
+
         }
     }
-
     public function open($savePath, $sessionName) {
         return true;
     }
-
     public function close() {
         return true;
     }
-
     public function read($id) {
         try {
             $stmt = $this->pdo->prepare("SELECT data FROM sessions WHERE id = ?");
@@ -35,21 +30,18 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
             return $row ? $row['data'] : '';
         } catch (Exception $e) { return ''; }
     }
-
     public function write($id, $data) {
         try {
             $stmt = $this->pdo->prepare("REPLACE INTO sessions (id, data, last_access) VALUES (?, ?, ?)");
             return $stmt->execute([$id, $data, time()]);
         } catch (Exception $e) { return false; }
     }
-
     public function destroy($id) {
         try {
             $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE id = ?");
             return $stmt->execute([$id]);
         } catch (Exception $e) { return false; }
     }
-
     public function gc($maxLifetime) {
         try {
             $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE last_access < ?");
@@ -59,12 +51,9 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
     }
 }
 
-// Configurar tempo de sessão para 30 dias (em segundos)
 $session_lifetime = 30 * 24 * 60 * 60;
 ini_set('session.gc_maxlifetime', $session_lifetime);
 ini_set('session.cookie_lifetime', $session_lifetime);
-// Impedir que o PHP tente deletar o arquivo que não existe se estiver usando files
-// Mas como vamos usar nosso handler, isso é secundário
 
 require_once 'db.php';
 $handler = new DatabaseSessionHandler($pdo);

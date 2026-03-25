@@ -10,13 +10,11 @@
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-
             if (window.location.hash && window.location.hash.startsWith('#prod-')) {
                 const style = document.createElement('style');
                 style.id = 'fast-scroll-hide';
                 style.textContent = 'body { visibility: hidden !important; }';
                 document.head.appendChild(style);
-
                 let attempts = 0;
                 const check = () => {
                     attempts++;
@@ -102,7 +100,7 @@
     </style>
 </head>
 <body class="loading-state">
-    <!-- Page Loader -->
+
     <div class="page-loader">
         <div class="loader-content">
             <img src="assets/img/logoPNG.png" alt="Infinity" class="loader-logo">
@@ -166,7 +164,6 @@
                     background-color: var(--clr-surface);
                     color: var(--clr-text);
                 }
-
                 @media (max-width: 768px) {
                     .filter-header {
                         padding: 1rem !important;
@@ -213,11 +210,9 @@
                             <option value="embalagens">Embalagens</option>
                         </optgroup>
                     </select>
-                    
                     <select id="brand-filter" class="topic-select" style="display: none; min-width: 140px; font-size: 0.875rem;">
                         <option value="all">Todas as Marcas</option>
                     </select>
-
                     <div style="display: flex; align-items: center; flex-grow: 1; background: var(--clr-bg); border-radius: var(--radius-md); padding-left: 0.75rem; border: 1px solid var(--clr-border);">
                         <i class='bx bx-search' style="color: var(--clr-text-light); font-size: 1.25rem;"></i>
                         <input type="text" id="search-input" placeholder="O que você procura hoje?" style="border: none; background: transparent; padding: 0.75rem; width: 100%; color: var(--clr-text); outline: none;">

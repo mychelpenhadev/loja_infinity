@@ -1,12 +1,9 @@
-
-
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   updateCartBadge();
   injectChatbot();
   injectMobileNav();
   checkAuth();
-  
   window.addEventListener('load', () => {
     const loader = document.querySelector('.page-loader');
     if (loader) {
@@ -17,9 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 600);
     }
   });
-
   window.addEventListener('cartUpdated', updateCartBadge);
-  
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
@@ -31,55 +26,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
 function initTheme() {
   const themeKey = 'papelaria_theme';
   const savedTheme = localStorage.getItem(themeKey) || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateThemeIcon(savedTheme);
 }
-
 function updateThemeIcon(theme) {
   const icon = document.querySelector('#theme-toggle i');
   if (icon) {
     icon.className = theme === 'dark' ? 'bx bxs-sun' : 'bx bxs-moon';
   }
 }
-
 function updateCartBadge() {
   const badge = document.getElementById('cart-badge');
   const mobileBadge = document.getElementById('cart-badge-mobile');
   const totalItems = window.CartManager.getTotalItems();
   const formatItems = totalItems > 99 ? '99+' : totalItems;
-  
   if (badge) {
     badge.textContent = formatItems;
     badge.style.display = totalItems > 0 ? 'flex' : 'none';
   }
-  
   if (mobileBadge) {
     mobileBadge.textContent = formatItems;
     mobileBadge.style.display = totalItems > 0 ? 'inline-block' : 'none';
   }
 }
-
-
 window.isLoggedIn = false;
 window.userId = null;
 window.userName = null;
 window.authChecked = false;
-
 async function checkAuth() {
   try {
       const response = await fetch('api/auth.php?action=check');
       const data = await response.json();
-      
       window.isLoggedIn = data.loggedIn;
       window.userId = data.id || null;
       window.userName = data.name || null;
       window.authChecked = true;
       window.dispatchEvent(new Event('cartUpdated'));
-      
       const userBtns = document.querySelectorAll('a[href="login.html"]');
       if (data.loggedIn) {
           userBtns.forEach(btn => {
@@ -88,10 +73,8 @@ async function checkAuth() {
               } else {
                   btn.innerHTML = `<i class='bx bxs-user-circle' title="Minha Conta" style="font-size: 1.5rem; color: var(--clr-accent);"></i>`;
               }
-              // O href nativo para login.html funciona, dependendo do login.js para exibir o perfil
+
           });
-          
-          
           if(data.role === 'admin') {
               document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'flex');
           } else {
@@ -111,13 +94,11 @@ async function checkAuth() {
       }
   }
 }
-
 function injectMobileNav() {
     if (document.querySelector('.mobile-bottom-nav')) return;
     const nav = document.createElement('nav');
     nav.className = 'mobile-bottom-nav';
     const path = window.location.pathname;
-    
     nav.innerHTML = `
         <a href="index.html" class="mobile-nav-item ${path.endsWith('index.html') || path === '/' ? 'active' : ''}">
             <i class='bx bx-home-alt'></i>
@@ -139,10 +120,8 @@ function injectMobileNav() {
     `;
     document.body.appendChild(nav);
 }
-
 function injectSearchOverlay() {
     if (document.getElementById('search-overlay')) return;
-    
     const overlay = document.createElement('div');
     overlay.className = 'search-overlay';
     overlay.id = 'search-overlay';
@@ -155,23 +134,19 @@ function injectSearchOverlay() {
         </div>
     `;
     document.body.appendChild(overlay);
-
     const input = document.getElementById('search-input-field');
     const closeBtn = document.getElementById('search-close-btn');
     const suggestions = document.getElementById('search-suggestions');
 
-    // Cache local de todos os produtos — carregado uma vez
     let allProducts = null;
-
     const loadAllProducts = async () => {
-        if (allProducts) return; // já carregado
+        if (allProducts) return;
         try {
             const res = await fetch('api/products.php?action=list&limit=500');
             const data = await res.json();
             allProducts = data.products || [];
         } catch(e) { allProducts = []; }
     };
-
     const filterLocal = (query) => {
         const q = query.toLowerCase();
         return (allProducts || []).filter(p =>
@@ -179,7 +154,6 @@ function injectSearchOverlay() {
             (p.description && p.description.toLowerCase().includes(q))
         );
     };
-
     const handleSearch = (query) => {
         query = query || input.value.trim();
         if (query) {
@@ -187,9 +161,7 @@ function injectSearchOverlay() {
             window.location.href = `produtos.html?q=${encodeURIComponent(query)}`;
         }
     };
-
     const hideSuggestions = () => suggestions.classList.remove('visible');
-
     const showSuggestions = (products, query) => {
         if (!products || products.length === 0) {
             suggestions.innerHTML = `<div class="suggestion-empty">Nenhum produto encontrado</div>`;
@@ -213,7 +185,6 @@ function injectSearchOverlay() {
         }
         suggestions.classList.add('visible');
     };
-
     suggestions.addEventListener('click', (e) => {
         const item = e.target.closest('.suggestion-item');
         const seeAll = e.target.closest('.suggestion-see-all');
@@ -221,57 +192,43 @@ function injectSearchOverlay() {
         else if (seeAll) handleSearch(seeAll.dataset.query);
     });
 
-    // Filtragem local instantânea — zero latência de rede
     input.addEventListener('input', () => {
         const query = input.value.trim();
         if (query.length < 1) { hideSuggestions(); return; }
         showSuggestions(filterLocal(query), query);
     });
-
     input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSearch();
     });
-
     document.addEventListener('click', (e) => {
         if (!overlay.contains(e.target) && !e.target.closest('#search-toggle')) hideSuggestions();
     });
-
     closeBtn.onclick = () => {
         overlay.classList.remove('active');
         hideSuggestions();
         input.value = '';
     };
 
-    // Abrir lupa + pré-carregar produtos imediatamente
     document.addEventListener('click', (e) => {
         if (e.target.closest('#search-toggle')) {
             overlay.classList.add('active');
-            loadAllProducts(); // carrega em background enquanto o usuário começa a digitar
+            loadAllProducts();
             setTimeout(() => input.focus(), 80);
         }
     });
 }
-
-
 document.addEventListener('DOMContentLoaded', () => {
     injectSearchOverlay();
 });
-
-
 function injectChatbot() {
-  if (document.querySelector('.chatbot-fab')) return; // não duplicar
-  
-  
+  if (document.querySelector('.chatbot-fab')) return;
   const chatBtn = document.createElement('button');
   chatBtn.className = 'chatbot-fab';
   chatBtn.innerHTML = `<img src="assets/img/chatbot_mascot.png" alt="Chatbot" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
   chatBtn.title = "Fale com nossa IA!";
-  
-  
   const chatWin = document.createElement('div');
   chatWin.className = 'chat-window';
   chatWin.id = 'chat-window';
-  
   chatWin.innerHTML = `
       <div class="chat-header">
          <div class="chat-header-info">
@@ -291,24 +248,18 @@ function injectChatbot() {
          <button class="chat-send-btn" id="chat-send-btn"><i class='bx bx-send'></i></button>
       </div>
   `;
-  
   document.body.appendChild(chatBtn);
   document.body.appendChild(chatWin);
-  
   chatBtn.onclick = () => {
       chatWin.classList.add('active');
   };
-  
   document.getElementById('chat-close-btn').onclick = () => {
       chatWin.classList.remove('active');
   };
 
-// Modal de perfil removido conforme solicitado pelo usuário (movido para login.html)
-  
   const chatInput = document.getElementById('chat-input');
   const chatSend = document.getElementById('chat-send-btn');
   const chatBody = document.getElementById('chat-body');
-  
   const addMessage = (text, type) => {
       const msg = document.createElement('div');
       msg.className = `chat-msg ${type}`;
@@ -321,13 +272,11 @@ function injectChatbot() {
       chatBody.scrollTop = chatBody.scrollHeight;
   };
 
-  // Função auxiliar para busca difusa (Sorensen-Dice Coefficient)
   const calculateFuzzyScore = (str1, str2) => {
       const s1 = (str1 || "").toLowerCase().replace(/[^a-z0-9]/g, '');
       const s2 = (str2 || "").toLowerCase().replace(/[^a-z0-9]/g, '');
       if (s1 === s2) return 1.0;
       if (s1.length < 2 || s2.length < 2) return s1.includes(s2) || s2.includes(s1) ? 0.5 : 0;
-
       const getBigrams = (str) => {
           const bigrams = new Set();
           for (let i = 0; i < str.length - 1; i++) {
@@ -335,7 +284,6 @@ function injectChatbot() {
           }
           return bigrams;
       };
-
       const bigrams1 = getBigrams(s1);
       const bigrams2 = getBigrams(s2);
       let intersection = 0;
@@ -344,29 +292,24 @@ function injectChatbot() {
       }
       return (2.0 * intersection) / (bigrams1.size + bigrams2.size);
   };
-
   const getAIResponse = async (userText) => {
       const lower = userText.toLowerCase();
 
-      // Busca na Base de Dados usando Scoring
       if (window.ProductManager) {
           const data = await window.ProductManager.getAll();
           const products = Array.isArray(data) ? data : (data.products || []);
-          
-          // Calcula score para todos os produtos
+
           const scored = products.map(p => {
               const nameScore = calculateFuzzyScore(userText, p.name);
-              // Pequeno bônus se o termo estiver contido EXATAMENTE (includes)
+
               const bonus = p.name.toLowerCase().includes(lower) ? 0.2 : 0;
               return { product: p, score: nameScore + bonus };
           })
-          .filter(item => item.score > 0.35) // Limiar de relevância
-          .sort((a, b) => b.score - a.score); // Mais relevantes primeiro
-
+          .filter(item => item.score > 0.35)
+          .sort((a, b) => b.score - a.score);
           if (scored.length > 0) {
               const top = scored[0].product;
-              
-              // Se o melhor resultado for muito bom (> 0.8), tratamos como recomendação direta
+
               if (scored[0].score > 0.8) {
                   return `Deixa comigo! Encontrei exatamente o que você procura: <br><br>
                       <div style="display:flex; align-items:center; gap: 10px; margin-top:5px; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.05); border-left: 4px solid var(--clr-primary);">
@@ -378,8 +321,7 @@ function injectChatbot() {
                          <a href="detalhes.html?id=${top.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">Ver</a>
                       </div>`;
               }
-              
-              // Se tivermos vários resultados bons, listamos os principais
+
               let html = `Não tenho certeza absoluta, mas achei esses <b>${scored.length}</b> itens que parecem com o que você quer: <br><br>`;
               scored.slice(0, 3).forEach(item => {
                   const p = item.product;
@@ -398,7 +340,6 @@ function injectChatbot() {
           }
       }
 
-      // Fallback genéricos
       if (lower.includes('comprar') || lower.includes('pagamento') || lower.includes('frete')) {
           return "Pode colocar tudo no carrinho e simular a compra lá! Como sou uma loja virtual incrível mas demonstrativa, o frete aqui é super de brincadeirinha! 🛒🎉";
       } else if (lower.includes('caneta') || lower.includes('lápis') || lower.includes('lapis')) {
@@ -409,45 +350,35 @@ function injectChatbot() {
           return "Poxa, ainda estou aprendendo... 🤔 Tente digitar o nome de um produto (ex: Caneta, Caderno, Mochila) ou use a busca ali em cima para eu brilhar mais! ✨";
       }
   };
-
   const handleSend = async () => {
       const text = chatInput.value.trim();
       if (!text) return;
-      
       addMessage(text, 'user');
       chatInput.value = '';
-      
       const typingIndicator = document.createElement('div');
       typingIndicator.className = 'chat-msg ai';
       typingIndicator.innerHTML = '<span style="opacity:0.5;">A bolsinha está digitando... 💬</span>';
       chatBody.appendChild(typingIndicator);
       chatBody.scrollTop = chatBody.scrollHeight;
-
       const aiResponse = await getAIResponse(text);
-
       setTimeout(() => {
           if (typingIndicator.parentNode) chatBody.removeChild(typingIndicator);
           addMessage(aiResponse, 'ai');
-      }, 300 + Math.random() * 500); // Mais rápido conforme pedido
+      }, 300 + Math.random() * 500);
   };
-
   chatBtn.onclick = () => {
       chatWin.classList.add('active');
-      // Pre-warming do cache de produtos para busca instantânea
+
       if (window.ProductManager) window.ProductManager.getAll();
   };
-  
   document.getElementById('chat-close-btn').onclick = () => {
       chatWin.classList.remove('active');
   };
-
   chatSend.onclick = handleSend;
   chatInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') handleSend();
   });
 }
-
-
 window.showToast = function(message, type = 'success') {
   let container = document.querySelector('.toast-container');
   if (!container) {
@@ -455,19 +386,14 @@ window.showToast = function(message, type = 'success') {
     container.className = 'toast-container';
     document.body.appendChild(container);
   }
-  
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  
   let icon = type === 'success' ? 'bx-check-circle' : 'bx-error-circle';
   toast.innerHTML = `
     <i class='bx ${icon}' style="font-size: 1.5rem; color: ${type === 'success' ? '#10B981' : '#EF4444'}"></i>
     <span>${message}</span>
   `;
-  
   container.appendChild(toast);
-  
-  
   setTimeout(() => {
     toast.remove();
     if (container.children.length === 0) {
@@ -475,16 +401,12 @@ window.showToast = function(message, type = 'success') {
     }
   }, 3500);
 }
-
-
 window.formatCurrency = (value) => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(value);
 };
-
-
 window.generateStars = (rating) => {
   let html = '';
   for (let i = 1; i <= 5; i++) {
@@ -498,8 +420,6 @@ window.generateStars = (rating) => {
   }
   return html;
 };
-
-
 window.handleAddToCart = async (productId, quantity = 1, color = null) => {
   if (!window.isLoggedIn) {
       window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
@@ -509,23 +429,20 @@ window.handleAddToCart = async (productId, quantity = 1, color = null) => {
       return;
   }
 
-  // Se não tem cor, verifica se a categoria exige cor
   if (!color) {
       const product = await window.ProductManager.getById(productId);
       if (product) {
           const cat = (product.category || '').toLowerCase();
           if (window.COLOR_CATEGORIES.includes(cat)) {
-              // Redireciona para detalhes para escolher a cor
+
               window.location.href = `detalhes.html?id=${productId}`;
               return;
           }
       }
   }
-
   window.CartManager.add(productId, quantity, color);
   window.showToast('Produto adicionado ao carrinho!');
 };
-
 window.handleBuyNow = async (productId, quantity = 1, color = null) => {
   if (!window.isLoggedIn) {
       window.showToast('Faça login para comprar!', 'error');
@@ -535,7 +452,6 @@ window.handleBuyNow = async (productId, quantity = 1, color = null) => {
       return;
   }
 
-  // Se não tem cor, verifica se a categoria exige cor
   if (!color) {
       const product = await window.ProductManager.getById(productId);
       if (product) {
@@ -546,13 +462,11 @@ window.handleBuyNow = async (productId, quantity = 1, color = null) => {
           }
       }
   }
-
   window.CartManager.add(productId, quantity, color);
   window.location.href = 'carrinho.html';
 };
-
 window.handleWhatsApp = () => {
-    const num = window.ConfigManager.get('whatsappNumber') || '5599999999999'; // Fallback
+    const num = window.ConfigManager.get('whatsappNumber') || '5599999999999';
     const msg = encodeURIComponent("Olá! Gostaria de tirar uma dúvida.");
     window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
 };

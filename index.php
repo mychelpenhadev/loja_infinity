@@ -1,33 +1,27 @@
 <?php
 define('CACHE_FILE', __DIR__ . '/api/cache/home_data.json');
-define('CACHE_TIME', 600); // 10 minutes
-
+define('CACHE_TIME', 600);
 $data = null;
 if (file_exists(CACHE_FILE) && (time() - filemtime(CACHE_FILE) < CACHE_TIME)) {
     $data = json_decode(file_get_contents(CACHE_FILE), true);
 }
-
 if (!$data) {
     try {
         require_once 'api/db.php';
-        
-        // Fetch Featured Products (8)
+
         $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 8");
         $featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Fetch Novidades for Slider (5)
         $stmt = $pdo->query("SELECT * FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
         $sliderProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         $data = [
             'featured' => $featuredProducts,
             'slider' => $sliderProducts,
             'timestamp' => time()
         ];
-        
         file_put_contents(CACHE_FILE, json_encode($data));
     } catch (Exception $e) {
-        // Fallback or empty
+
         $featuredProducts = [];
         $sliderProducts = [];
     }
@@ -36,7 +30,6 @@ if (!$data) {
     $sliderProducts = $data['slider'];
 }
 
-// Utils
 function formatCurrency($val) {
     return 'R$ ' . number_format($val, 2, ',', '.');
 }
@@ -61,22 +54,18 @@ function generateStars($rating) {
     <title>Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="assets/css/style.css?v=16">
-    
-    <!-- Preload Critical Assets -->
-    <link rel="preload" href="assets/img/logoPNG.png" as="image">
 
+    <link rel="preload" href="assets/img/logoPNG.png" as="image">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // Fast Scroll for anchors
-            if (window.location.hash && window.location.hash.startsWith('#prod-')) {
+
+            if (window.location.hash && window.location.hash.startsWith('
                 const style = document.createElement('style');
                 style.id = 'fast-scroll-hide';
                 style.textContent = 'body { visibility: hidden !important; }';
                 document.head.appendChild(style);
-                
                 let attempts = 0;
                 const check = () => {
                     attempts++;
@@ -96,14 +85,13 @@ function generateStars($rating) {
     </script>
 </head>
 <body class="loading-state">
-    <!-- Page Loader -->
+
     <div class="page-loader">
         <div class="loader-content">
             <img src="assets/img/logoPNG.png" alt="Infinity" class="loader-logo">
             <div class="loader-spinner"></div>
         </div>
     </div>
-
     <header class="header">
         <div class="container nav">
             <a href="index.html" class="nav-brand">
@@ -140,7 +128,7 @@ function generateStars($rating) {
                             <span class="mark-read-btn" id="mark-read-btn">Limpar</span>
                         </div>
                         <div class="notification-list" id="notification-list">
-                            <!-- Injected via JS -->
+
                         </div>
                         <a href="produtos.html" class="view-all-notif">Ver todos os Produtos</a>
                     </div>
@@ -157,7 +145,7 @@ function generateStars($rating) {
             <i class='bx bxs-notepad' style="color: var(--clr-primary); font-size: 1.5rem;"></i>
         </div>
         <div class="floating-element el-2">
-            <i class='bx bxs-star' style="color: #FBBF24; font-size: 1.5rem;"></i>
+            <i class='bx bxs-star' style="color:
             <span style="font-weight: 600; font-size: 0.875rem;">Premium</span>
         </div>
         <div class="container hero-grid">
@@ -208,26 +196,21 @@ function generateStars($rating) {
                             <?php if ($product['rating'] >= 4.8): ?>
                                 <span class="product-badge">Novidade</span>
                             <?php endif; ?>
-                            
                             <div class="product-actions">
                                 <button class="icon-btn" onclick="window.location.href='detalhes.html?id=<?= $product['id'] ?>'" title="Ver Detalhes">
                                     <i class='bx bx-show'></i>
                                 </button>
                             </div>
-
                             <a href="detalhes.html?id=<?= $product['id'] ?>" class="product-image-container">
                                 <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" loading="eager" fetchpriority="high">
                             </a>
-                            
                             <div class="product-info">
                                 <span class="product-category"><?= htmlspecialchars($product['category']) ?></span>
                                 <a href="detalhes.html?id=<?= $product['id'] ?>" class="product-title"><?= htmlspecialchars($product['name']) ?></a>
-                                
                                 <div class="product-rating">
                                     <?= generateStars($product['rating']) ?>
                                     <span style="color: var(--clr-text-light); margin-left: auto; font-size: 0.75rem;">(<?= rand(10, 60) ?>)</span>
                                 </div>
-
                                 <div class="product-footer">
                                     <span class="product-price"><?= formatCurrency($product['price']) ?></span>
                                     <div style="display: flex; gap: 0.5rem;">
@@ -309,7 +292,7 @@ function generateStars($rating) {
             </div>
         </div>
     </footer>
-    <!-- Modal de Subcategorias de Costura -->
+
     <div id="costura-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -368,7 +351,6 @@ function generateStars($rating) {
             </div>
         </div>
     </div>
-
     <style>
         .modal-overlay {
             position: fixed;
@@ -441,13 +423,11 @@ function generateStars($rating) {
             .sub-categories-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const btnCostura = document.getElementById('btn-costura-modal');
             const modal = document.getElementById('costura-modal');
             const btnClose = document.getElementById('close-costura-modal');
-
             if (btnCostura && modal) {
                 btnCostura.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -455,13 +435,11 @@ function generateStars($rating) {
                     document.body.style.overflow = 'hidden';
                 });
             }
-
             if (btnClose && modal) {
                 btnClose.addEventListener('click', () => {
                     modal.classList.remove('active');
                     document.body.style.overflow = 'auto';
                 });
-
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
                         modal.classList.remove('active');
@@ -471,7 +449,6 @@ function generateStars($rating) {
             }
         });
     </script>
-
     <script src="assets/js/core/db.js?v=13"></script>
     <script src="assets/js/core/db.js?v=4"></script>
     <script src="assets/js/core/app.js?v=4"></script>

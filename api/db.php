@@ -4,7 +4,6 @@ $host = 'localhost';
 $user = 'root';
 $pass = '';
 $dbname = 'papelaria_db';
-
 if (file_exists($envPath)) {
     $env = parse_ini_file($envPath);
     if ($env !== false) {
@@ -15,20 +14,17 @@ if (file_exists($envPath)) {
     }
 }
 
-// Suporte para variáveis de ambiente do sistema (como no Railway/Vercel)
 $host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: '127.0.0.1');
 $user = getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: 'root');
 $pass = getenv('DB_PASS') ?: (getenv('MYSQLPASSWORD') ?: '');
 $dbname = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: 'papelaria_db');
 $port = getenv('MYSQLPORT') ?: (getenv('DB_PORT') ?: '3306');
 
-// Se host for 'localhost' via .env, vamos forçar '127.0.0.1' para evitar socket issues
 if ($host === 'localhost') {
     $host = '127.0.0.1';
 }
-
 try {
-    // Usar DSN explícito com host e porta separadamente para máxima compatibilidade
+
     $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
     $pdo = new PDO($dsn, $user, $pass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -38,7 +34,7 @@ catch (Throwable $e) {
     header('Content-Type: application/json');
     http_response_code(500);
     die(json_encode([
-        "status" => "error", 
+        "status" => "error",
         "message" => "Erro de conexão com o banco de dados ($host): " . $e->getMessage(),
         "details" => [
             "user" => $user,

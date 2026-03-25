@@ -2,15 +2,12 @@
             const container = document.getElementById('featured-products');
             const heroSlider = document.getElementById('hero-slider');
             const sliderDots = document.getElementById('slider-dots');
-            
-            // If already rendered via PHP, just handle logic
-            const alreadyRendered = container && container.children.length > 2;
 
+            const alreadyRendered = container && container.children.length > 2;
             const data = await window.ProductManager.getAll({ limit: 8 });
             const allProducts = data.products || [];
-            
             if (!alreadyRendered && container) {
-                const products = allProducts.slice(0, 4); 
+                const products = allProducts.slice(0, 4);
                 if (products.length === 0) {
                     container.innerHTML = '<p>Nenhum produto em destaque encontrado.</p>';
                 } else {
@@ -53,7 +50,6 @@
                 }
             }
 
-            // Hero Slider Logic
             if (heroSlider && sliderDots) {
                 if (!alreadyRendered) {
                     const novidades = allProducts.filter(p => p.rating >= 4.8).slice(0, 5);
@@ -72,10 +68,8 @@
                         `).join('');
                     }
                 }
-
                 const items = heroSlider.querySelectorAll('.slider-item');
                 const dots = sliderDots.querySelectorAll('.dot');
-                
                 if (items.length > 0) {
                     let currentSlide = 0;
                     function showSlide(index) {
@@ -103,20 +97,16 @@
                 }
             }
 
-            // Lógica de Notificações
             const notifBtn = document.getElementById('notification-btn');
             const notifDropdown = document.getElementById('notification-dropdown');
             const notifBadge = document.getElementById('notification-badge');
             const notifList = document.getElementById('notification-list');
             const markReadBtn = document.getElementById('mark-read-btn');
-
             if (notifBtn) {
-                const latest = allProducts.slice(-2).reverse(); 
+                const latest = allProducts.slice(-2).reverse();
                 const promos = allProducts.filter(p => p.category && p.category.toLowerCase().includes('promo'));
-                
                 let notifsHTML = '';
                 let count = 0;
-
                 latest.forEach(p => {
                     notifsHTML += `
                         <a href="detalhes.html?id=${p.id}" class="notif-item unread">
@@ -132,7 +122,6 @@
                     `;
                     count++;
                 });
-
                 if (promos.length > 0) {
                     const p = promos[0];
                     notifsHTML += `
@@ -149,7 +138,6 @@
                     `;
                     count++;
                 }
-
                 if(count === 0) {
                     if(notifList) notifList.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--clr-text-light);">Tudo lido por aqui! 🎉</div>`;
                     if(notifBadge) notifBadge.style.display = 'none';
@@ -160,20 +148,17 @@
                         notifBadge.style.display = 'flex';
                     }
                 }
-
                 if(notifBtn) {
                     notifBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         notifDropdown.classList.toggle('active');
                     });
                 }
-
                 document.addEventListener('click', (e) => {
                     if(notifBtn && !notifBtn.contains(e.target) && notifDropdown && !notifDropdown.contains(e.target)) {
                         notifDropdown.classList.remove('active');
                     }
                 });
-
                 if(markReadBtn) {
                     markReadBtn.addEventListener('click', () => {
                         notifList.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--clr-text-light);">Tudo limpo! 🎉</div>`;

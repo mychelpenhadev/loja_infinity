@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCart();
             window.addEventListener('cartUpdated', renderCart);
         });
-
         window.updateItemQuantity = (id, delta, color = null) => {
             const cartItems = window.CartManager.getCart();
             const item = cartItems.find(i => String(i.productId) === String(id) && i.color === color);
@@ -10,18 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.CartManager.updateQuantity(id, item.quantity + delta, color);
             }
         };
-
         window.removeItem = (id, color = null) => {
             if (confirm('Deseja realmente remover este item do carrinho?')) {
                 window.CartManager.remove(id, color);
                 window.showToast('Item removido com sucesso.', 'success');
             }
         };
-
         window.checkout = () => {
             const cartTools = window.CartManager.getCart();
             if(cartTools.length === 0) return;
-            
             if (!window.isLoggedIn) {
                 window.showToast('Faça login para finalizar a compra!', 'error');
                 setTimeout(() => {
@@ -29,32 +25,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 1500);
                 return;
             }
-            
             const btn = document.getElementById('checkout-btn');
             if(btn) {
                 btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Redirecionando...";
                 btn.style.opacity = '0.7';
                 btn.disabled = true;
             }
-
             setTimeout(() => {
                 window.location.href = 'pagamento.html';
             }, 800);
         };
-
         async function renderCart() {
             const container = document.getElementById('cart-content');
             if (!container) return;
-
             const cartItems = window.CartManager.getCart();
-
             if (cartItems.length === 0) {
-                // Se ainda não checou o login, espera um pouco para não mostrar "Vazio" falso
-                if (!window.authChecked) {
-                    return; // Mantém o que estiver no container (o spinner do HTML)
-                }
 
-                if(!container.querySelector('.bxs-check-circle')){ 
+                if (!window.authChecked) {
+                    return;
+                }
+                if(!container.querySelector('.bxs-check-circle')){
                     container.innerHTML = `
                         <div class="empty-cart">
                             <i class='bx bx-shopping-bag' style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
@@ -67,33 +57,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Mostrar loader real
             container.innerHTML = `
                 <div style="text-align: center; padding: 4rem; color: var(--clr-primary);">
                     <i class='bx bx-loader-alt bx-spin' style="font-size: 3rem; margin-bottom: 1rem;"></i>
                     <p>Preparando seu carrinho adorável...</p>
                 </div>
             `;
-            
             const productIds = [...new Set(cartItems.map(item => item.productId))];
             const allProducts = await window.ProductManager.getBatch(productIds);
-
             let itemsHTML = '';
             let subtotal = 0;
-
             cartItems.forEach(item => {
                 const product = allProducts.find(p => String(p.id) === String(item.productId));
                 if (product) {
                     const price = parseFloat(product.price);
                     const itemTotal = price * item.quantity;
                     subtotal += itemTotal;
-
                     const colorInfo = item.color ? `<p class="cart-item-color" style="font-size: 0.875rem; color: var(--clr-primary); font-weight: 600; margin: 0.25rem 0;">Cor: ${item.color}</p>` : '';
-
                     itemsHTML += `
                         <div class="cart-item" data-color="${item.color || ''}">
                             <img src="${product.image}" alt="${product.name}" class="cart-item-img">
-                            
                             <div class="cart-item-info">
                                 <span class="cart-item-category">${product.category}</span>
                                 <h3 class="cart-item-title">
@@ -106,9 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <button class="qty-btn" onclick="updateItemQuantity('${product.id}', 1, ${item.color ? `'${item.color}'` : 'null'})"><i class='bx bx-plus'></i></button>
                                 </div>
                             </div>
-
                             <span class="cart-item-price">${window.formatCurrency(itemTotal)}</span>
-                            
                             <button class="btn-remove" onclick="removeItem('${product.id}', ${item.color ? `'${item.color}'` : 'null'})" title="Remover item">
                                 <i class='bx bx-trash'></i>
                             </button>
@@ -116,32 +97,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
             });
-
             const total = subtotal;
-
             container.innerHTML = `
                 <div class="cart-layout">
                     <div class="cart-items-container">
                         ${itemsHTML}
                     </div>
-
                     <div class="order-summary">
                         <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Resumo do Pedido</h2>
-                        
                         <div class="summary-row">
                             <span>Subtotal (${window.CartManager.getTotalItems()} itens)</span>
                             <span style="color: var(--clr-text); font-weight: 500;">${window.formatCurrency(subtotal)}</span>
                         </div>
-
                         <div class="summary-total">
                             <span>Total</span>
                             <span style="color: var(--clr-accent);">${window.formatCurrency(total)}</span>
                         </div>
-
                         <button id="checkout-btn" class="btn btn-primary btn-checkout" onclick="checkout()">
                             Finalizar Compra <i class='bx bx-check-shield' ></i>
                         </button>
-                        
                         <p style="text-align: center; margin-top: 1rem; color: var(--clr-text-light); font-size: 0.75rem;">
                             <i class='bx bx-lock-alt'></i> Pagamento 100% seguro via Stripe
                         </p>

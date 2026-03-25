@@ -129,9 +129,9 @@ if (!isAdmin()) {
         }
         .action-btns .delete-btn:hover {
             background-color: rgba(239, 68, 68, 0.1);
-            color: #EF4444;
+            color:
         }
-        /* Modal */
+
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -248,7 +248,7 @@ if (!isAdmin()) {
                 <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
                     <div class="admin-search-box" style="position: relative;">
                         <i class='bx bx-search' style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--clr-text-light); font-size: 1.25rem;"></i>
-                        <input type="text" id="admin-search" placeholder="Pesquisar produto pelo nome..." 
+                        <input type="text" id="admin-search" placeholder="Pesquisar produto pelo nome..."
                             style="padding: 0.75rem 1rem 0.75rem 2.75rem; border-radius: var(--radius-md); border: 1px solid var(--clr-border); background: var(--clr-surface); color: var(--clr-text); width: 300px; font-family: inherit;">
                     </div>
                     <button class="btn btn-primary" onclick="openModal()">

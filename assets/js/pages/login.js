@@ -3,14 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const registerView = document.getElementById('register-view');
             const btnShowRegister = document.getElementById('show-register');
             const btnShowLogin = document.getElementById('show-login');
-            
             const tabLogin = document.getElementById('tab-login');
             const tabRegister = document.getElementById('tab-register');
-            
             const loginForm = document.getElementById('login-form');
             const registerForm = document.getElementById('register-form');
-
-            
             window.togglePassword = (inputId, iconElement) => {
                 const input = document.getElementById(inputId);
                 if (input.type === 'password') {
@@ -23,41 +19,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     iconElement.classList.add('bx-show');
                 }
             };
-
-            
             const switchToRegister = () => {
                 loginView.style.display = 'none';
                 registerView.style.display = 'block';
                 tabLogin.classList.remove('active');
                 tabRegister.classList.add('active');
-                
-                
                 window.history.replaceState(null, '', '?action=register');
             };
-
             const switchToLogin = () => {
                 registerView.style.display = 'none';
                 loginView.style.display = 'block';
                 tabRegister.classList.remove('active');
                 tabLogin.classList.add('active');
-                
                 window.history.replaceState(null, '', '?action=login');
             };
-
-            
             tabRegister.addEventListener('click', switchToRegister);
             tabLogin.addEventListener('click', switchToLogin);
-
             btnShowRegister.addEventListener('click', (e) => {
                 e.preventDefault();
                 switchToRegister();
             });
-
             btnShowLogin.addEventListener('click', (e) => {
                 e.preventDefault();
                 switchToLogin();
             });
-            
             fetch('api/auth.php?action=check')
                 .then(r => r.json())
                 .then(data => {
@@ -72,10 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             document.getElementById('prof-nome').value = data.name;
                             if(document.getElementById('prof-cpf') && data.cpf) document.getElementById('prof-cpf').value = data.cpf;
                             if(document.getElementById('prof-telefone') && data.telefone) document.getElementById('prof-telefone').value = data.telefone;
-                            
                             const welcomeName = document.getElementById('prof-welcome-name');
                             if(welcomeName) welcomeName.innerText = data.name;
-                            
                             const picPreview = document.getElementById('prof-pic-preview');
                             if(picPreview) {
                                 if(data.profile_picture) {
@@ -84,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     picPreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`;
                                 }
                             }
-                            
                             loadUserOrders(data.id);
                             loadMiniPromos();
                             setupWhatsAppSupport();
@@ -94,31 +76,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(urlParams.get('action') === 'register') {
                     switchToRegister();
                 }
-                
                 if (urlParams.has('error')) {
                     const error = urlParams.get('error');
                     let msg = 'Ocorreu um erro na autenticação.';
                     if (error === 'no_token') msg = 'Token do Google não recebido.';
                     else if (error === 'invalid_token') msg = 'Token do Google inválido.';
                     else msg = decodeURIComponent(error);
-                    
                     if (window.showToast) {
                         window.showToast(msg, 'error');
                     } else {
                         alert(msg);
                     }
-                    // Limpa a URL sem recarregar
+
                     window.history.replaceState(null, '', window.location.pathname);
                 }
                     }
                 });
-
-            
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
-
                 try {
                     const res = await fetch('api/auth.php?action=login', {
                         method: 'POST',
@@ -143,16 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.showToast('Erro ao se conectar ao servidor.', 'error');
                 }
             });
-
-            
             const isCPFValid = (cpf) => {
                 cpf = cpf.replace(/[^\d]+/g,'');
                 if(cpf == '') return false;
-                if (cpf.length != 11 || 
-                    cpf == "00000000000" || cpf == "11111111111" || 
-                    cpf == "22222222222" || cpf == "33333333333" || 
-                    cpf == "44444444444" || cpf == "55555555555" || 
-                    cpf == "66666666666" || cpf == "77777777777" || 
+                if (cpf.length != 11 ||
+                    cpf == "00000000000" || cpf == "11111111111" ||
+                    cpf == "22222222222" || cpf == "33333333333" ||
+                    cpf == "44444444444" || cpf == "55555555555" ||
+                    cpf == "66666666666" || cpf == "77777777777" ||
                     cpf == "88888888888" || cpf == "99999999999")
                         return false;
                 let add = 0;
@@ -167,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (rev != parseInt(cpf.charAt(10))) return false;
                 return true;
             };
-
             registerForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const name = document.getElementById('reg-name').value;
@@ -176,24 +150,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const email = document.getElementById('reg-email').value;
                 const password = document.getElementById('reg-password').value;
                 const confirmPassword = document.getElementById('reg-password-confirm').value;
-                
-                
                 if (!isCPFValid(cpf)) {
                     window.showToast('Por favor, informe um CPF válido.', 'error');
                     return;
                 }
-                
                 const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
                 if (!passRegex.test(password)) {
                     window.showToast('A senha não atende aos requisitos de segurança.', 'error');
                     return;
                 }
-                
                 if (password !== confirmPassword) {
                     window.showToast('As senhas não coincidem.', 'error');
                     return;
                 }
-
                 try {
                     const res = await fetch('api/auth.php?action=register', {
                         method: 'POST',
@@ -214,31 +183,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // O handleGoogleLogin foi movido para o login.html (escopo global) 
-            // para garantir que esteja disponível assim que a biblioteca do Google carregar.
-
             window.pendingProfilePic = null;
             window.deleteProfilePic = false;
             const picInput = document.getElementById('prof-pic-input');
             const picPreview = document.getElementById('prof-pic-preview');
             const btnEditPic = document.getElementById('btn-edit-pic');
             const btnDeletePic = document.getElementById('btn-delete-pic');
-
             if(btnEditPic && picInput) {
                 btnEditPic.onclick = () => picInput.click();
             }
-
             if(btnDeletePic && picPreview) {
                 btnDeletePic.onclick = () => {
                     const userName = document.getElementById('prof-nome').value || 'User';
                     picPreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=random`;
                     window.pendingProfilePic = null;
                     window.deleteProfilePic = true;
-                    if(picInput) picInput.value = ''; // Limpa o campo de arquivo
+                    if(picInput) picInput.value = '';
                     window.showToast("Foto removida. Salve o perfil para confirmar.", "success");
                 };
             }
-
             if(picInput) {
                 picInput.addEventListener('change', function() {
                     if (this.files && this.files[0]) {
@@ -253,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 const MAX_HEIGHT = 300;
                                 let width = img.width;
                                 let height = img.height;
-                                
                                 if (width > height) {
                                   if (width > MAX_WIDTH) {
                                     height *= MAX_WIDTH / width;
@@ -268,11 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 canvas.width = width;
                                 canvas.height = height;
                                 ctx.drawImage(img, 0, 0, width, height);
-                                
                                 const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
                                 picPreview.src = dataUrl;
                                 window.pendingProfilePic = dataUrl;
-                                window.deleteProfilePic = false; // Reset delete flag if new pic chosen
+                                window.deleteProfilePic = false;
                             };
                             img.src = e.target.result;
                         };
@@ -280,7 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
-
             const profileForm = document.getElementById('profile-form');
             if(profileForm) {
                 profileForm.addEventListener('submit', async (e) => {
@@ -289,7 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const cpf = document.getElementById('prof-cpf').value.trim();
                     const telefone = document.getElementById('prof-telefone').value.trim();
                     const passVal = document.getElementById('prof-senha').value;
-                    
                     if(passVal) {
                         const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
                         if(!passRegex.test(passVal)) {
@@ -297,12 +256,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             return;
                         }
                     }
-                    
                     const btn = e.target.querySelector('button[type="submit"]');
                     const originalText = btn.innerHTML;
                     btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Salvando...";
                     btn.disabled = true;
-
                     const fd = new FormData();
                     fd.append('name', name);
                     fd.append('cpf', cpf);
@@ -314,7 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if(window.deleteProfilePic) {
                         fd.append('delete_photo', '1');
                     }
-
                     try {
                         const res = await fetch('api/auth.php?action=update_profile', { method: 'POST', body: fd });
                         const json = await res.json();
@@ -332,7 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
-
             const btnLogout = document.getElementById('btn-logout');
             if(btnLogout) {
                 btnLogout.addEventListener('click', async () => {
@@ -342,28 +297,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
-
             async function loadUserOrders(userId) {
                 const list = document.getElementById('profile-orders-list');
                 if(!list) return;
                 try {
                     const userOrders = await window.OrderManager.getAll();
                     const filtered = userOrders.filter(o => String(o.user_id) === String(userId));
-                    
                     if(filtered.length === 0) {
                         list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0;">Você ainda não tem nenhum pedido realizado.</p>`;
                         return;
                     }
-                    
                     filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                    
                     list.innerHTML = filtered.map(o => {
                         const dateObj = new Date(o.created_at);
                         const dateStr = dateObj.toLocaleDateString('pt-BR');
                         const items = typeof o.items_json === 'string' ? JSON.parse(o.items_json) : o.items_json;
                         const itemsMsg = items.map(i => `${i.quantity}x ${i.name}`).join(', ');
                         const isEntregue = o.status === 'entregue' || o.status === 'concluido';
-                        
                         return `
                             <div style="border-bottom: 1px solid var(--clr-border); padding: 1rem 0;">
                                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
@@ -388,7 +338,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Erro ao carregar pedidos:", e);
                 }
             }
-
             async function loadMiniPromos() {
                 const list = document.getElementById('profile-promos-list');
                 if(!list) return;
@@ -398,12 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         const cat = (p.category || "").toLowerCase();
                         return cat.includes('promo') || cat === 'promocoes';
                     });
-                    
                     if(promoProducts.length === 0) {
                         list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.85rem; padding: 0.5rem 0;">Nenhuma promoção ativa no momento.</p>`;
                         return;
                     }
-                    
                     list.innerHTML = promoProducts.slice(0, 6).map(p => `
                         <a href="detalhes.html?id=${p.id}" class="promo-mini-card">
                             <img src="${p.image}" alt="${p.name}">
@@ -415,12 +362,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Erro ao carregar promoções:", e);
                 }
             }
-
             function setupWhatsAppSupport() {
                 const btn = document.getElementById('profile-wa-btn');
                 if(btn) {
                     let waNum = window.ConfigManager.get('whatsappNumber') || '+5598985269184';
-                    waNum = waNum.replace(/\D/g, ''); 
+                    waNum = waNum.replace(/\D/g, '');
                     if (waNum && !waNum.startsWith('55') && waNum.length <= 11) {
                         waNum = '55' + waNum;
                     }

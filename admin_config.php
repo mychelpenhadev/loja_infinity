@@ -99,7 +99,6 @@ if (!isAdmin()) {
             border-color: var(--clr-primary);
             box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.2);
         }
-        
         @media (max-width: 992px) {
             .admin-layout { grid-template-columns: 1fr; }
             .admin-sidebar { height: auto; position: relative; padding: 1rem; }
@@ -139,28 +138,23 @@ if (!isAdmin()) {
                     <p style="color: var(--clr-text-light);">Ajuste os parâmetros dinâmicos visíveis para os clientes.</p>
                 </div>
             </div>
-            
             <div class="settings-card">
                 <form id="configForm">
                     <h3 style="margin-bottom: 1.5rem; color: var(--clr-primary); border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem;">
                         <i class='bx bxl-whatsapp'></i> Contato
                     </h3>
-
                     <div class="form-group">
                         <label>Número do WhatsApp da Loja</label>
                         <input type="text" id="config-whatsapp" class="form-control" placeholder="Ex: 5511999999999">
                         <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Número com DDI e DDD (ex: 5511999999999) para receber os pedidos.</small>
                     </div>
-
                     <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">
                         <i class='bx bx-save'></i> Salvar Configurações
                     </button>
                 </form>
             </div>
-            
         </main>
     </div>
-    
     <script src="assets/js/core/db.js?v=3"></script>
     <script src="assets/js/core/app.js?v=3"></script>
     <script src="assets/js/pages/admin_config.js?v=4"></script>

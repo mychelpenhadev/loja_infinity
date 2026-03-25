@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
         try {
-            // 1. Verificar Email
+
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
@@ -26,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            // 2. Verificar CPF (se fornecido)
             if (!empty($cpf)) {
                 $stmt = $pdo->prepare("SELECT id FROM users WHERE cpf = ?");
                 $stmt->execute([$cpf]);
@@ -36,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // 3. Verificar Telefone (se fornecido)
             if (!empty($telefone)) {
                 $stmt = $pdo->prepare("SELECT id FROM users WHERE telefone = ?");
                 $stmt->execute([$telefone]);
@@ -45,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
             }
-
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (name, cpf, telefone, email, password, role, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?)");
             if ($stmt->execute([$name, $cpf, $telefone, $email, $hash, $role, 1])) {
@@ -72,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, password, role, is_verified, profile_picture FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
             if ($user && password_verify($password, $user['password'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
@@ -91,12 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit;
     }
-    
     if ($action === 'google_login') {
-        // Obter token (credential) - suporta JSON (Popup) e POST (Redirect)
+
         $token = $data['token'] ?? $_POST['credential'] ?? '';
         $isRedirect = isset($_POST['credential']);
-
         if (!$token) {
             if ($isRedirect) {
                 header('Location: ../login.html?error=no_token');
@@ -105,21 +99,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(["status" => "error", "message" => "Autenticação falhou."]);
             exit;
         }
-        
         try {
             require_once __DIR__ . '/../vendor/autoload.php';
             $client = new Google_Client(['client_id' => '375279591438-7uirtbvgbtsd2c2pjti9kmmhal8r2sr3.apps.googleusercontent.com']);
             $payload = $client->verifyIdToken($token);
-            
             if ($payload) {
                 $email = $payload['email'];
                 $name = $payload['name'] ?? 'Usuário Google';
                 $picture = $payload['picture'] ?? null;
-                
                 $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, role, profile_picture FROM users WHERE email = ?");
                 $stmt->execute([$email]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
-                
                 if ($user) {
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_name'] = $user['name'];
@@ -127,7 +117,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['profile_picture'] = $user['profile_picture'];
                     $_SESSION['user_telefone'] = $user['telefone'];
                     $_SESSION['user_cpf'] = $user['cpf'];
-                    
                     if ($isRedirect) {
                         $target = $user['role'] === 'admin' ? '../admin.php' : '../index.html';
                         header("Location: $target");
@@ -140,14 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $role = 'cliente';
                     $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role, profile_picture, is_verified) VALUES (?, ?, ?, ?, ?, ?)");
                     $stmt->execute([$name, $email, $hash, $role, $picture, 1]);
-                    
                     $_SESSION['user_id'] = $pdo->lastInsertId();
                     $_SESSION['user_name'] = $name;
                     $_SESSION['user_role'] = $role;
                     $_SESSION['profile_picture'] = $picture;
                     $_SESSION['user_telefone'] = null;
                     $_SESSION['user_cpf'] = null;
-
                     if ($isRedirect) {
                         header('Location: ../index.html');
                         exit;
@@ -170,7 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         exit;
     }
-
 }
 if ($action === 'check') {
     if (isset($_SESSION['user_id'])) {
@@ -194,83 +180,69 @@ if ($action === 'logout') {
     echo json_encode(["status" => "success"]);
     exit;
 }
-
 if ($action === 'update_profile') {
     if (!isset($_SESSION['user_id'])) {
         echo json_encode(["status" => "error", "message" => "Não autorizado."]);
         exit;
     }
-    
     $newName = $_POST['name'] ?? '';
     $newPassword = $_POST['password'] ?? '';
     $newPicture = $_POST['profile_picture'] ?? '';
     $newTelefone = $_POST['telefone'] ?? '';
     $newCpf = $_POST['cpf'] ?? '';
     $userId = $_SESSION['user_id'];
-    
     if (empty($newName)) {
         echo json_encode(["status" => "error", "message" => "Nome não pode estar vazio."]);
         exit;
     }
-    
     $query = "UPDATE users SET name = ?, telefone = ?, cpf = ?";
     $params = [$newName, $newTelefone, $newCpf];
-    
     if (!empty($newPassword)) {
         $query .= ", password = ?";
         $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
     }
-    
     if (!empty($newPicture) && strpos($newPicture, 'data:image/') === 0) {
-        // Decode base64
+
         list($type, $data) = explode(';', $newPicture);
         list(, $data) = explode(',', $data);
         $data = base64_decode($data);
-        
-        // Create filename
-        $extension = 'jpg'; // We forced jpeg in JS
+
+        $extension = 'jpg';
         $filename = 'user_' . $userId . '_' . time() . '.' . $extension;
         $uploadPath = __DIR__ . '/../uploads/profile_pics/' . $filename;
         $dbPath = 'uploads/profile_pics/' . $filename;
-        
-        // Remove old file if exists
+
         $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
         $stmt_old->execute([$userId]);
         $oldPic = $stmt_old->fetchColumn();
         if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
             @unlink(__DIR__ . '/../' . $oldPic);
         }
-
         if (file_put_contents($uploadPath, $data)) {
             $query .= ", profile_picture = ?";
             $params[] = $dbPath;
             $_SESSION['profile_picture'] = $dbPath;
         }
     } else if (isset($_POST['delete_photo']) && $_POST['delete_photo'] == '1') {
-        // Remove old file if exists
+
         $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
         $stmt_old->execute([$userId]);
         $oldPic = $stmt_old->fetchColumn();
         if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
             @unlink(__DIR__ . '/../' . $oldPic);
         }
-        
         $query .= ", profile_picture = NULL";
         $_SESSION['profile_picture'] = null;
     }
-    
     $query .= " WHERE id = ?";
     $params[] = $userId;
-    
     try {
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
-        
         $_SESSION['user_name'] = $newName;
         $_SESSION['user_telefone'] = $newTelefone;
         $_SESSION['user_cpf'] = $newCpf;
-        
-        // Ensure no other text was outputted
+
         @ob_clean();
         echo json_encode(["status" => "success", "message" => "Perfil atualizado!"]);
     } catch(PDOException $e) {
@@ -279,8 +251,6 @@ if ($action === 'update_profile') {
     }
     exit;
 }
-
-
 if (empty($action)) {
     echo json_encode(["status" => "error", "message" => "Ação não informada."]);
 } else {

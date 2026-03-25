@@ -95,7 +95,6 @@ if (!isAdmin()) {
         .admin-table tbody tr:hover {
             background-color: rgba(168, 192, 255, 0.05);
         }
-        
         @media (max-width: 992px) {
             .admin-layout {
                 grid-template-columns: 1fr;
@@ -163,7 +162,6 @@ if (!isAdmin()) {
             </div>
         </main>
     </div>
-    
     <script src="assets/js/core/db.js?v=4"></script>
     <script src="assets/js/core/app.js?v=4"></script>
     <script src="assets/js/pages/admin_pedidos.js?v=4"></script>

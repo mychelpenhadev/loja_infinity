@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchInput = document.getElementById('search-input');
     const topicFilter = document.getElementById('topic-filter');
     const brandSelect = document.getElementById('brand-filter');
-    
     let allProducts = [];
     let pagination = {};
     let currentPage = 1;
@@ -11,34 +10,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentBrand = 'all';
     let searchQuery = '';
 
-    // Handle URL category
     const urlParams = new URLSearchParams(window.location.search);
     const urlCat = urlParams.get('cat');
     if (urlCat) {
         currentCategory = urlCat;
     }
-
     async function loadProducts(page = 1) {
         if (!container) return;
         currentPage = page;
         container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 3rem;"><i class="bx bx-loader-alt bx-spin" style="font-size: 3rem; color: var(--clr-primary);"></i><p style="margin-top: 1rem;">Carregando catálogo...</p></div>';
-        
         try {
-            const data = await window.ProductManager.getAll({ 
-                page: currentPage, 
-                limit: 12, 
+            const data = await window.ProductManager.getAll({
+                page: currentPage,
+                limit: 12,
                 cat: currentCategory === 'all' ? '' : currentCategory,
                 search: searchQuery
             });
-            
             allProducts = data.products || [];
             pagination = data.pagination || {};
-            
             updateActivePill(currentCategory);
             renderProducts();
             renderPagination();
 
-            // Handle Fast Scroll from anchor
             if (window.location.hash && window.location.hash.startsWith('#prod-')) {
                 setTimeout(() => {
                     const target = document.querySelector(window.location.hash);
@@ -53,40 +46,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 3rem; color: #EF4444;"><i class='bx bx-error-circle' style="font-size: 3rem;"></i><p>Erro ao carregar os produtos. Detalhes: ${e.message}</p></div>`;
         }
     }
-
     loadProducts();
-
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             searchQuery = e.target.value.toLowerCase();
             loadProducts(1);
         });
     }
-
     if (topicFilter) {
         topicFilter.addEventListener('change', (e) => {
             currentCategory = e.target.value;
             loadProducts(1);
         });
     }
-
     if (brandSelect) {
         brandSelect.addEventListener('change', (e) => {
             currentBrand = e.target.value;
             renderProducts();
         });
     }
-
     function updateActivePill(cat) {
         if (topicFilter && topicFilter.value !== cat) {
             topicFilter.value = cat;
         }
         updateBrandFilterList(cat);
     }
-
     function updateBrandFilterList(cat) {
         if (!brandSelect) return;
-        
         let dynamicBrands = [];
         if (cat === 'costura' || cat === 'mochilas') {
             const configKey = cat === 'costura' ? 'brandsCostura' : 'brandsMochilas';
@@ -95,26 +81,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 dynamicBrands = configuredBrandsStr.split(',').map(b => b.trim()).filter(b => b.length > 0);
             }
         }
-
         if (dynamicBrands.length > 0) {
             brandSelect.style.display = 'inline-block';
-            brandSelect.innerHTML = '<option value="all">Todas as Marcas</option>' + 
+            brandSelect.innerHTML = '<option value="all">Todas as Marcas</option>' +
                 dynamicBrands.map(b => `<option value="${b.toLowerCase()}">${b}</option>`).join('');
         } else {
             brandSelect.style.display = 'none';
         }
-        
         currentBrand = 'all';
     }
-
     function renderProducts() {
         if (!container) return;
-        
         let filtered = allProducts;
         if (currentBrand !== 'all') {
             filtered = allProducts.filter(p => (p.brand || '').toLowerCase() === currentBrand.toLowerCase());
         }
-
         if (filtered.length === 0) {
             container.innerHTML = `
                 <div class="no-results" style="grid-column: 1/-1; text-align:center; padding: 4rem;">
@@ -125,31 +106,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
             return;
         }
-
         container.innerHTML = filtered.map(product => {
             const isNew = parseFloat(product.rating) >= 4.8;
             return `
                 <div class="product-card" id="prod-${product.id}">
                     ${isNew ? '<span class="product-badge">Novidade</span>' : ''}
-                    
                     <div class="product-actions">
                         <button class="icon-btn" onclick="window.location.href='detalhes.html?id=${product.id}'" title="Ver Detalhes">
                             <i class='bx bx-show'></i>
                         </button>
                     </div>
-
                     <a href="detalhes.html?id=${product.id}" class="product-image-container">
                         <img src="${product.image}" alt="${product.name}" loading="lazy" decoding="async">
                     </a>
-                    
                     <div class="product-info">
                         <span class="product-category">${product.category}</span>
                         <a href="detalhes.html?id=${product.id}" class="product-title">${product.name}</a>
-                        
                         <div class="product-rating">
                             ${window.generateStars(product.rating)}
                         </div>
-
                         <div class="product-footer">
                             <span class="product-price">${window.formatCurrency(product.price)}</span>
                             <div style="display: flex; gap: 0.5rem;">
@@ -166,7 +141,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }).join('');
     }
-
     function renderPagination() {
         let paginationContainer = document.getElementById('pagination-container');
         if (!paginationContainer) {
@@ -176,19 +150,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             paginationContainer.style.gridColumn = '1 / -1';
             container.after(paginationContainer);
         }
-
         if (!pagination.pages || pagination.pages <= 1) {
             paginationContainer.innerHTML = '';
             return;
         }
-
         let html = `
             <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 3rem; flex-wrap: wrap;">
                 <button class="btn" ${currentPage === 1 ? 'disabled' : ''} onclick="window.changePage(${currentPage - 1})" style="padding: 0.5rem 1rem; background: var(--clr-surface); border: 1px solid var(--clr-border); cursor: pointer;">
                     <i class='bx bx-chevron-left'></i>
                 </button>
         `;
-
         for (let i = 1; i <= pagination.pages; i++) {
             if (i === 1 || i === pagination.pages || (i >= currentPage - 2 && i <= currentPage + 2)) {
                 html += `
@@ -200,7 +171,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 html += `<span style="padding: 0.5rem;">...</span>`;
             }
         }
-
         html += `
                 <button class="btn" ${currentPage === pagination.pages ? 'disabled' : ''} onclick="window.changePage(${currentPage + 1})" style="padding: 0.5rem 1rem; background: var(--clr-surface); border: 1px solid var(--clr-border); cursor: pointer;">
                     <i class='bx bx-chevron-right'></i>
@@ -209,7 +179,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         `;
         paginationContainer.innerHTML = html;
     }
-
     window.changePage = (page) => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
         loadProducts(page);

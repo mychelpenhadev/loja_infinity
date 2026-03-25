@@ -20,7 +20,6 @@
             // Usamos alert se showToast não estiver pronto (raro, mas possível no mobile lento)
             let notify = window.showToast || alert;
             notify('Autenticando com o Google...', 'success');
-            
             try {
                 const res = await fetch('api/auth.php?action=google_login', {
                     method: 'POST',
@@ -267,7 +266,7 @@
     </style>
 </head>
 <body class="loading-state">
-    <!-- Page Loader -->
+
     <div class="page-loader">
         <div class="loader-content">
             <img src="assets/img/logoPNG.png" alt="Infinity" class="loader-logo">
@@ -307,7 +306,7 @@
         </div>
     </header>
     <main class="auth-container">
-        <!-- Global Google Config -->
+
         <div id="g_id_onload"
              data-client_id="375279591438-7uirtbvgbtsd2c2pjti9kmmhal8r2sr3.apps.googleusercontent.com"
              data-context="signin"
@@ -315,7 +314,6 @@
              data-callback="handleGoogleLogin"
              data-auto_prompt="false">
         </div>
-
         <div class="auth-card">
             <div class="auth-tabs">
                 <div class="auth-tab active" id="tab-login">Entrar</div>
@@ -355,7 +353,7 @@
                     <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="outline" data-text="signup_with" data-size="large" data-locale="pt-BR"></div>
                 </div>
                 <div class="divider">ou use seu e-mail</div>
-                <!-- Formulário de Registro (Passo 1) -->
+
                 <form class="auth-form" id="register-form">
                     <div class="form-group">
                         <label for="reg-name">Nome Completo</label>
@@ -392,23 +390,20 @@
                         Criar Conta <i class='bx bx-user-plus' style="margin-left: 0.5rem;"></i>
                     </button>
                 </form>
-
                 <div class="auth-toggle">
                     Já tem uma conta? <a href="#" id="show-login">Faça Login</a>
                 </div>
             </div>
-
             <div id="profile-view" style="display: none; padding-top: 1rem;">
                 <h1 class="auth-title" style="text-align: left;">Meu Perfil</h1>
                 <p class="auth-subtitle" style="text-align: left; margin-bottom: 0;">Bem-vindo(a), <strong id="prof-welcome-name"></strong></p>
-
                 <div class="profile-layout">
-                    <!-- Sidebar -->
+
                     <div class="profile-sidebar">
                         <div class="profile-box">
                             <h3 class="profile-box-title"><i class='bx bx-user'></i> Meus Dados</h3>
                             <form class="auth-form" id="profile-form" style="gap: 1rem;">
-                                <!-- Profile Picture Upload UI -->
+
                                 <div style="text-align: center; margin-bottom: 1rem;">
                                     <div style="position: relative; display: inline-block; margin-bottom: 0.5rem;">
                                         <img id="prof-pic-preview" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--clr-surface); box-shadow: var(--shadow-md);">
@@ -447,35 +442,30 @@
                                 </button>
                             </form>
                         </div>
-
                         <div class="profile-box">
                             <h3 class="profile-box-title"><i class='bx bx-headphone'></i> Precisa de Ajuda?</h3>
                             <p style="font-size: 0.8rem; color: var(--clr-text-light); margin-bottom: 1rem;">Tem alguma dúvida sobre seu pedido? Fale conosco direto no WhatsApp.</p>
                             <a href="#" id="profile-wa-btn" target="_blank" class="btn btn-primary btn-full" style="background-color: #25D366; border-color: #25D366; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 38px; font-size: 0.9rem;">
                                 <i class='bx bxl-whatsapp' style="font-size: 1.25rem;"></i> Suporte WhatsApp
                             </a>
-                            
                             <hr style="margin: 1.5rem 0; border: none; border-bottom: 1px solid var(--clr-border);">
-                            
                             <button id="btn-logout" class="btn btn-full" style="height: 38px; font-size: 0.9rem; background: transparent; border: 1px solid #EF4444; color: #EF4444;">
                                 Sair da Conta <i class='bx bx-log-out'></i>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Content (Orders and Promos) -->
                     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                         <div class="profile-box">
                             <h3 class="profile-box-title"><i class='bx bx-shopping-bag'></i> Pedidos Realizados</h3>
                             <div id="profile-orders-list">
-                                <!-- Javascript rendered -->
+
                             </div>
                         </div>
-
                         <div class="profile-box" style="border-color: var(--clr-accent);">
                             <h3 class="profile-box-title" style="color: var(--clr-accent);"><i class='bx bxs-discount'></i> Promoções para Você</h3>
                             <div class="promo-scroll" id="profile-promos-list">
-                                <!-- Javascript rendered -->
+
                             </div>
                         </div>
                     </div>

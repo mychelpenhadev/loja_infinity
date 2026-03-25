@@ -2,34 +2,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id') || urlParams.get('product_id');
             const container = document.getElementById('product-content');
-
             console.log('[Debug] ID do produto da URL:', productId);
-
             if (!productId || productId === 'undefined' || productId === 'null') {
                 console.error('[Debug] ID do produto inválido:', productId);
                 if(container) container.innerHTML = `<h2 style="text-align:center; padding: 4rem;">ID do produto inválido ou não fornecido.</h2>`;
                 return;
             }
 
-            // Mostrar loader
             if(container) container.innerHTML = '<div style="text-align:center; padding: 5rem;"><i class="bx bx-loader-alt bx-spin" style="font-size: 4rem; color: var(--clr-primary);"></i><p style="margin-top:1rem;">Buscando detalhes do produto...</p></div>';
-
             const setupBackLink = () => {
                 const backLink = document.getElementById('back-link');
                 const backText = document.getElementById('back-text');
                 const referrer = document.referrer;
-                
                 if (backLink && backText) {
                     if (referrer.includes('index.php') || referrer.includes('index.html') || (referrer === window.location.origin + '/') || referrer === '') {
                         backLink.href = 'index.php#prod-' + productId;
                         backText.textContent = 'Voltar para o Início';
                     } else if (referrer.includes('produtos.html')) {
-                        // If it already has a hash, remove it before adding the new one
+
                         const baseReferrer = referrer.split('#')[0];
                         backLink.href = baseReferrer + '#prod-' + productId;
                         backText.textContent = 'Voltar para a Coleção';
                     } else {
-                        // Default browser back if it's from within the site but unknown
+
                         backLink.addEventListener('click', (e) => {
                             if (window.history.length > 1) {
                                 e.preventDefault();
@@ -40,10 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             };
             setupBackLink();
-            
             const product = await window.ProductManager.getById(productId);
             console.log('[Debug] Produto retornado pelo Manager:', product);
-
             if (!product) {
                 if(container) {
                     container.innerHTML = `
@@ -57,12 +50,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 return;
             }
-
             document.title = `${product.name} | Infinity Variedades`;
-
             let quantity = 1;
             let selectedColor = null;
-
             const COLOR_CATEGORIES = window.COLOR_CATEGORIES || ['linhas', 'las', 'croche'];
             const COLOR_PALETTE = [
                 { name: 'Branco', hex: '#FFFFFF' },
@@ -75,13 +65,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 { name: 'Cinza Mescla', hex: '#94A3B8' },
                 { name: 'Marrom Café', hex: '#451A03' }
             ];
-
             const renderContent = () => {
                 if(!container) return;
-                
-                const needsColor = COLOR_CATEGORIES.includes(product.category.toLowerCase()) || 
+                const needsColor = COLOR_CATEGORIES.includes(product.category.toLowerCase()) ||
                                  (product.category_id && COLOR_CATEGORIES.includes(product.category_id.toLowerCase()));
-
                 let colorHtml = '';
                 if (needsColor) {
                     colorHtml = `
@@ -91,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </h3>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
                                 ${COLOR_PALETTE.map(color => `
-                                    <div class="color-option" data-color="${color.name}" title="${color.name}" 
+                                    <div class="color-option" data-color="${color.name}" title="${color.name}"
                                          style="width: 35px; height: 35px; border-radius: 50%; background-color: ${color.hex}; cursor: pointer; border: 2px solid ${color.hex === '#FFFFFF' ? '#e2e8f0' : 'transparent'}; box-shadow: var(--shadow-sm); transition: var(--transition);">
                                     </div>
                                 `).join('')}
@@ -100,13 +87,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                     `;
                 }
-                
                 container.innerHTML = `
                     <div class="details-grid">
                         <div class="product-gallery">
                             <img src="${product.image}" alt="${product.name}">
                         </div>
-
                         <div class="product-info-full">
                             <div class="product-meta">
                                 <span class="category-tag">${product.category}</span>
@@ -116,15 +101,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     <span style="color: var(--clr-text-light); margin-left: 0.5rem; font-size: 0.875rem;">(Avaliações de Clientes)</span>
                                 </div>
                             </div>
-
                             <p class="desc-text">${product.description}</p>
-                            
                             <div class="price-large">
                                 ${window.formatCurrency(product.price)}
                             </div>
-
                             ${colorHtml}
-
                             <div class="cart-actions" style="flex-wrap: wrap; gap: 1rem;">
                                 <div class="qty-controls">
                                     <button class="qty-btn" id="btn-minus"><i class='bx bx-minus'></i></button>
@@ -138,7 +119,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     Adicionar <i class='bx bx-cart-add'></i>
                                 </button>
                             </div>
-
                             <!-- Features List -->
                             <div style="margin-top: 3rem;">
                                 <h3 style="margin-bottom: 1rem; font-size: 1.125rem;">Por que amamos este produto?</h3>
@@ -151,7 +131,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         </div>
                     </div>
                 `;
-
                 if (product.video && product.video.trim() !== '') {
                     container.innerHTML += `
                         <div class="video-container">
@@ -163,7 +142,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     `;
                 }
 
-                // Adicionar estilos para a cor selecionada
                 const style = document.createElement('style');
                 style.textContent = `
                     .color-option.active {
@@ -173,10 +151,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 `;
                 document.head.appendChild(style);
-
                 attachEvents(needsColor);
             };
-
             const attachEvents = (needsColor) => {
                 const btnMinus = document.getElementById('btn-minus');
                 const btnPlus = document.getElementById('btn-plus');
@@ -185,7 +161,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const btnBuyNow = document.getElementById('btn-buy-now');
                 const colorOptions = document.querySelectorAll('.color-option');
                 const colorLabel = document.getElementById('selected-color-name');
-
                 if (colorOptions) {
                     colorOptions.forEach(opt => {
                         opt.addEventListener('click', () => {
@@ -196,7 +171,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         });
                     });
                 }
-
                 if (btnMinus) {
                     btnMinus.addEventListener('click', () => {
                         if (quantity > 1) {
@@ -205,7 +179,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     });
                 }
-
                 if (btnPlus) {
                     btnPlus.addEventListener('click', () => {
                         if (quantity < 10) {
@@ -214,7 +187,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     });
                 }
-
                 if (btnAddCart) {
                     btnAddCart.addEventListener('click', () => {
                         if (needsColor && !selectedColor) {
@@ -230,13 +202,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         window.showToast(`Adicionado ${quantity} uni. (${selectedColor || ''}) ao carrinho!`);
                         quantity = 1;
                         display.value = quantity;
-                        // Resetar seleção
+
                         if (colorOptions) colorOptions.forEach(o => o.classList.remove('active'));
                         if (colorLabel) colorLabel.textContent = '';
                         selectedColor = null;
                     });
                 }
-
                 if (btnBuyNow) {
                     btnBuyNow.addEventListener('click', () => {
                         if (needsColor && !selectedColor) {
@@ -247,6 +218,5 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                 }
             };
-
             renderContent();
         });
