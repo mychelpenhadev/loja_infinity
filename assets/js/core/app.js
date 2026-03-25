@@ -321,52 +321,79 @@ function injectChatbot() {
       chatBody.scrollTop = chatBody.scrollHeight;
   };
 
+  // Função auxiliar para busca difusa (Sorensen-Dice Coefficient)
+  const calculateFuzzyScore = (str1, str2) => {
+      const s1 = (str1 || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      const s2 = (str2 || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (s1 === s2) return 1.0;
+      if (s1.length < 2 || s2.length < 2) return s1.includes(s2) || s2.includes(s1) ? 0.5 : 0;
+
+      const getBigrams = (str) => {
+          const bigrams = new Set();
+          for (let i = 0; i < str.length - 1; i++) {
+              bigrams.add(str.substring(i, i + 2));
+          }
+          return bigrams;
+      };
+
+      const bigrams1 = getBigrams(s1);
+      const bigrams2 = getBigrams(s2);
+      let intersection = 0;
+      for (let b of bigrams1) {
+          if (bigrams2.has(b)) intersection++;
+      }
+      return (2.0 * intersection) / (bigrams1.size + bigrams2.size);
+  };
+
   const getAIResponse = async (userText) => {
       const lower = userText.toLowerCase();
 
-      // Busca na Base de Dados
+      // Busca na Base de Dados usando Scoring
       if (window.ProductManager) {
           const products = await window.ProductManager.getAll();
           
-          // Match Exato
-          const exactMatch = products.find(p => p.name.toLowerCase() === lower);
-          if (exactMatch) {
-             return `Encontrei exatamente o que você procura! Veja: <br><br>
-                     <div style="display:flex; align-items:center; gap: 10px; margin-top:5px; padding: 5px; border-radius: 5px; background: rgba(0,0,0,0.05);">
-                        <img src="${exactMatch.image}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-                        <div style="flex:1;">
-                           <strong style="display:block; font-size:0.85rem;">${exactMatch.name}</strong>
-                           <span style="color:var(--clr-primary); font-weight:bold;">${window.formatCurrency(exactMatch.price)}</span>
-                        </div>
-                        <a href="detalhes.html?id=${exactMatch.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">Ver</a>
-                     </div>`;
-          }
-          
-          // Match Relacionado (Busca em Nome, Categoria e Descrição)
-          // Ignora palavras curtas demais
-          if (lower.length > 2) {
-              const related = products.filter(p => {
-                  const name = (p.name || "").toLowerCase();
-                  const cat = (p.category || "").toLowerCase();
-                  const desc = (p.description || "").toLowerCase();
-                  return name.includes(lower) || cat.includes(lower) || desc.includes(lower);
-              });
+          // Calcula score para todos os produtos
+          const scored = products.map(p => {
+              const nameScore = calculateFuzzyScore(userText, p.name);
+              // Pequeno bônus se o termo estiver contido EXATAMENTE (includes)
+              const bonus = p.name.toLowerCase().includes(lower) ? 0.2 : 0;
+              return { product: p, score: nameScore + bonus };
+          })
+          .filter(item => item.score > 0.35) // Limiar de relevância
+          .sort((a, b) => b.score - a.score); // Mais relevantes primeiro
 
-              if (related.length > 0) {
-                 let html = `Não encontrei esse nome exato, mas achei <b>${related.length}</b> oferta(s) parecidas que podem te interessar: <br><br>`;
-                 related.slice(0, 3).forEach(p => {
-                    html += `
-                         <div style="display:flex; align-items:center; gap: 10px; margin-top:5px; padding: 5px; border-radius: 5px; background: rgba(0,0,0,0.05);">
-                            <img src="${p.image}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-                            <div style="flex:1;">
-                               <strong style="display:block; font-size:0.85rem;">${p.name}</strong>
-                            </div>
-                            <a href="detalhes.html?id=${p.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">Ver</a>
-                         </div>`;
-                 });
-                 if(related.length > 3) html += `<div style="text-align:center; margin-top:10px; font-size:0.8rem;"><a href="produtos.html?q=${encodeURIComponent(userText)}" style="color:var(--clr-secondary); font-weight:bold;">Ver todos os ${related.length} resultados</a></div>`;
-                 return html;
+          if (scored.length > 0) {
+              const top = scored[0].product;
+              
+              // Se o melhor resultado for muito bom (> 0.8), tratamos como recomendação direta
+              if (scored[0].score > 0.8) {
+                  return `Deixa comigo! Encontrei exatamente o que você procura: <br><br>
+                      <div style="display:flex; align-items:center; gap: 10px; margin-top:5px; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.05); border-left: 4px solid var(--clr-primary);">
+                         <img src="${top.image}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;">
+                         <div style="flex:1;">
+                            <strong style="display:block; font-size:0.85rem;">${top.name}</strong>
+                            <span style="color:var(--clr-primary); font-weight:bold;">${window.formatCurrency(top.price)}</span>
+                         </div>
+                         <a href="detalhes.html?id=${top.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">Ver</a>
+                      </div>`;
               }
+              
+              // Se tivermos vários resultados bons, listamos os principais
+              let html = `Não tenho certeza absoluta, mas achei esses <b>${scored.length}</b> itens que parecem com o que você quer: <br><br>`;
+              scored.slice(0, 3).forEach(item => {
+                  const p = item.product;
+                  html += `
+                       <div style="display:flex; align-items:center; gap: 10px; margin-top:5px; padding: 5px; border-radius: 5px; background: rgba(0,0,0,0.03);">
+                          <img src="${p.image}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                          <div style="flex:1;">
+                             <strong style="display:block; font-size:0.85rem;">${p.name}</strong>
+                             <small style="color:var(--clr-primary);">${window.formatCurrency(p.price)}</small>
+                          </div>
+                          <a href="detalhes.html?id=${p.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">Ver</a>
+                       </div>`;
+              });
+              if(scored.length > 3) html += `<div style="text-align:center; margin-top:10px; font-size:0.8rem;"><a href="produtos.html?q=${encodeURIComponent(userText)}" style="color:var(--clr-secondary); font-weight:bold;">Ver todos os resultados</a></div>`;
+              return html;
           }
       }
 
@@ -378,7 +405,7 @@ function injectChatbot() {
       } else if (lower.includes('oi') || lower.includes('olá') || lower.includes('ola') || lower.includes('bom dia')) {
           return "Oii! Tudo bem com você? Pode me perguntar o nome de um produto ou o que você deseja, e eu procuro pra você agora mesmo! 🥰";
       } else {
-          return "Hmm... Interessante! 🤔 Que tal tentar digitar o nome de um produto diferente ou uma palavra-chave para eu procurar no catálogo?";
+          return "Poxa, ainda estou aprendendo... 🤔 Tente digitar o nome de um produto (ex: Caneta, Caderno, Mochila) ou use a busca ali em cima para eu brilhar mais! ✨";
       }
   };
 
@@ -389,7 +416,6 @@ function injectChatbot() {
       addMessage(text, 'user');
       chatInput.value = '';
       
-      
       const typingIndicator = document.createElement('div');
       typingIndicator.className = 'chat-msg ai';
       typingIndicator.innerHTML = '<span style="opacity:0.5;">A bolsinha está digitando... 💬</span>';
@@ -399,9 +425,19 @@ function injectChatbot() {
       const aiResponse = await getAIResponse(text);
 
       setTimeout(() => {
-          chatBody.removeChild(typingIndicator);
+          if (typingIndicator.parentNode) chatBody.removeChild(typingIndicator);
           addMessage(aiResponse, 'ai');
-      }, 500 + Math.random() * 1000);
+      }, 300 + Math.random() * 500); // Mais rápido conforme pedido
+  };
+
+  chatBtn.onclick = () => {
+      chatWin.classList.add('active');
+      // Pre-warming do cache de produtos para busca instantânea
+      if (window.ProductManager) window.ProductManager.getAll();
+  };
+  
+  document.getElementById('chat-close-btn').onclick = () => {
+      chatWin.classList.remove('active');
   };
 
   chatSend.onclick = handleSend;
