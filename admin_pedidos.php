@@ -12,7 +12,7 @@ if (!isAdmin()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedidos | Painel Admin</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css?v=22">
+    <link rel="stylesheet" href="assets/css/style.css?v=26">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
@@ -162,8 +162,8 @@ if (!isAdmin()) {
             </div>
         </main>
     </div>
-    <script src="assets/js/core/db.js?v=22"></script>
-    <script src="assets/js/core/app.js?v=22"></script>
+    <script src="assets/js/core/db.js?v=26"></script>
+    <script src="assets/js/core/app.js?v=26"></script>
     <script src="assets/js/pages/admin_pedidos.js?v=4"></script>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>
 </body>

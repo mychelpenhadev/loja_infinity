@@ -53,7 +53,7 @@ function generateStars($rating) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css?v=22">
+    <link rel="stylesheet" href="assets/css/style.css?v=26">
 
     <link rel="preload" href="assets/img/logoPNG.png" as="image">
     <script>
@@ -145,7 +145,7 @@ function generateStars($rating) {
             <i class='bx bxs-notepad' style="color: var(--clr-primary); font-size: 1.5rem;"></i>
         </div>
         <div class="floating-element el-2">
-            <i class='bx bxs-star' style="color:
+            <i class='bx bxs-star' style="color: var(--clr-primary); font-size: 1.5rem;"></i>
             <span style="font-weight: 600; font-size: 0.875rem;">Premium</span>
         </div>
         <div class="container hero-grid">
@@ -449,8 +449,8 @@ function generateStars($rating) {
             }
         });
     </script>
-    <script src="assets/js/core/db.js?v=22"></script>
-    <script src="assets/js/core/app.js?v=22"></script>
+    <script src="assets/js/core/db.js?v=26"></script>
+    <script src="assets/js/core/app.js?v=26"></script>
     <script src="assets/js/pages/index.js?v=13"></script>
     <?php require_once 'api/security.php'; if(isAdmin()): ?>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>

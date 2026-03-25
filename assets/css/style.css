@@ -337,27 +337,43 @@ input, textarea {
   display: inline-block;
 }
 .hero-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
   gap: 3rem;
+  width: 100% !important;
+}
+.hero-content {
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  display: flex;
+  flex-direction: column;
   align-items: center;
 }
 .hero-content h1 {
-  font-size: 4rem;
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
+  font-size: 5rem;
+  line-height: 1.05;
+  margin-bottom: 2rem;
+  letter-spacing: -3px;
+  font-weight: 800;
+  text-align: center !important;
 }
 .hero-content h1 span {
-  background: linear-gradient(to right, var(--clr-accent), var(--clr-primary));
+  background: linear-gradient(135deg, var(--clr-accent), var(--clr-secondary), var(--clr-primary));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: block;
 }
 .hero-content p {
+  font-family: var(--font-body) !important;
   color: var(--clr-text-light);
-  font-size: 1.25rem;
-  margin-bottom: 2.5rem;
-  max-width: 500px;
+  font-size: 1.35rem;
+  line-height: 1.6;
+  margin: 0 auto 3rem !important;
+  max-width: 650px;
+  text-align: center !important;
 }
 .btn {
   display: inline-flex;
@@ -369,29 +385,35 @@ input, textarea {
   font-weight: 600;
   font-size: 1.125rem;
   transition: var(--transition);
+  font-family: var(--font-body) !important;
 }
 .btn-primary {
   background: linear-gradient(135deg, var(--clr-accent), var(--clr-secondary));
   color: #fff;
-  box-shadow: 0 4px 15px rgba(0, 68, 204, 0.4);
+  box-shadow: 0 4px 15px rgba(var(--clr-accent-rgb), 0.4);
+  padding: 1.25rem 3rem;
 }
 .btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 68, 204, 0.5);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(var(--clr-accent-rgb), 0.5);
   color: #fff;
 }
 .hero-image {
   position: relative;
   z-index: 1;
+  width: 100%;
+  max-width: 800px;
+  margin: 3rem auto 0 !important;
 }
 .hero-image img {
+  width: 100%;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+  box-shadow: var(--shadow-xl);
+  transform: perspective(1000px) rotateX(5deg);
   transition: var(--transition);
 }
 .hero-image:hover img {
-  transform: perspective(1000px) rotateY(0deg) rotateX(0deg);
+  transform: perspective(1000px) rotateX(0deg) scale(1.02);
 }
 .floating-element {
   position: absolute;
@@ -985,7 +1007,6 @@ input, textarea {
 }
 @media (max-width: 992px) {
   .hero-grid {
-    grid-template-columns: 1fr;
     text-align: center;
   }
   .hero-content h1 {
@@ -1172,7 +1193,8 @@ a, button, input, select {
     top: -100px;
     left: 0;
     width: 100%;
-    height: 100px;
+    height: auto;
+    min-height: 100px;
     background: var(--clr-surface);
     z-index: 2000;
     display: flex;
