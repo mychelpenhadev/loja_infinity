@@ -71,17 +71,22 @@ const ProductManager = {
 
     try {
       console.log(`[DB] Buscando produto na API para ID: ${id}`);
-      const response = await fetch(`api/products.php?action=get&id=${id}`);
+      const response = await fetch(`api/products.php?action=get&id=${id}`, { credentials: 'include' });
       const data = await response.json();
       console.log(`[DB] Resposta da API para ID ${id}:`, data);
       
       if (data) {
         ProductManager._cache[id] = data;
         sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id, JSON.stringify(data));
+      } else {
+        // Se retornar false/null, limpa qualquer cache antigo desse ID para evitar persistência de erro
+        sessionStorage.removeItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id);
       }
       return data;
     } catch (err) {
       console.error("[DB] Erro ao buscar produto na API:", err);
+      // Limpa cache em caso de erro de rede também
+      sessionStorage.removeItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id);
       return null;
     }
   },

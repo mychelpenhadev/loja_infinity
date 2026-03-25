@@ -151,13 +151,18 @@ try {
             break;
 
         case 'get':
-            header('Cache-Control: public, max-age=3600'); // Single product cache for 1h
-            $id = $_GET['id'] ?? null;
+            // header('Cache-Control: public, max-age=3600'); // Removido para evitar cache de erro
+            $id = isset($_GET['id']) ? trim($_GET['id']) : null;
             if (!$id) throw new Exception("ID não fornecido");
             
             $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ?");
             $stmt->execute([$id]);
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($product) {
+                $product['_debug_host'] = $host; // Para sabermos de qual DB veio
+            }
+            
             echo json_encode($product);
             break;
 
