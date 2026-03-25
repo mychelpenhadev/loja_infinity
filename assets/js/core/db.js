@@ -77,9 +77,12 @@ const ProductManager = {
       
       if (data) {
         ProductManager._cache[id] = data;
-        sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id, JSON.stringify(data));
+        try {
+          sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id, JSON.stringify(data));
+        } catch (e) {
+          console.warn("[DB] Falha ao salvar no sessionStorage (provavelmente cota excedida):", e);
+        }
       } else {
-        // Se retornar false/null, limpa qualquer cache antigo desse ID para evitar persistência de erro
         sessionStorage.removeItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id);
       }
       return data;
@@ -120,7 +123,11 @@ const ProductManager = {
       
       data.forEach(p => {
         ProductManager._cache[p.id] = p;
-        sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + p.id, JSON.stringify(p));
+        try {
+          sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + p.id, JSON.stringify(p));
+        } catch (e) {
+          console.warn("[DB] Falha ao salvar item no sessionStorage (lote):", e);
+        }
         results.push(p);
       });
       

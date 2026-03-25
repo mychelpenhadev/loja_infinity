@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             setupBackLink();
             
             const product = await window.ProductManager.getById(productId);
+            console.log('[Debug] Produto retornado pelo Manager:', product);
 
             if (!product) {
                 if(container) {
