@@ -1,4 +1,6 @@
-/.env
-/vendor/
-/node_modules/
+api/cache/*.json
+.env
+node_modules/
+vendor/
 .DS_Store
+*.log
