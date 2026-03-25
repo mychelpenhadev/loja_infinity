@@ -350,7 +350,8 @@ function injectChatbot() {
 
       // Busca na Base de Dados usando Scoring
       if (window.ProductManager) {
-          const products = await window.ProductManager.getAll();
+          const data = await window.ProductManager.getAll();
+          const products = Array.isArray(data) ? data : (data.products || []);
           
           // Calcula score para todos os produtos
           const scored = products.map(p => {
