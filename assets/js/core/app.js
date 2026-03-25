@@ -7,9 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
   injectMobileNav();
   checkAuth();
   
-  
+  window.addEventListener('load', () => {
+    const loader = document.querySelector('.page-loader');
+    if (loader) {
+      loader.classList.add('fade-out');
+      document.body.classList.remove('loading-state');
+      setTimeout(() => {
+        if(loader.parentNode) loader.remove();
+      }, 600);
+    }
+  });
+
   window.addEventListener('cartUpdated', updateCartBadge);
-  
   
   const themeToggle = document.getElementById('theme-toggle');
   if (themeToggle) {
