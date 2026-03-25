@@ -12,7 +12,7 @@ if (!isAdmin()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações | Painel Admin</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=21">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
@@ -155,8 +155,8 @@ if (!isAdmin()) {
             </div>
         </main>
     </div>
-    <script src="assets/js/core/db.js?v=3"></script>
-    <script src="assets/js/core/app.js?v=3"></script>
+    <script src="assets/js/core/db.js?v=21"></script>
+    <script src="assets/js/core/app.js?v=21"></script>
     <script src="assets/js/pages/admin_config.js?v=4"></script>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>
 </body>
