@@ -8,8 +8,8 @@
     async function checkNewOrders() {
         try {
             console.log("[Notificações] Verificando novos pedidos...");
-            // Consulta apenas o último pedido para economizar banda
-            const response = await fetch('api/orders.php?action=list&limit=1', { credentials: 'include' });
+            // Cache buster com timestamp para evitar dados antigos na Home
+            const response = await fetch(`api/orders.php?action=list&limit=1&t=${Date.now()}`, { credentials: 'include' });
             const data = await response.json();
             
             if (data && data.length > 0) {
@@ -60,25 +60,25 @@
             <button class="alert-close"><i class='bx bx-x'></i></button>
         `;
 
-        // Estilos Inline para garantir que apareça independente do CSS (Premium Look)
+        // Estilos Inline Melhorados (Mais Visível)
         Object.assign(notif.style, {
             position: 'fixed',
-            top: '20px',
-            right: '20px',
-            backgroundColor: 'var(--clr-surface, #ffffff)',
-            color: 'var(--clr-text, #333)',
-            padding: '1.25rem',
-            borderRadius: '12px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
+            top: '30px',
+            right: '30px',
+            backgroundColor: '#ffffff',
+            color: '#333',
+            padding: '1.5rem',
+            borderRadius: '16px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.25)',
             display: 'flex',
             alignItems: 'center',
-            gap: '1rem',
-            zIndex: '10000',
-            borderLeft: '5px solid #10B981',
-            minWidth: '320px',
-            maxWidth: '450px',
+            gap: '1.2rem',
+            zIndex: '10001',
+            borderLeft: '8px solid #10B981',
+            minWidth: '350px',
+            maxWidth: '500px',
             animation: 'alertSlideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards',
-            fontFamily: 'inherit'
+            fontFamily: "'Inter', sans-serif"
         });
 
         // Adiciona estilos globais para as animações
@@ -111,13 +111,13 @@
             setTimeout(() => notif.remove(), 400);
         };
 
-        // Auto-remove após 8 segundos
+        // Auto-remove após 15 segundos (mais tempo para ver)
         setTimeout(() => {
             if (notif.parentNode) {
                 notif.style.animation = 'alertSlideOut 0.4s ease-in forwards';
                 setTimeout(() => notif.remove(), 400);
             }
-        }, 8000);
+        }, 15000);
     }
 
     // Pooling a cada 8 segundos para ser bem reativo

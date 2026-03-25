@@ -4,6 +4,9 @@ header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'security.php';
 ob_clean();
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 $action = $_GET['action'] ?? 'list';
 
