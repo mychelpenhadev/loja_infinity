@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const backText = document.getElementById('back-text');
                 const referrer = document.referrer;
                 if (backLink && backText) {
-                    if (referrer.includes('index.php') || referrer.includes('index.html') || (referrer === window.location.origin + '/') || referrer === '') {
+                    if (referrer.includes('index.php') || referrer.includes('index.php') || (referrer === window.location.origin + '/') || referrer === '') {
                         backLink.href = 'index.php#prod-' + productId;
                         backText.textContent = 'Voltar para o Início';
                     } else if (referrer.includes('produtos.html')) {

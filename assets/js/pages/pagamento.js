@@ -134,7 +134,7 @@ function setupCheckoutForm() {
                         </a>
                     </div>
                     <div style="margin-top: 1rem;" id="back-btn-box">
-                        <a href="index.html" class="btn" style="border: 1px solid var(--clr-border); background: transparent; color: var(--clr-text); width: 100%;">Voltar para a Página Inicial</a>
+                        <a href="index.php" class="btn" style="border: 1px solid var(--clr-border); background: transparent; color: var(--clr-text); width: 100%;">Voltar para a Página Inicial</a>
                     </div>
                 </div>
             `;

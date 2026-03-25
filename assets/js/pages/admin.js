@@ -8,14 +8,14 @@
                             <i class='bx bx-lock-alt' style="font-size: 4rem; color: #EF4444; margin-bottom: 1rem;"></i>
                             <h1>Acesso Negado</h1>
                             <p style="margin-top: 0.5rem; color: var(--clr-text-light);">Apenas administradores podem acessar esta página.</p>
-                            <a href="index.html" class="btn btn-primary" style="margin-top: 2rem;">Voltar ao Início</a>
+                            <a href="index.php" class="btn btn-primary" style="margin-top: 2rem;">Voltar ao Início</a>
                         </div>
                     `;
                     return false;
                 }
                 return true;
             } catch (err) {
-                window.location.href = 'index.html';
+                window.location.href = 'index.php';
                 return false;
             }
         }

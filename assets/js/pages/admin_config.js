@@ -4,11 +4,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch('api/auth.php?action=check');
         const data = await response.json();
         if (!data.loggedIn || data.role !== 'admin') {
-            window.location.href = 'index.html';
+            window.location.href = 'index.php';
             return;
         }
     } catch(err) {
-        window.location.href = 'index.html';
+        window.location.href = 'index.php';
         return;
     }
 

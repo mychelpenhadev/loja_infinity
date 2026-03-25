@@ -12,7 +12,7 @@ if (!isAdmin()) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Admin | Infinity Variedades</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="assets/css/style.css?v=28">
+    <link rel="stylesheet" href="assets/css/style.css?v=29">
     <script>
         (function() {
             const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
@@ -218,7 +218,7 @@ if (!isAdmin()) {
 <body>
     <div class="admin-layout">
         <aside class="admin-sidebar">
-            <a href="index.html" class="nav-brand" style="margin-bottom: 2rem;">
+            <a href="index.php" class="nav-brand" style="margin-bottom: 2rem;">
                 <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
             </a>
             <nav class="admin-menu">
@@ -231,7 +231,7 @@ if (!isAdmin()) {
                 <a href="admin_config.php" class="admin-link">
                     <i class='bx bx-cog'></i> Configurações
                 </a>
-                <a href="index.html" class="admin-link">
+                <a href="index.php" class="admin-link">
                     <i class='bx bx-store-alt'></i> Voltar para Loja
                 </a>
                 <button class="admin-link" id="theme-toggle" style="width: 100%; text-align: left; border: none; background: transparent;">
@@ -342,8 +342,8 @@ if (!isAdmin()) {
             </form>
         </div>
     </div>
-    <script src="assets/js/core/db.js?v=28"></script>
-    <script src="assets/js/core/app.js?v=28"></script>
+    <script src="assets/js/core/db.js?v=29"></script>
+    <script src="assets/js/core/app.js?v=29"></script>
     <script src="assets/js/pages/admin.js?v=4"></script>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>
 </body>

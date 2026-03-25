@@ -6,18 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   injectChatbot();
   injectMobileNav();
   checkAuth();
-  window.addEventListener('load', () => {
-    const loader = document.querySelector('.page-loader');
-    if (loader) {
-      loader.classList.add('fade-out');
-      document.body.classList.remove('loading-state');
-      // Remove element quickly after fade
-      setTimeout(() => {
-        if(loader.parentNode) loader.remove();
-      }, 200);
-    }
-    prefetchLinks();
-  });
+  
+  prefetchLinks();
 
   const prefetchLinks = () => {
     const links = document.querySelectorAll('a[href$=".html"], a[href$=".php"]');
@@ -119,7 +109,7 @@ function injectMobileNav() {
     nav.className = 'mobile-bottom-nav';
     const path = window.location.pathname;
     nav.innerHTML = `
-        <a href="index.html" class="mobile-nav-item ${path.endsWith('index.html') || path === '/' ? 'active' : ''}">
+        <a href="index.php" class="mobile-nav-item ${path.endsWith('index.php') || path === '/' ? 'active' : ''}">
             <i class='bx bx-home-alt'></i>
             <span>Início</span>
         </a>

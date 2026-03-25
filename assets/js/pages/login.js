@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.status === 'success') {
                         window.showToast(data.message, 'success');
                         setTimeout(() => {
-                            window.location.href = data.role === 'admin' ? 'admin.php' : 'index.html';
+                            window.location.href = data.role === 'admin' ? 'admin.php' : 'index.php';
                         }, 1000);
                     } else if (data.require_verification) {
                         window.showToast(data.message, 'warning');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.status === 'success') {
                         window.showToast(data.message, 'success');
                         setTimeout(() => {
-                            window.location.href = 'index.html';
+                            window.location.href = 'index.php';
                         }, 1500);
                     } else {
                         window.showToast(data.message, 'error');
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const json = await res.json();
                         if (json.status === 'success') {
                             window.showToast(json.message, 'success');
-                            setTimeout(() => window.location.href = 'index.html', 1000);
+                            setTimeout(() => window.location.href = 'index.php', 1000);
                         } else {
                             window.showToast(json.message, 'error');
                         }

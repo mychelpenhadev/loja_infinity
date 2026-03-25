@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_telefone'] = $user['telefone'];
                     $_SESSION['user_cpf'] = $user['cpf'];
                     if ($isRedirect) {
-                        $target = $user['role'] === 'admin' ? '../admin.php' : '../index.html';
+                        $target = $user['role'] === 'admin' ? '../admin.php' : '../index.php';
                         header("Location: $target");
                         exit;
                     }
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_telefone'] = null;
                     $_SESSION['user_cpf'] = null;
                     if ($isRedirect) {
-                        header('Location: ../index.html');
+                        header('Location: ../index.php');
                         exit;
                     }
                     echo json_encode(["status" => "success", "message" => "Conta criada com sucesso pelo Google!", "role" => $role, "id" => $_SESSION['user_id'], "profile_picture" => $picture]);
