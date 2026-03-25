@@ -36,7 +36,7 @@ const ProductManager = {
 
     try {
       const query = new URLSearchParams(params).toString();
-      const response = await fetch(`api/products.php?action=list&${query}`);
+      const response = await fetch(`api/products.php?action=list&${query}`, { credentials: 'include' });
       const data = await response.json();
       
       if (!hasSearch) {
@@ -129,7 +129,8 @@ const ProductManager = {
       const response = await fetch('api/products.php?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(product)
+        body: JSON.stringify(product),
+        credentials: 'include'
       });
       
       const text = await response.text();
@@ -154,7 +155,8 @@ const ProductManager = {
       const response = await fetch('api/products.php?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...updatedData, id })
+        body: JSON.stringify({ ...updatedData, id }),
+        credentials: 'include'
       });
       return await response.json();
     } catch (err) {
@@ -166,7 +168,7 @@ const ProductManager = {
   remove: async (id) => {
     try {
       ProductManager.clearCache();
-      const response = await fetch(`api/products.php?action=delete&id=${id}`);
+      const response = await fetch(`api/products.php?action=delete&id=${id}`, { credentials: 'include' });
       return await response.json();
     } catch (err) {
       console.error("Erro ao remover produto:", err);
@@ -254,7 +256,7 @@ const CartManager = {
 const OrderManager = {
   getAll: async () => {
     try {
-      const response = await fetch('api/orders.php?action=list');
+      const response = await fetch('api/orders.php?action=list', { credentials: 'include' });
       return await response.json();
     } catch (err) {
       console.error("Erro ao buscar pedidos:", err);
@@ -311,7 +313,7 @@ const ConfigManager = {
     }
 
     try {
-      const response = await fetch('api/config.php?action=get');
+      const response = await fetch('api/config.php?action=get', { credentials: 'include' });
       const data = await response.json();
       ConfigManager._cache = data;
       
@@ -342,7 +344,8 @@ const ConfigManager = {
       await fetch('api/config.php?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [key]: value })
+        body: JSON.stringify({ [key]: value }),
+        credentials: 'include'
       });
     } catch (err) {
       console.error("Erro ao salvar config:", err);
