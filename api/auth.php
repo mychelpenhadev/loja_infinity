@@ -95,6 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = isset($data['email']) ? trim($data['email']) : trim($_POST['email'] ?? '');
         $password = isset($data['password']) ? $data['password'] : ($_POST['password'] ?? '');
         try {
+            $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, password, role, is_verified, profile_picture FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
             if ($user && password_verify($password, $user['password'])) {
                 if ($user['is_verified'] == 0) {
                     echo json_encode(["status" => "error", "message" => "E-mail não verificado.", "require_verification" => true, "email" => $email]);
@@ -186,7 +190,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
                 echo json_encode(["status" => "error", "message" => "Token inválido ou expirado."]);
-            }
             }
         } catch(Exception $e) {
             if ($isRedirect) {
