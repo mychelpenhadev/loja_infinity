@@ -148,10 +148,10 @@ function injectSearchOverlay() {
         } catch(e) { allProducts = []; }
     };
     const filterLocal = (query) => {
-        const q = query.toLowerCase();
+        const q = normalizeString(query);
         return (allProducts || []).filter(p =>
-            p.name.toLowerCase().includes(q) ||
-            (p.description && p.description.toLowerCase().includes(q))
+            normalizeString(p.name).includes(q) ||
+            (p.description && normalizeString(p.description).includes(q))
         );
     };
     const handleSearch = (query) => {
@@ -220,6 +220,9 @@ function injectSearchOverlay() {
 document.addEventListener('DOMContentLoaded', () => {
     injectSearchOverlay();
 });
+window.normalizeString = (str) => {
+    return (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
 function injectChatbot() {
   if (document.querySelector('.chatbot-fab')) return;
   const chatBtn = document.createElement('button');
@@ -271,10 +274,12 @@ function injectChatbot() {
       chatBody.appendChild(msg);
       chatBody.scrollTop = chatBody.scrollHeight;
   };
-
+  const normalizeString = (str) => {
+      return (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  };
   const calculateFuzzyScore = (str1, str2) => {
-      const s1 = (str1 || "").toLowerCase().replace(/[^a-z0-9]/g, '');
-      const s2 = (str2 || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      const s1 = normalizeString(str1).replace(/[^a-z0-9]/g, '');
+      const s2 = normalizeString(str2).replace(/[^a-z0-9]/g, '');
       if (s1 === s2) return 1.0;
       if (s1.length < 2 || s2.length < 2) return s1.includes(s2) || s2.includes(s1) ? 0.5 : 0;
       const getBigrams = (str) => {
@@ -293,7 +298,7 @@ function injectChatbot() {
       return (2.0 * intersection) / (bigrams1.size + bigrams2.size);
   };
   const getAIResponse = async (userText) => {
-      const lower = userText.toLowerCase();
+      const lower = normalizeString(userText);
 
       if (window.ProductManager) {
           const data = await window.ProductManager.getAll();
@@ -302,7 +307,7 @@ function injectChatbot() {
           const scored = products.map(p => {
               const nameScore = calculateFuzzyScore(userText, p.name);
 
-              const bonus = p.name.toLowerCase().includes(lower) ? 0.2 : 0;
+              const bonus = normalizeString(p.name).includes(lower) ? 0.2 : 0;
               return { product: p, score: nameScore + bonus };
           })
           .filter(item => item.score > 0.35)

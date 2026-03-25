@@ -30,7 +30,7 @@ try {
             if ($search) {
                 $search = trim($search);
 
-                $conditions[] = "(name LIKE ? OR name LIKE ? OR description LIKE ?)";
+                $conditions[] = "(name COLLATE utf8mb4_unicode_ci LIKE ? OR name COLLATE utf8mb4_unicode_ci LIKE ? OR description COLLATE utf8mb4_unicode_ci LIKE ?)";
                 $params[] = "$search%";
                 $params[] = "%$search%";
                 $params[] = "%$search%";
