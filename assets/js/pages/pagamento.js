@@ -92,7 +92,8 @@ function setupCheckoutForm() {
                     name: product.name,
                     price: price,
                     quantity: item.quantity,
-                    color: item.color
+                    color: item.color,
+                    image: product.image
                 });
             }
         });

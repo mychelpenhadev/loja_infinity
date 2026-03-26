@@ -19,6 +19,17 @@ try {
             $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo json_encode($orders);
             break;
+        case 'list_user':
+            $userId = $_GET['user_id'] ?? $_SESSION['user_id'] ?? null;
+            if (!$userId) {
+                echo json_encode([]);
+                break;
+            }
+            $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
+            $stmt->execute([$userId]);
+            $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($orders);
+            break;
         case 'save':
             $raw_data = file_get_contents('php://input');
             $data = json_decode($raw_data, true);
@@ -41,6 +52,29 @@ try {
             if (!$id || !$status) throw new Exception("Parâmetros faltantes");
             $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
             $stmt->execute([$status, $id]);
+            echo json_encode(["status" => "success"]);
+            break;
+        case 'delete_user':
+            $id = $_GET['id'] ?? null;
+            $userId = $_SESSION['user_id'] ?? null;
+            if (!$id || !$userId) {
+                echo json_encode(["status" => "error", "message" => "ID ou usuário não fornecido"]);
+                break;
+            }
+            $stmt = $pdo->prepare("SELECT status FROM orders WHERE id = ? AND user_id = ?");
+            $stmt->execute([$id, $userId]);
+            $order = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$order) {
+                echo json_encode(["status" => "error", "message" => "Pedido não encontrado"]);
+                break;
+            }
+            $allowedStatus = ['entregue', 'concluido'];
+            if (!in_array(strtolower($order['status']), $allowedStatus)) {
+                echo json_encode(["status" => "error", "message" => "Só é possível excluir pedidos entregues ou concluídos"]);
+                break;
+            }
+            $stmt = $pdo->prepare("DELETE FROM orders WHERE id = ? AND user_id = ?");
+            $stmt->execute([$id, $userId]);
             echo json_encode(["status" => "success"]);
             break;
         case 'delete':

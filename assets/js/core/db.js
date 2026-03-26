@@ -238,6 +238,15 @@ const OrderManager = {
       return [];
     }
   },
+  getByUser: async (userId) => {
+    try {
+      const response = await fetch(`api/orders.php?action=list_user&user_id=${userId}`, { credentials: 'include' });
+      return await response.json();
+    } catch (err) {
+      console.error("Erro ao buscar pedidos do usuário:", err);
+      return [];
+    }
+  },
   add: async (orderData) => {
     try {
       const response = await fetch('api/orders.php?action=save', {
@@ -268,30 +277,14 @@ const OrderManager = {
       console.error("Erro ao remover pedido:", err);
       return null;
     }
-  }
-};
-const ConfigManager = {
-  _cache: {},
-  init: async () => {
-    const now = Date.now();
-    const cached = sessionStorage.getItem(STORAGE_KEYS.CONFIG_CACHE);
-    const exp = sessionStorage.getItem(STORAGE_KEYS.CONFIG_CACHE_EXP);
-    if (cached && exp && now < parseInt(exp)) {
-      ConfigManager._cache = JSON.parse(cached);
-      return;
-    }
+  },
+  deleteUserOrder: async (orderId, userId) => {
     try {
-      const response = await fetch('api/config.php?action=get', { credentials: 'include' });
-      const data = await response.json();
-      ConfigManager._cache = data;
-      try {
-        sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE, JSON.stringify(data));
-        sessionStorage.setItem(STORAGE_KEYS.CONFIG_CACHE_EXP, (now + 300000).toString());
-      } catch (e) {
-        console.warn("sessionStorage quota exceeded, config will not be cached.", e);
-      }
+      const response = await fetch(`api/orders.php?action=delete_user&id=${orderId}`, { credentials: 'include' });
+      return await response.json();
     } catch (err) {
-      console.error("Erro ao inicializar ConfigManager:", err);
+      console.error("Erro ao remover pedido:", err);
+      return null;
     }
   },
   clearCache: () => {

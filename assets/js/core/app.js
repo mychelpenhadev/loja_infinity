@@ -1,6 +1,7 @@
 const normalizeString = (str) => (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initNotifications();
   updateCartBadge();
   injectSearchOverlay();
   injectMobileNav();
@@ -23,27 +24,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
   window.addEventListener('cartUpdated', updateCartBadge);
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('papelaria_theme', newTheme);
-      updateThemeIcon(newTheme);
-    });
-  }
 });
 function initTheme() {
-  const themeKey = 'papelaria_theme';
-  const savedTheme = localStorage.getItem(themeKey) || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  updateThemeIcon(savedTheme);
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
-function updateThemeIcon(theme) {
-  const icon = document.querySelector('#theme-toggle i');
-  if (icon) {
-    icon.className = theme === 'dark' ? 'bx bxs-sun' : 'bx bxs-moon';
+function initNotifications() {
+  console.log("initNotifications called");
+  const notifWrapper = document.getElementById('notif-wrapper');
+  const notifBtn = document.getElementById('notification-btn');
+  const notifDropdown = document.getElementById('notification-dropdown');
+  console.log("Elements:", notifWrapper, notifBtn, notifDropdown);
+  if (!notifWrapper || !notifBtn || !notifDropdown) {
+    console.log("Notificações não disponíveis nesta página");
+    return;
+  }
+  
+  notifBtn.addEventListener('click', (e) => {
+    console.log("Botão de notificação clicado!");
+    e.stopPropagation();
+    notifDropdown.classList.toggle('active');
+    console.log("Dropdown active class:", notifDropdown.classList.contains('active'));
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (!notifWrapper.contains(e.target)) {
+      notifDropdown.classList.remove('active');
+    }
+  });
+  
+  const markReadBtn = document.getElementById('mark-read-btn');
+  if (markReadBtn) {
+    markReadBtn.addEventListener('click', () => {
+      const list = document.getElementById('notification-list');
+      if (list) list.innerHTML = '';
+      const badge = document.getElementById('notification-badge');
+      if (badge) {
+        badge.style.display = 'none';
+        badge.textContent = '0';
+      }
+    });
   }
 }
 function updateCartBadge() {

@@ -72,19 +72,19 @@ function generateStars($rating) {
             <nav class="nav-links">
             </nav>
             <div class="nav-actions">
-                <form action="produtos.html" method="GET" class="header-search-form">
-                    <i class='bx bx-search'></i>
-                    <input type="text" name="q" placeholder="Buscar produtos..." autocomplete="off">
-                </form>
+                <div class="header-search-container">
+                    <form action="produtos.html" method="GET" class="header-search-form" id="header-search-form">
+                        <i class='bx bx-search'></i>
+                        <input type="text" name="q" id="header-search-input" placeholder="Buscar produtos..." autocomplete="off">
+                    </form>
+                    <div class="search-suggestions" id="header-search-suggestions"></div>
+                </div>
                 <a href="login.html" class="action-btn" title="Minha Conta">
                     <i class='bx bx-user'></i>
                 </a>
                 <a href="admin.php" class="action-btn" title="Painel Admin" style="display: none;">
                     <i class='bx bx-cog'></i>
                 </a>
-                <button class="action-btn" id="theme-toggle" title="Mudar Tema">
-                    <i class='bx bxs-moon'></i>
-                </button>
                 <div class="notification-wrapper" id="notif-wrapper" style="position: relative;">
                     <button class="action-btn" id="notification-btn" title="Notificações">
                         <i class='bx bx-bell'></i>
@@ -432,26 +432,38 @@ function generateStars($rating) {
         }
         .category-tab i { font-size: 1.25rem; }
         .hidden-product { display: none; }
+        .header-search-container {
+            position: relative;
+            flex: 1;
+            max-width: 900px;
+            margin: 0 2rem;
+        }
         .header-search-form {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--clr-bg);
-            border: 1px solid var(--clr-border);
-            border-radius: var(--radius-full);
-            width: 500px;
+            gap: 0.75rem;
+            padding: 0.875rem 1.25rem;
+            background: var(--clr-surface);
+            border: 2px solid var(--clr-border);
+            border-radius: var(--radius-lg);
+            width: 100%;
             max-width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .header-search-form:focus-within {
+            border-color: var(--clr-primary);
+            box-shadow: 0 4px 15px rgba(var(--clr-primary-rgb), 0.15);
         }
         .header-search-form i {
-            color: var(--clr-text-light);
-            font-size: 1.1rem;
+            color: var(--clr-primary);
+            font-size: 1.25rem;
         }
         .header-search-form input {
             flex: 1;
             border: none;
             background: transparent;
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--clr-text);
             outline: none;
         }
@@ -459,12 +471,15 @@ function generateStars($rating) {
             color: var(--clr-text-light);
         }
         @media (max-width: 768px) {
+            .header-search-container {
+                max-width: 100%;
+                margin: 0 0.5rem;
+            }
             .header-search-form {
-                width: 250px;
-                padding: 0.4rem 0.75rem;
+                padding: 0.75rem 1rem;
             }
             .header-search-form input {
-                font-size: 0.8rem;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -495,10 +510,57 @@ function generateStars($rating) {
         });
     </script>
     <script src="assets/js/core/db.js?v=29"></script>
-    <script src="assets/js/core/app.js?v=29"></script>
-    <script src="assets/js/pages/index.js?v=13"></script>
+    <script src="assets/js/core/app.js?v=31"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const notifList = document.getElementById('notification-list');
+                if (notifList && window.ProductManager) {
+                fetch('api/products.php?action=list&limit=100', { credentials: 'include' })
+                .then(res => res.json())
+                .then(data => {
+                    const products = data.products || [];
+                    if (!products || products.length === 0) {
+                        notifList.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--clr-text-light);">Nenhum produto disponível</div>';
+                        return;
+                    }
+                    const promoNovidadeProducts = products.filter(p => {
+                        const cat = (p.category || '').toLowerCase();
+                        return cat.includes('promo') || cat.includes('novid') || p.rating >= 4.8;
+                    }).slice(0, 5);
+                    
+                    if (promoNovidadeProducts.length === 0) {
+                        notifList.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--clr-text-light);">Nenhuma promoção ou novidade no momento</div>';
+                        return;
+                    }
+                    
+                    notifList.innerHTML = promoNovidadeProducts.map(p => {
+                        const price = parseFloat(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        const cat = (p.category || '').toLowerCase();
+                        const isPromo = cat.includes('promo') || cat.includes('promoção');
+                        const isNovidade = p.rating >= 4.8;
+                        const badge = isNovidade ? '<span style="background:#10B981;color:white;font-size:0.6rem;padding:2px 6px;border-radius:8px;margin-left:5px;">Novidade</span>' : (isPromo ? '<span style="background:#F59E0B;color:white;font-size:0.6rem;padding:2px 6px;border-radius:8px;margin-left:5px;">Promoção</span>' : '');
+                        return `<a href="detalhes.html?id=${p.id}" class="notif-item">
+                            <div class="notif-icon">
+                                <img src="${p.image}" onerror="this.parentElement.innerHTML='<i class=\\'bx bx-box\\'></i>'" alt="">
+                            </div>
+                            <div class="notif-content">
+                                <div class="notif-title">${p.name} ${badge}</div>
+                                <div class="notif-desc">${price}</div>
+                            </div>
+                        </a>`;
+                    }).join('');
+                    const badge = document.getElementById('notification-badge');
+                    if (badge) {
+                        badge.textContent = promoNovidadeProducts.length > 9 ? '9+' : promoNovidadeProducts.length;
+                        badge.style.display = 'inline-block';
+                    }
+                }).catch(err => {
+                    console.error('Erro ao carregar notificações:', err);
+                });
+            }
+            }, 500);
+
             const loadMoreBtn = document.getElementById('load-more-btn');
             if (loadMoreBtn) {
                 let visibleCount = 12;
@@ -519,6 +581,93 @@ function generateStars($rating) {
                     }
                 });
             }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const headerInput = document.getElementById('header-search-input');
+            const headerForm = document.getElementById('header-search-form');
+            const headerSuggestions = document.getElementById('header-search-suggestions');
+            if (!headerInput || !headerForm || !headerSuggestions) return;
+
+            let allProducts = null;
+            const normalizeString = (str) => (str || '').toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+
+            const loadAllProducts = async () => {
+                if (allProducts) return;
+                try {
+                    const res = await fetch('api/products.php?action=list&limit=500');
+                    const data = await res.json();
+                    allProducts = data.products || [];
+                } catch(e) { allProducts = []; }
+            };
+
+            const filterLocal = (query) => {
+                const q = normalizeString(query);
+                return (allProducts || []).filter(p =>
+                    normalizeString(p.name).includes(q) ||
+                    (p.description && normalizeString(p.description).includes(q))
+                );
+            };
+
+            const hideSuggestions = () => headerSuggestions.classList.remove('visible');
+            const showSuggestions = (products, query) => {
+                if (!products || products.length === 0) {
+                    headerSuggestions.innerHTML = `<div class="suggestion-empty">Nenhum produto encontrado</div>`;
+                } else {
+                    headerSuggestions.innerHTML = products.slice(0, 5).map(p => {
+                        const imgSrc = p.image && !p.image.startsWith('data:') ? p.image : 'assets/img/logoPNG.png';
+                        const priceVal = parseFloat(p.price) || 0;
+                        const price = priceVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        return `<a href="detalhes.html?id=${p.id}" class="suggestion-item">
+                            <img class="suggestion-img" src="${imgSrc}" onerror="this.src='assets/img/logoPNG.png'" alt="">
+                            <div class="suggestion-info">
+                                <div class="suggestion-name">${p.name}</div>
+                                <div class="suggestion-price">${price}</div>
+                            </div>
+                        </a>`;
+                    }).join('');
+                }
+                headerSuggestions.classList.add('visible');
+            };
+
+            headerInput.addEventListener('input', async (e) => {
+                const query = e.target.value.trim();
+                if (query.length < 2) {
+                    hideSuggestions();
+                    return;
+                }
+                await loadAllProducts();
+                const results = filterLocal(query);
+                showSuggestions(results, query);
+            });
+
+            headerInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const query = headerInput.value.trim();
+                    if (query) {
+                        hideSuggestions();
+                        window.location.href = `produtos.html?q=${encodeURIComponent(query)}`;
+                    }
+                }
+                if (e.key === 'Escape') {
+                    headerInput.blur();
+                    hideSuggestions();
+                }
+            });
+
+            headerInput.addEventListener('blur', () => {
+                setTimeout(hideSuggestions, 200);
+            });
+
+            headerInput.addEventListener('focus', async () => {
+                const query = headerInput.value.trim();
+                if (query.length >= 2) {
+                    await loadAllProducts();
+                    const results = filterLocal(query);
+                    showSuggestions(results, query);
+                }
+            });
         });
     </script>
     <?php require_once 'api/security.php'; if(isAdmin()): ?>

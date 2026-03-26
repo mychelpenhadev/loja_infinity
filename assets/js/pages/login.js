@@ -354,44 +354,78 @@ document.addEventListener('DOMContentLoaded', () => {
             async function loadUserOrders(userId) {
                 const list = document.getElementById('profile-orders-list');
                 if(!list) return;
+                if (!userId) {
+                    list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0;">Você ainda não tem nenhum pedido realizado.</p>`;
+                    return;
+                }
                 try {
-                    const userOrders = await window.OrderManager.getAll();
+                    const userOrders = await window.OrderManager.getByUser(userId);
+                    if (!Array.isArray(userOrders) || userOrders.length === 0) {
+                        list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0;">Você ainda não tem nenhum pedido realizado.</p>`;
+                        return;
+                    }
                     const filtered = userOrders.filter(o => String(o.user_id) === String(userId));
                     if(filtered.length === 0) {
                         list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0;">Você ainda não tem nenhum pedido realizado.</p>`;
                         return;
                     }
-                    filtered.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-                    list.innerHTML = filtered.map(o => {
+                    
+                    list.style.maxHeight = '400px';
+                    list.style.overflowY = 'auto';
+                    
+                    let html = '';
+                    for (const o of filtered) {
                         const dateObj = new Date(o.created_at);
                         const dateStr = dateObj.toLocaleDateString('pt-BR');
-                        const items = typeof o.items_json === 'string' ? JSON.parse(o.items_json) : o.items_json;
+                        let items = [];
+                        try {
+                            items = typeof o.items_json === 'string' ? JSON.parse(o.items_json) : o.items_json;
+                        } catch(e) { items = []; }
+                        const firstItem = items[0] || {};
+                        let itemImage = firstItem.image || 'assets/img/logoPNG.png';
                         const itemsMsg = items.map(i => `${i.quantity}x ${i.name}`).join(', ');
                         const isEntregue = o.status === 'entregue' || o.status === 'concluido';
-                        return `
-                            <div style="border-bottom: 1px solid var(--clr-border); padding: 1rem 0;">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-                                    <div>
-                                        <strong style="font-size: 1rem;">Pedido #${o.id}</strong>
-                                        <div style="font-size: 0.8rem; color: var(--clr-text-light);">${dateStr}</div>
+                        const statusColor = isEntregue ? '#10B981' : '#F59E0B';
+                        const statusBg = isEntregue ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)';
+                        const statusText = o.status.charAt(0).toUpperCase() + o.status.slice(1);
+                        const total = window.formatCurrency(o.total);
+                        const deleteBtn = isEntregue ? `<button onclick="window.deleteUserOrder(${o.id}, ${userId})" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); background: #EF4444; color: white; border: none; border-radius: var(--radius-full); width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem;"><i class='bx bx-trash'></i></button>` : '';
+                        html += `<div style="display: flex; gap: 1rem; border-bottom: 1px solid var(--clr-border); padding: 1rem 0; align-items: center; position: relative;" id="order-${o.id}">
+                                <img src="${itemImage}" alt="Produto" style="width: 70px; height: 70px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--clr-border);">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                        <div>
+                                            <strong style="font-size: 1rem;">Pedido #${o.id}</strong>
+                                            <div style="font-size: 0.8rem; color: var(--clr-text-light);">${dateStr}</div>
+                                        </div>
+                                        <span style="display:inline-block; padding:0.25rem 0.5rem; border-radius:1rem; background:${statusBg}; color:${statusColor}; font-size:0.75rem; font-weight:600;">${statusText}</span>
                                     </div>
-                                    <span style="display:inline-block; padding:0.25rem 0.5rem; border-radius:1rem; background: ${isEntregue ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'}; color: ${isEntregue ? '#10B981' : '#F59E0B'}; font-size:0.75rem; font-weight:600;">
-                                        ${o.status.charAt(0).toUpperCase() + o.status.slice(1)}
-                                    </span>
+                                    <div style="font-size: 0.85rem; color: var(--clr-text-light); margin-bottom: 0.5rem; line-height: 1.4;">${itemsMsg}</div>
+                                    <div style="font-weight: 700; color: var(--clr-primary); font-size: 0.95rem;">${total}</div>
                                 </div>
-                                <div style="font-size: 0.85rem; color: var(--clr-text-light); margin-bottom: 0.5rem; line-height: 1.4;">
-                                    ${itemsMsg}
-                                </div>
-                                <div style="font-weight: 700; color: var(--clr-primary); font-size: 0.95rem;">
-                                    ${window.formatCurrency(o.total)}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
+                                ${deleteBtn}
+                            </div>`;
+                    }
+                    list.innerHTML = html;
                 } catch (e) {
                     console.error("Erro ao carregar pedidos:", e);
+                    list.innerHTML = `<p style="color: var(--clr-text-light); font-size: 0.9rem; text-align: center; padding: 2rem 0;">Erro ao carregar pedidos.</p>`;
                 }
             }
+            window.deleteUserOrder = async function(orderId, userId) {
+                if(!confirm("Tem certeza que deseja excluir este pedido?")) return;
+                try {
+                    const result = await window.OrderManager.deleteUserOrder(orderId, userId);
+                    if (result && result.status === 'success') {
+                        window.showToast("Pedido excluído com sucesso!", "success");
+                        loadUserOrders(userId);
+                    } else {
+                        window.showToast(result?.message || "Erro ao excluir pedido.", "error");
+                    }
+                } catch(e) {
+                    window.showToast("Erro ao excluir pedido.", "error");
+                }
+            };
             async function loadMiniPromos() {
                 const list = document.getElementById('profile-promos-list');
                 if(!list) return;

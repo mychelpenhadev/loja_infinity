@@ -835,6 +835,10 @@ input, textarea {
     opacity: 1;
     pointer-events: all;
     transform: translateY(0);
+    display: flex !important;
+}
+.notification-wrapper {
+    position: relative;
 }
 .notification-badge {
     position: absolute;
@@ -1324,4 +1328,56 @@ a, button, input, select {
 }
 .suggestion-see-all:hover {
     background: rgba(var(--clr-primary-rgb, 255, 182, 193), 0.15);
+}
+.header-search-container {
+    position: relative;
+    flex: 1;
+    max-width: 900px;
+    margin: 0 2rem;
+}
+.header-search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: var(--clr-surface);
+    border: 2px solid var(--clr-border);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background-color: #1a1a1a;
+    border-color: #333;
+}
+.header-search-form:focus-within {
+    border-color: var(--clr-primary);
+    box-shadow: 0 4px 15px rgba(var(--clr-primary-rgb), 0.15);
+}
+.header-search-form i {
+    color: var(--clr-primary);
+    font-size: 1.25rem;
+}
+.header-search-form input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    color: var(--clr-text);
+    outline: none;
+}
+.header-search-form input::placeholder {
+    color: var(--clr-text-light);
+}
+@media (max-width: 768px) {
+    .header-search-container {
+        max-width: 100%;
+        margin: 0 0.5rem;
+    }
+    .header-search-form {
+        padding: 0.75rem 1rem;
+    }
+    .header-search-form input {
+        font-size: 0.9rem;
+    }
 }
