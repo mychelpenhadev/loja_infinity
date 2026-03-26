@@ -13,16 +13,14 @@ if (!isAdmin()) {
     <title>Painel Admin | Infinity Variedades</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-theme', 'dark');
         })();
     </script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="assets/css/style.css?v=29">
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('papelaria_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-theme', 'dark');
         })();
     </script>
     <style>
@@ -83,12 +81,14 @@ if (!isAdmin()) {
         }
         .admin-table {
             width: 100%;
+            min-width: 650px;
             border-collapse: collapse;
         }
         .admin-table th, .admin-table td {
             text-align: left;
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             border-bottom: 1px solid var(--clr-border);
+            white-space: nowrap;
         }
         .admin-table th {
             background-color: rgba(var(--clr-bg), 0.5);
@@ -202,6 +202,11 @@ if (!isAdmin()) {
             padding-top: 1.5rem;
             border-top: 1px solid var(--clr-border);
         }
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
         @media (max-width: 992px) {
             .admin-layout {
                 grid-template-columns: 1fr;
@@ -211,13 +216,106 @@ if (!isAdmin()) {
                 position: relative;
                 padding: 1rem;
             }
-            .admin-menu {
-                flex-direction: row;
-                overflow-x: auto;
-            }
             .admin-content {
-                padding: 1rem;
+                padding: 1.5rem 1rem;
             }
+        }
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .admin-header > div:last-child {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            .admin-search-box input {
+                width: 100% !important;
+            }
+            .form-row-2 {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                padding: 1.5rem;
+                margin: 1rem;
+                max-width: calc(100% - 2rem);
+            }
+            .modal-actions {
+                flex-direction: column-reverse;
+                gap: 0.5rem;
+            }
+            .modal-actions button {
+                width: 100%;
+            }
+
+            /* --- APP-LIKE MENU GRID --- */
+            .admin-menu {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+                padding-bottom: 0;
+            }
+            .admin-link {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                padding: 1.25rem 0.5rem;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                border: 1px solid var(--clr-border);
+                background: var(--clr-surface);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                white-space: normal;
+            }
+            .admin-link i { font-size: 1.75rem; margin-bottom: 0.25rem; color: var(--clr-primary); }
+            button#theme-toggle { grid-column: 1 / -1; }
+
+            /* --- APP-LIKE TABLE CARDS --- */
+            .admin-table-container { 
+                background: transparent;
+                border: none;
+                box-shadow: none;
+                overflow: visible;
+            }
+            .admin-table, .admin-table tbody, .admin-table tr, .admin-table td {
+                display: block; width: 100%; min-width: 0;
+            }
+            .admin-table thead { display: none; }
+            .admin-table tr {
+                background: var(--clr-surface);
+                border: 1px solid var(--clr-border);
+                border-radius: var(--radius-lg);
+                margin-bottom: 1rem;
+                padding: 1rem;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .admin-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0;
+                border: none;
+                white-space: normal;
+                font-size: 0.9rem;
+                box-sizing: border-box;
+            }
+            .admin-table td::before {
+                font-weight: 600;
+                color: var(--clr-text-light);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+            }
+            /* Específico para Produtos */
+            .admin-table td:nth-child(1) { border-bottom: 1px dashed var(--clr-border); padding-bottom: 0.75rem; margin-bottom: 0.5rem; justify-content: flex-start; }
+            .admin-table td:nth-child(2)::before { content: "Categoria"; }
+            .admin-table td:nth-child(3)::before { content: "Preço"; }
+            .admin-table td:nth-child(4) { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--clr-border); justify-content: center; }
+            .admin-table td:nth-child(4) .action-btns { width: 100%; justify-content: space-evenly; gap: 1rem; display: flex; }
+            .admin-table td:nth-child(4) .action-btns button { width: 45px; height: 45px; font-size: 1.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--clr-bg); border: 1px solid var(--clr-border); }
         }
     </style>
 </head>
@@ -240,9 +338,7 @@ if (!isAdmin()) {
                 <a href="index.php" class="admin-link">
                     <i class='bx bx-store-alt'></i> Voltar para Loja
                 </a>
-                <button class="admin-link" id="theme-toggle" style="width: 100%; text-align: left; border: none; background: transparent;">
-                    <i class='bx bxs-moon'></i> Alternar Tema
-                </button>
+
             </nav>
         </aside>
         <main class="admin-content">
@@ -287,7 +383,7 @@ if (!isAdmin()) {
                     <label>Nome do Produto *</label>
                     <input type="text" id="prod-nome" class="form-control" required placeholder="Ex: Caderno Inteligente">
                 </div>
-                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group form-row-2">
                     <div>
                         <label>Preço (R$) *</label>
                         <input type="number" id="prod-preco" class="form-control" required min="0" step="0.01" placeholder="Ex: 89.90">

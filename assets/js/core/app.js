@@ -26,8 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('cartUpdated', updateCartBadge);
 });
 function initTheme() {
-  const theme = localStorage.getItem('papelaria_theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
 function initNotifications() {
   console.log("initNotifications called");
@@ -143,7 +142,11 @@ function injectMobileNav() {
         </a>
         <a href="login.html" class="mobile-nav-item ${path.endsWith('login.html') ? 'active' : ''}">
             <i class='bx bx-user' id="mobile-profile-icon"></i>
-            <span>Minha Conta</span>
+            <span>Conta</span>
+        </a>
+        <a href="admin.php" class="mobile-nav-item ${path.endsWith('admin.php') || path.endsWith('admin_config.php') || path.endsWith('admin_pedidos.php') ? 'active' : ''}" style="display: none;">
+            <i class='bx bx-cog'></i>
+            <span>Admin</span>
         </a>
     `;
     document.body.appendChild(nav);

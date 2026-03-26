@@ -13,16 +13,14 @@ if (!isAdmin()) {
     <title>Configurações | Painel Admin</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-theme', 'dark');
         })();
     </script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="assets/css/style.css?v=29">
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('papelaria_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-theme', 'dark');
         })();
     </script>
     <style>
@@ -108,8 +106,40 @@ if (!isAdmin()) {
         @media (max-width: 992px) {
             .admin-layout { grid-template-columns: 1fr; }
             .admin-sidebar { height: auto; position: relative; padding: 1rem; }
-            .admin-menu { flex-direction: row; overflow-x: auto; }
-            .admin-content { padding: 1rem; }
+            .admin-content { padding: 1.5rem 1rem; }
+        }
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .admin-header > div:last-child {
+                width: 100%;
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+            /* --- APP-LIKE MENU GRID --- */
+            .admin-menu {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+                padding-bottom: 0;
+            }
+            .admin-link {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                padding: 1.25rem 0.5rem;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                border: 1px solid var(--clr-border);
+                background: var(--clr-surface);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                white-space: normal;
+            }
+            .admin-link i { font-size: 1.75rem; margin-bottom: 0.25rem; color: var(--clr-primary); }
+            button#theme-toggle { grid-column: 1 / -1; }
         }
     </style>
 </head>
@@ -132,9 +162,7 @@ if (!isAdmin()) {
                 <a href="index.php" class="admin-link">
                     <i class='bx bx-store-alt'></i> Voltar para Loja
                 </a>
-                <button class="admin-link" id="theme-toggle" style="width: 100%; text-align: left; border: none; background: transparent;">
-                    <i class='bx bxs-moon'></i> Alternar Tema
-                </button>
+
             </nav>
         </aside>
         <main class="admin-content">

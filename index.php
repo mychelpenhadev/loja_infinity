@@ -54,8 +54,7 @@ function generateStars($rating) {
     <title>Infinity Variedades</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.setAttribute('data-theme', 'dark');
         })();
     </script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
