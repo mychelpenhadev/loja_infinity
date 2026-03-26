@@ -245,53 +245,22 @@ function setupBackup() {
             statusEl.textContent = 'Preparando arquivo ZIP, aguarde...';
         }
 
-        try {
-            const response = await fetch('api/backup.php', {
-                method: 'POST',
-                credentials: 'include'
-            });
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'api/backup.php';
+        form.style.display = 'none';
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
 
-            if (!response.ok) {
-                let errMsg = 'Erro ao gerar backup';
-                try {
-                    const errData = await response.json();
-                    errMsg = errData.message || errMsg;
-                } catch(e) {}
-                throw new Error(errMsg);
-            }
-
-            const blob = await response.blob();
-            const disposition = response.headers.get('Content-Disposition');
-            let filename = 'backup_loja.zip';
-            if (disposition) {
-                const match = disposition.match(/filename="(.+)"/);
-                if (match) filename = match[1];
-            }
-
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-
+        setTimeout(() => {
+            backupBtn.disabled = false;
+            backupBtn.innerHTML = "<i class='bx bx-data'></i> Gerar Backup";
             if (statusEl) {
                 statusEl.style.color = '#10B981';
                 statusEl.textContent = 'Backup gerado com sucesso!';
             }
-            window.showToast("Backup baixado com sucesso!", "success");
-        } catch (err) {
-            if (statusEl) {
-                statusEl.style.color = '#EF4444';
-                statusEl.textContent = err.message;
-            }
-            window.showToast(err.message, "error");
-        }
-
-        backupBtn.disabled = false;
-        backupBtn.innerHTML = "<i class='bx bx-data'></i> Gerar Backup";
+        }, 3000);
     });
 }
 
