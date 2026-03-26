@@ -1194,7 +1194,7 @@ a, button, input, select {
 }
 .search-form {
     width: 100%;
-    max-width: 800px;
+    max-width: 1000px;
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -1202,12 +1202,12 @@ a, button, input, select {
 }
 .search-form input {
     width: 100%;
-    padding: 12px 50px 12px 20px;
+    padding: 16px 60px 16px 24px;
     border: 2px solid var(--clr-border);
     border-radius: var(--radius-full);
     background: var(--clr-bg);
     color: var(--clr-text);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     outline: none;
     transition: border-color var(--transition);
 }
@@ -1225,8 +1225,8 @@ a, button, input, select {
 }
 .search-submit-icon {
     position: absolute;
-    right: 70px;
-    font-size: 1.4rem;
+    right: 80px;
+    font-size: 1.5rem;
     color: var(--clr-text-light);
 }
 @media (max-width: 768px) {
@@ -1234,11 +1234,12 @@ a, button, input, select {
         height: 80px;
     }
     .search-form input {
-        font-size: 1rem;
-        padding: 10px 45px 10px 15px;
+        font-size: 1.1rem;
+        padding: 14px 50px 14px 18px;
     }
     .search-submit-icon {
-        right: 60px;
+        right: 65px;
+        font-size: 1.3rem;
     }
 }
 

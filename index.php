@@ -9,7 +9,7 @@ if (!$data) {
     try {
         require_once 'api/db.php';
 
-        $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 8");
+        $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 12");
         $featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $stmt = $pdo->query("SELECT * FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
@@ -70,16 +70,12 @@ function generateStars($rating) {
                 <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
             </a>
             <nav class="nav-links">
-                <a href="index.php" class="nav-link active">Home</a>
-                <a href="produtos.html?cat=promocoes" class="nav-link">Promoções</a>
-                <a href="produtos.html?cat=novidades" class="nav-link">Novidades</a>
-                <a href="produtos.html?cat=criancas" class="nav-link">Crianças</a>
-                <a href="produtos.html" class="nav-link">Todos os Produtos</a>
             </nav>
             <div class="nav-actions">
-                <button class="action-btn" id="search-toggle" title="Pesquisar">
+                <form action="produtos.html" method="GET" class="header-search-form">
                     <i class='bx bx-search'></i>
-                </button>
+                    <input type="text" name="q" placeholder="Buscar produtos..." autocomplete="off">
+                </form>
                 <a href="login.html" class="action-btn" title="Minha Conta">
                     <i class='bx bx-user'></i>
                 </a>
@@ -153,17 +149,30 @@ function generateStars($rating) {
         </div>
     </section>
     <section class="section">
-    <section class="section">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Destaques da Semana</h2>
                 <p class="section-subtitle">Os produtos mais amados pelos nossos criativos</p>
             </div>
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                <a href="produtos.html?cat=promocoes" class="category-tab">
+                    <i class='bx bxs-gift'></i> Promoções
+                </a>
+                <a href="produtos.html?cat=novidades" class="category-tab">
+                    <i class='bx bxs-sparkling'></i> Novidades
+                </a>
+                <a href="produtos.html?cat=criancas" class="category-tab">
+                    <i class='bx bxs-happy-beaming'></i> Crianças
+                </a>
+                <a href="produtos.html" class="category-tab">
+                    <i class='bx bxs-grid'></i> Todos os Produtos
+                </a>
+            </div>
             <div class="product-grid" id="featured-products">
                 <?php if (empty($featuredProducts)): ?>
                     <p>Nenhum produto em destaque encontrado.</p>
                 <?php else: ?>
-                    <?php foreach(array_slice($featuredProducts, 0, 4) as $product): ?>
+                    <?php foreach(array_slice($featuredProducts, 0, 12) as $product): ?>
                         <div class="product-card" id="prod-<?= $product['id'] ?>">
                             <?php if ($product['rating'] >= 4.8): ?>
                                 <span class="product-badge">Novidade</span>
@@ -198,6 +207,9 @@ function generateStars($rating) {
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
+            </div>
+            <div style="text-align: center; margin-top: 1rem;">
+                <a href="produtos.html" style="font-size: 0.75rem; color: var(--clr-text-light); text-decoration: none;">Ver mais produtos</a>
             </div>
         </div>
     </section>
@@ -393,6 +405,62 @@ function generateStars($rating) {
         }
         @media (max-width: 576px) {
             .sub-categories-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .category-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--clr-surface);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-lg);
+            color: var(--clr-text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .category-tab:hover {
+            background: var(--clr-primary);
+            color: white;
+            border-color: var(--clr-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .category-tab i { font-size: 1.25rem; }
+        .header-search-form {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--clr-bg);
+            border: 1px solid var(--clr-border);
+            border-radius: var(--radius-full);
+            width: 500px;
+            max-width: 100%;
+        }
+        .header-search-form i {
+            color: var(--clr-text-light);
+            font-size: 1.1rem;
+        }
+        .header-search-form input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 0.9rem;
+            color: var(--clr-text);
+            outline: none;
+        }
+        .header-search-form input::placeholder {
+            color: var(--clr-text-light);
+        }
+        @media (max-width: 768px) {
+            .header-search-form {
+                width: 250px;
+                padding: 0.4rem 0.75rem;
+            }
+            .header-search-form input {
+                font-size: 0.8rem;
+            }
         }
     </style>
     <script>
