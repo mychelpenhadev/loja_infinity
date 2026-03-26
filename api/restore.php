@@ -1,4 +1,6 @@
 <?php
+ob_start();
+set_time_limit(300);
 require_once 'security.php';
 require_once 'db.php';
 
@@ -62,12 +64,25 @@ try {
 
     $sqlContent = file_get_contents($sqlFile);
 
+    // Tenta aumentar o limite de pacote do MySQL para aceitar imagens gigantes (Base64)
+    // No Railway o usuário costuma ser root, então isso deve funcionar.
+    try {
+        $pdo->exec("SET GLOBAL max_allowed_packet = 134217728"); // 128 MB
+        // Fechar e reabrir a conexão para a configuração global surtir efeito nesta sessão
+        $pdo = null;
+        include 'db.php';
+    } catch (Exception $e) {
+        // Ignora caso não tenha permissão SUPER
+    }
+
     $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
     $pdo->exec("SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO'");
 
     $tables = ['orders', 'products', 'users', 'configs'];
     foreach ($tables as $table) {
-        $pdo->exec("DELETE FROM `$table`");
+        try {
+            $pdo->exec("DELETE FROM `$table`");
+        } catch (PDOException $e) { }
     }
 
     $sqlContent = preg_replace('/^--.*$/m', '', $sqlContent);
@@ -76,6 +91,9 @@ try {
     // Normalize newlines to ensure consistent splitting
     $sqlContent = str_replace("\r\n", "\n", $sqlContent);
     
+    // Fix collation issues between MySQL 8 (XAMPP) and older MariaDB/MySQL versions (Railway)
+    $sqlContent = str_replace('utf8mb4_0900_ai_ci', 'utf8mb4_unicode_ci', $sqlContent);
+    
     // Explode by semicolon followed by newline, avoiding splitting data inside strings (e.g. data:image/png;base64)
     $statements = explode(";\n", $sqlContent);
     $errors = [];
@@ -83,12 +101,28 @@ try {
     foreach ($statements as $stmt) {
         $stmt = trim($stmt);
         if (empty($stmt)) continue;
-        if (!preg_match('/^INSERT\s+/i', $stmt)) continue;
-
+        
         try {
             $pdo->exec($stmt);
         } catch (PDOException $e) {
-            $errors[] = $e->getMessage();
+            $msgErr = $e->getMessage();
+            
+            // Se o MySQL fechar a conexão (ex: max_allowed_packet atingido por causa de imagem gigante)
+            if (strpos($msgErr, '2006') !== false || strpos($msgErr, 'gone away') !== false || strpos($msgErr, '1153') !== false || strpos($msgErr, 'max_allowed_packet') !== false) {
+                $errors[] = "Pulado: Uma imagem/produto era tão grande que o servidor recusou (Tamanho excedido).";
+                
+                if (strpos($msgErr, '2006') !== false || strpos($msgErr, 'gone away') !== false) {
+                    $pdo = null;
+                    include 'db.php'; // Reconecta!
+                    $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
+                    $pdo->exec("SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO'");
+                }
+            } else {
+                if (stripos($stmt, 'CREATE TABLE') !== false) {
+                    $msgErr = 'ERRO NO CREATE ' . substr($stmt, 0, 30) . '... -> ' . $msgErr;
+                }
+                $errors[] = $msgErr;
+            }
         }
     }
 
@@ -137,13 +171,21 @@ try {
         $msg .= " Avisos: " . implode(' | ', array_slice($errors, 0, 3));
     }
 
-    echo json_encode(["status" => "success", "message" => $msg]);
+    $msg = mb_convert_encoding($msg, 'UTF-8', 'UTF-8');
+    
+    @ob_end_clean();
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["status" => "success", "message" => $msg], JSON_INVALID_UTF8_SUBSTITUTE);
 
 } catch (Exception $e) {
-    $pdo->exec("SET FOREIGN_KEY_CHECKS=1");
-    if (is_dir($tmpDir)) rmdir_recursive($tmpDir);
-    http_response_code(500);
-    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
+    if (isset($pdo)) {
+        try { $pdo->exec("SET FOREIGN_KEY_CHECKS=1"); } catch(PDOException $ex) {}
+    }
+    if (isset($tmpDir) && is_dir($tmpDir)) @rmdir_recursive($tmpDir);
+    
+    @ob_end_clean();
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(["status" => "error", "message" => mb_convert_encoding($e->getMessage(), 'UTF-8', 'UTF-8')], JSON_INVALID_UTF8_SUBSTITUTE);
 }
 
 function rmdir_recursive($dir) {
