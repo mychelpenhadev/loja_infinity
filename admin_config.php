@@ -13,7 +13,7 @@ if (!isAdmin()) {
     <title>Configurações | Painel Admin</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'light';
+            var theme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -21,7 +21,7 @@ if (!isAdmin()) {
     <link rel="stylesheet" href="assets/css/style.css?v=29">
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
+            const savedTheme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>
@@ -144,7 +144,7 @@ if (!isAdmin()) {
                     <p style="color: var(--clr-text-light);">Ajuste os parâmetros dinâmicos visíveis para os clientes.</p>
                 </div>
             </div>
-            <div class="settings-card">
+            <div class="settings-card" style="max-width: 700px;">
                 <form id="configForm">
                     <h3 style="margin-bottom: 1.5rem; color: var(--clr-primary); border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem;">
                         <i class='bx bxl-whatsapp'></i> Contato
@@ -154,11 +154,81 @@ if (!isAdmin()) {
                         <input type="text" id="config-whatsapp" class="form-control" placeholder="Ex: 5511999999999">
                         <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.8rem;">Número com DDI e DDD (ex: 5511999999999) para receber os pedidos.</small>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">
-                        <i class='bx bx-save'></i> Salvar Configurações
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
+                        <i class='bx bx-save'></i> Salvar WhatsApp
                     </button>
                 </form>
             </div>
+
+            <div class="settings-card" style="max-width: 700px; margin-top: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; color: var(--clr-primary); border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem;">
+                    <i class='bx bx-images'></i> Banners da Home
+                </h3>
+                <p style="color: var(--clr-text-light); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Adicione imagens que aparecerão como slider na página inicial. Cada banner pode ter um link opcional ao ser clicado.
+                </p>
+                <div id="banners-list" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;"></div>
+                <button type="button" id="add-banner-btn" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border: 2px dashed var(--clr-border); border-radius: var(--radius-md); background: transparent; color: var(--clr-text-light); cursor: pointer; width: 100%; justify-content: center; transition: var(--transition);">
+                    <i class='bx bx-plus-circle'></i> Adicionar Banner
+                </button>
+                <button type="button" id="save-banners-btn" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;">
+                    <i class='bx bx-save'></i> Salvar Banners
+                </button>
+            </div>
+
+            <div class="settings-card" style="max-width: 700px; margin-top: 2rem;">
+                <h3 style="margin-bottom: 1.5rem; color: var(--clr-primary); border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem;">
+                    <i class='bx bx-download'></i> Backup e Restauração
+                </h3>
+                <p style="color: var(--clr-text-light); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    Exporte todos os dados (produtos, clientes, pedidos, configurações) e imagens da loja em um arquivo ZIP, ou restaure a partir de um backup anterior.
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="button" id="backup-btn" class="btn btn-primary" style="flex:1; min-width: 200px;">
+                        <i class='bx bx-data'></i> Gerar Backup
+                    </button>
+                    <button type="button" id="restore-btn" class="btn" style="flex:1; min-width: 200px; border: 2px solid var(--clr-primary); color: var(--clr-primary); background: transparent;">
+                        <i class='bx bx-upload'></i> Restaurar Backup
+                    </button>
+                    <input type="file" id="restore-file-input" accept=".zip" style="display:none;">
+                </div>
+                <p id="backup-status" style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--clr-text-light); display: none;"></p>
+            </div>
+
+            <style>
+                .banner-item {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr auto;
+                    gap: 0.75rem;
+                    align-items: center;
+                    padding: 1rem;
+                    background: var(--clr-bg);
+                    border: 1px solid var(--clr-border);
+                    border-radius: var(--radius-md);
+                }
+                .banner-preview {
+                    width: 80px;
+                    height: 50px;
+                    object-fit: cover;
+                    border-radius: var(--radius-md);
+                    border: 1px solid var(--clr-border);
+                    display: none;
+                }
+                .banner-remove-btn {
+                    width: 36px; height: 36px;
+                    border-radius: 50%;
+                    border: 1px solid var(--clr-border);
+                    background: transparent;
+                    color: #EF4444;
+                    cursor: pointer;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 1.25rem;
+                    transition: var(--transition);
+                    flex-shrink: 0;
+                }
+                .banner-remove-btn:hover { background: #EF4444; color: white; }
+                #add-banner-btn:hover { border-color: var(--clr-primary); color: var(--clr-primary); }
+            </style>
         </main>
     </div>
     <script src="assets/js/core/db.js?v=29"></script>

@@ -1,4 +1,67 @@
         document.addEventListener('DOMContentLoaded', async () => {
+            // Banner Slider
+            const bannerSlider = document.getElementById('hero-banner-slider');
+            const bannerDots = document.getElementById('hb-dots');
+            const bannerPrev = document.getElementById('hb-prev');
+            const bannerNext = document.getElementById('hb-next');
+            const bannerPlaceholder = document.getElementById('hero-banner-placeholder');
+
+            if (bannerSlider) {
+                let banners = [];
+                try {
+                    const raw = window.ConfigManager.get('hero_banners');
+                    banners = JSON.parse(raw) || [];
+                } catch(e) {}
+
+                if (banners.length > 0) {
+                    if (bannerPlaceholder) bannerPlaceholder.remove();
+                    bannerSlider.innerHTML = banners.map((b, i) => {
+                        const tag = b.link ? `a href="${b.link}"` : 'div';
+                        return `<${tag} class="hb-slide ${i === 0 ? 'active' : ''}">
+                            <img src="${b.url}" alt="Banner ${i+1}">
+                        </${tag.endsWith('a') ? 'a' : 'div'}>`;
+                    }).join('');
+
+                    if (bannerDots) {
+                        bannerDots.innerHTML = banners.map((_, i) =>
+                            `<span class="hb-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></span>`
+                        ).join('');
+                    }
+
+                    const slides = bannerSlider.querySelectorAll('.hb-slide');
+                    const dots = bannerDots ? bannerDots.querySelectorAll('.hb-dot') : [];
+                    let current = 0;
+
+                    function showBanner(idx) {
+                        slides.forEach(s => s.classList.remove('active'));
+                        dots.forEach(d => d.classList.remove('active'));
+                        slides[idx].classList.add('active');
+                        if (dots[idx]) dots[idx].classList.add('active');
+                        current = idx;
+                    }
+
+                    let bannerInterval = setInterval(() => {
+                        showBanner((current + 1) % slides.length);
+                    }, 5000);
+
+                    if (bannerPrev) bannerPrev.addEventListener('click', () => {
+                        showBanner((current - 1 + slides.length) % slides.length);
+                        clearInterval(bannerInterval);
+                        bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+                    });
+                    if (bannerNext) bannerNext.addEventListener('click', () => {
+                        showBanner((current + 1) % slides.length);
+                        clearInterval(bannerInterval);
+                        bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+                    });
+                    dots.forEach(dot => dot.addEventListener('click', () => {
+                        showBanner(parseInt(dot.dataset.index));
+                        clearInterval(bannerInterval);
+                        bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+                    }));
+                }
+            }
+
             const container = document.getElementById('featured-products');
             const heroSlider = document.getElementById('hero-slider');
             const sliderDots = document.getElementById('slider-dots');

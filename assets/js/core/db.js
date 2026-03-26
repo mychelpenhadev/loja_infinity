@@ -27,7 +27,7 @@ const ProductManager = {
     }
     try {
       const query = new URLSearchParams(params).toString();
-      const response = await fetch(`api/products.php?action=list&${query}`, { credentials: 'include' });
+      const response = await fetch(`api/products.php?action=list&${query}&_=${Date.now()}`, { credentials: 'include' });
       const data = await response.json();
       if (!hasSearch) {
         try {
@@ -42,8 +42,14 @@ const ProductManager = {
     }
   },
   clearCache: () => {
-    sessionStorage.removeItem(STORAGE_KEYS.PRODUCTS_CACHE);
-    sessionStorage.removeItem(STORAGE_KEYS.PRODUCTS_CACHE_EXP);
+    const keysToRemove = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      if (key && (key.startsWith('papelaria_prods_list_') || key === STORAGE_KEYS.PRODUCTS_CACHE || key === STORAGE_KEYS.PRODUCTS_CACHE_EXP)) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(k => sessionStorage.removeItem(k));
   },
   getById: async (id) => {
     if (ProductManager._cache[id]) return ProductManager._cache[id];
@@ -252,6 +258,7 @@ const OrderManager = {
       const response = await fetch('api/orders.php?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(orderData)
       });
       return await response.json();
@@ -285,6 +292,18 @@ const OrderManager = {
     } catch (err) {
       console.error("Erro ao remover pedido:", err);
       return null;
+    }
+  }
+};
+const ConfigManager = {
+  _cache: {},
+  init: async () => {
+    try {
+      const response = await fetch('api/config.php?action=get', { credentials: 'include' });
+      const data = await response.json();
+      ConfigManager._cache = data || {};
+    } catch (err) {
+      console.error("Erro ao inicializar ConfigManager:", err);
     }
   },
   clearCache: () => {

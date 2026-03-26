@@ -54,7 +54,7 @@ function generateStars($rating) {
     <title>Infinity Variedades</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'light';
+            var theme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -71,14 +71,14 @@ function generateStars($rating) {
             </a>
             <nav class="nav-links">
             </nav>
+            <div class="header-search-container">
+                <form action="produtos.html" method="GET" class="header-search-form" id="header-search-form">
+                    <i class='bx bx-search'></i>
+                    <input type="text" name="q" id="header-search-input" placeholder="Buscar produtos..." autocomplete="off">
+                </form>
+                <div class="search-suggestions" id="header-search-suggestions"></div>
+            </div>
             <div class="nav-actions">
-                <div class="header-search-container">
-                    <form action="produtos.html" method="GET" class="header-search-form" id="header-search-form">
-                        <i class='bx bx-search'></i>
-                        <input type="text" name="q" id="header-search-input" placeholder="Buscar produtos..." autocomplete="off">
-                    </form>
-                    <div class="search-suggestions" id="header-search-suggestions"></div>
-                </div>
                 <a href="login.html" class="action-btn" title="Minha Conta">
                     <i class='bx bx-user'></i>
                 </a>
@@ -108,42 +108,47 @@ function generateStars($rating) {
             </div>
         </div>
     </header>
-    <section class="hero">
-        <div class="floating-element el-1">
-            <i class='bx bxs-notepad' style="color: var(--clr-primary); font-size: 1.5rem;"></i>
-        </div>
-        <div class="floating-element el-2">
-            <i class='bx bxs-star' style="color: var(--clr-primary); font-size: 1.5rem;"></i>
-            <span style="font-weight: 600; font-size: 0.875rem;">Premium</span>
-        </div>
-        <div class="container hero-grid">
-            <div class="hero-content">
-                <h1>Organize suas <span>ideias com estilo</span></h1>
-                <p>Descubra nossa coleção exclusiva de cadernos inteligentes, canetas em tons pastéis e organizadores que vão transformar sua rotina criativa.</p>
-                <a href="produtos.html" class="btn btn-primary">
-                    Explorar Coleção <i class='bx bx-right-arrow-alt'></i>
-                </a>
-            </div>
-            <div class="hero-image">
-                <div class="hero-slider" id="hero-slider">
-                    <?php if (empty($sliderProducts)): ?>
-                        <div class="slider-loading"><i class='bx bx-loader-alt bx-spin'></i></div>
-                    <?php else: ?>
-                        <?php foreach($sliderProducts as $index => $p): ?>
-                            <div class="slider-item <?= $index === 0 ? 'active' : '' ?>" data-id="<?= $p['id'] ?>" onclick="window.location.href='detalhes.html?id=<?= $p['id'] ?>'">
-                                <img src="<?= $p['image'] ?>" alt="<?= htmlspecialchars($p['name']) ?>" fetchpriority="<?= $index === 0 ? 'high' : 'low' ?>">
-                                <div class="slider-caption">
-                                    <h3 class="slider-title"><?= htmlspecialchars($p['name']) ?></h3>
-                                    <span class="slider-price"><?= formatCurrency($p['price']) ?></span>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+    <section class="hero" style="padding: 2rem 0 3rem;">
+        <div class="container">
+            <div class="hero-banner-row">
+                <!-- Slider de Banners Administrativos -->
+                <div class="hero-banner-slider-wrap">
+                    <div class="hero-banner-slider" id="hero-banner-slider">
+                        <div class="hero-banner-placeholder" id="hero-banner-placeholder">
+                            <i class='bx bx-image-alt' style="font-size:3rem; color:var(--clr-border);"></i>
+                            <p style="color:var(--clr-text-light);">Nenhum banner configurado</p>
+                        </div>
+                    </div>
+                    <button class="hb-arrow hb-arrow-left" id="hb-prev" aria-label="Anterior"><i class='bx bx-chevron-left'></i></button>
+                    <button class="hb-arrow hb-arrow-right" id="hb-next" aria-label="Próximo"><i class='bx bx-chevron-right'></i></button>
+                    <div class="hb-dots" id="hb-dots"></div>
                 </div>
-                <div class="slider-dots" id="slider-dots">
-                    <?php foreach($sliderProducts as $index => $p): ?>
-                        <span class="dot <?= $index === 0 ? 'active' : '' ?>" data-index="<?= $index ?>"></span>
-                    <?php endforeach; ?>
+                <!-- Slider de Produtos (lado direito) -->
+                <div class="hero-image">
+                    <div class="hero-slider" id="hero-slider">
+                        <?php if (empty($sliderProducts)): ?>
+                            <div class="slider-loading"><i class='bx bx-loader-alt bx-spin'></i></div>
+                        <?php else: ?>
+                            <?php foreach($sliderProducts as $index => $p): ?>
+                                <div class="slider-item <?= $index === 0 ? 'active' : '' ?>" data-id="<?= $p['id'] ?>" onclick="window.location.href='detalhes.html?id=<?= $p['id'] ?>'">
+                                    <img src="<?= $p['image'] ?>" alt="<?= htmlspecialchars($p['name']) ?>" fetchpriority="<?= $index === 0 ? 'high' : 'low' ?>">
+                                    <div class="slider-caption">
+                                        <h3 class="slider-title"><?= htmlspecialchars($p['name']) ?></h3>
+                                        <span class="slider-price"><?= formatCurrency($p['price']) ?></span>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+                    <div class="slider-dots" id="slider-dots">
+                        <?php foreach($sliderProducts as $index => $p): ?>
+                            <span class="dot <?= $index === 0 ? 'active' : '' ?>" data-index="<?= $index ?>"></span>
+                        <?php endforeach; ?>
+                    </div>
+                    <!-- Botão Explorar abaixo do slider de produtos -->
+                    <a href="produtos.html" class="btn btn-primary explore-btn">
+                        Explorar Coleção <i class='bx bx-right-arrow-alt'></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -510,7 +515,7 @@ function generateStars($rating) {
         });
     </script>
     <script src="assets/js/core/db.js?v=29"></script>
-    <script src="assets/js/core/app.js?v=31"></script>
+    <script src="assets/js/core/app.js?v=37"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
@@ -669,6 +674,95 @@ function generateStars($rating) {
                 }
             });
         });
+    </script>
+    <script>
+        // Slider de Produtos
+        (() => {
+            const heroSlider = document.getElementById('hero-slider');
+            const sliderDots = document.getElementById('slider-dots');
+            if (!heroSlider || !sliderDots) return;
+            const items = heroSlider.querySelectorAll('.slider-item');
+            const dots = sliderDots.querySelectorAll('.dot');
+            if (items.length <= 1) return;
+            let current = 0;
+            function showSlide(idx) {
+                items.forEach(i => i.classList.remove('active'));
+                dots.forEach(d => d.classList.remove('active'));
+                items[idx].classList.add('active');
+                dots[idx].classList.add('active');
+                current = idx;
+            }
+            setInterval(() => showSlide((current + 1) % items.length), 5000);
+            dots.forEach(dot => dot.addEventListener('click', () => showSlide(parseInt(dot.dataset.index))));
+        })();
+    </script>
+    <script>
+        (async () => {
+            if (!window.ConfigManager) return;
+            if (window.ConfigManager.init) await window.ConfigManager.init();
+            const bannerSlider = document.getElementById('hero-banner-slider');
+            const bannerDots = document.getElementById('hb-dots');
+            const bannerPrev = document.getElementById('hb-prev');
+            const bannerNext = document.getElementById('hb-next');
+            const bannerPlaceholder = document.getElementById('hero-banner-placeholder');
+            if (!bannerSlider) return;
+
+            let banners = [];
+            try {
+                const raw = window.ConfigManager.get('hero_banners');
+                banners = JSON.parse(raw) || [];
+            } catch(e) {}
+
+            if (banners.length === 0) return;
+
+
+            if (bannerPlaceholder) bannerPlaceholder.remove();
+            bannerSlider.innerHTML = banners.map((b, i) => {
+                const tag = b.link ? 'a' : 'div';
+                const href = b.link ? ' href="' + b.link + '"' : '';
+                return '<' + tag + href + ' class="hb-slide' + (i === 0 ? ' active' : '') + '">' +
+                    '<img src="' + b.url + '" alt="Banner ' + (i+1) + '">' +
+                    '</' + tag + '>';
+            }).join('');
+
+            if (bannerDots) {
+                bannerDots.innerHTML = banners.map((_, i) =>
+                    '<span class="hb-dot' + (i === 0 ? ' active' : '') + '" data-index="' + i + '"></span>'
+                ).join('');
+            }
+
+            const slides = bannerSlider.querySelectorAll('.hb-slide');
+            const dots = bannerDots ? bannerDots.querySelectorAll('.hb-dot') : [];
+            let current = 0;
+
+            function showBanner(idx) {
+                slides.forEach(s => s.classList.remove('active'));
+                dots.forEach(d => d.classList.remove('active'));
+                slides[idx].classList.add('active');
+                if (dots[idx]) dots[idx].classList.add('active');
+                current = idx;
+            }
+
+            let bannerInterval = setInterval(() => {
+                showBanner((current + 1) % slides.length);
+            }, 5000);
+
+            if (bannerPrev) bannerPrev.addEventListener('click', () => {
+                showBanner((current - 1 + slides.length) % slides.length);
+                clearInterval(bannerInterval);
+                bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+            });
+            if (bannerNext) bannerNext.addEventListener('click', () => {
+                showBanner((current + 1) % slides.length);
+                clearInterval(bannerInterval);
+                bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+            });
+            dots.forEach(dot => dot.addEventListener('click', () => {
+                showBanner(parseInt(dot.dataset.index));
+                clearInterval(bannerInterval);
+                bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+            }));
+        })();
     </script>
     <?php require_once 'api/security.php'; if(isAdmin()): ?>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>

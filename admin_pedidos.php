@@ -13,7 +13,7 @@ if (!isAdmin()) {
     <title>Pedidos | Painel Admin</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'light';
+            var theme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -21,7 +21,7 @@ if (!isAdmin()) {
     <link rel="stylesheet" href="assets/css/style.css?v=29">
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
+            const savedTheme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>

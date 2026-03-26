@@ -27,10 +27,50 @@ try {
             $data = json_decode($raw_data, true);
             if (!$data) throw new Exception("Dados inválidos");
             foreach ($data as $key => $value) {
+                if ($key === 'hero_banners') {
+                    $stmt = $pdo->prepare("SELECT config_value FROM configs WHERE config_key = 'hero_banners'");
+                    $stmt->execute();
+                    $oldRow = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if ($oldRow && $oldRow['config_value']) {
+                        $oldBanners = json_decode($oldRow['config_value'], true) ?: [];
+                        $newBanners = json_decode($value, true) ?: [];
+                        $newUrls = array_column($newBanners, 'url');
+                        foreach ($oldBanners as $old) {
+                            if (!empty($old['url']) && !in_array($old['url'], $newUrls) && strpos($old['url'], 'uploads/') === 0) {
+                                $imgPath = __DIR__ . '/../' . $old['url'];
+                                if (is_file($imgPath)) unlink($imgPath);
+                            }
+                        }
+                    }
+                }
                 $stmt = $pdo->prepare("INSERT INTO configs (config_key, config_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE config_value = ?");
                 $stmt->execute([$key, $value, $value]);
             }
             echo json_encode(["status" => "success"]);
+            break;
+        case 'upload-banner':
+            requireAdmin();
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception("Método não permitido");
+            if (!isset($_FILES['banner']) || $_FILES['banner']['error'] !== UPLOAD_ERR_OK) {
+                throw new Exception("Erro no upload do arquivo");
+            }
+            $file = $_FILES['banner'];
+            $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($file['type'], $allowed)) {
+                throw new Exception("Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WEBP.");
+            }
+            if ($file['size'] > 20 * 1024 * 1024) {
+                throw new Exception("Arquivo muito grande. Máximo 20MB.");
+            }
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'banner_' . uniqid() . '_' . time() . '.' . $ext;
+            $uploadDir = __DIR__ . '/../uploads/banners/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            $dest = $uploadDir . $filename;
+            if (!move_uploaded_file($file['tmp_name'], $dest)) {
+                throw new Exception("Falha ao salvar o arquivo.");
+            }
+            echo json_encode(["status" => "success", "url" => "uploads/banners/" . $filename]);
             break;
     }
 } catch (Exception $e) {

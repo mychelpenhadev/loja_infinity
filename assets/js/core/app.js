@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('cartUpdated', updateCartBadge);
 });
 function initTheme() {
-  document.documentElement.setAttribute('data-theme', 'dark');
+  const theme = localStorage.getItem('papelaria_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
 }
 function initNotifications() {
   console.log("initNotifications called");
@@ -456,6 +457,15 @@ window.generateStars = (rating) => {
   return html;
 };
 window.handleAddToCart = async (productId, quantity = 1, color = null) => {
+  console.log("handleAddToCart called, authChecked:", window.authChecked, "isLoggedIn:", window.isLoggedIn);
+  if (!window.authChecked) {
+      await new Promise(resolve => {
+          const check = setInterval(() => {
+              if (window.authChecked) { clearInterval(check); resolve(); }
+          }, 50);
+      });
+  }
+  console.log("After waiting, authChecked:", window.authChecked, "isLoggedIn:", window.isLoggedIn);
   if (!window.isLoggedIn) {
       window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
       setTimeout(() => {
@@ -468,40 +478,21 @@ window.handleAddToCart = async (productId, quantity = 1, color = null) => {
       const product = await window.ProductManager.getById(productId);
       if (product) {
           const cat = (product.category || '').toLowerCase();
-          if (window.COLOR_CATEGORIES.includes(cat)) {
-
+          const colorCats = window.COLOR_CATEGORIES || [];
+          if (colorCats.includes(cat)) {
               window.location.href = `detalhes.html?id=${productId}`;
               return;
           }
       }
   }
   window.CartManager.add(productId, quantity, color);
-  window.showToast('Produto adicionado ao carrinho!');
+  const product = await window.ProductManager.getById(productId);
+  const colorInfo = color ? ` (${color})` : '';
+  window.showToast(`${Number(quantity)}x ${product ? product.name : 'Produto'}${colorInfo} adicionado ao carrinho!`);
 };
 window.handleBuyNow = async (productId, quantity = 1, color = null) => {
-  if (!window.isLoggedIn) {
-      window.showToast('Faça login para comprar!', 'error');
-      setTimeout(() => {
-          window.location.href = 'login.html';
-      }, 1500);
-      return;
-  }
-
-  if (!color) {
-      const product = await window.ProductManager.getById(productId);
-      if (product) {
-          const cat = (product.category || '').toLowerCase();
-          if (window.COLOR_CATEGORIES.includes(cat)) {
-              window.location.href = `detalhes.html?id=${productId}`;
-              return;
-          }
-      }
-  }
-  window.CartManager.add(productId, quantity, color);
-  window.location.href = 'carrinho.html';
-};
-window.handleWhatsApp = () => {
-    const num = window.ConfigManager.get('whatsappNumber') || '5599999999999';
-    const msg = encodeURIComponent("Olá! Gostaria de tirar uma dúvida.");
-    window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+    await window.handleAddToCart(productId, quantity, color);
+    if (window.isLoggedIn) {
+        window.location.href = 'carrinho.html';
+    }
 };

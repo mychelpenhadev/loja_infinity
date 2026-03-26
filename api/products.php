@@ -4,6 +4,19 @@ header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'security.php';
 ob_clean();
+
+function clearProductCache() {
+    $cacheDir = __DIR__ . "/cache";
+    if (is_dir($cacheDir)) {
+        $files = glob($cacheDir . "/list_*.json");
+        foreach ($files as $f) {
+            if (is_file($f)) unlink($f);
+        }
+        $homeCache = $cacheDir . "/home_data.json";
+        if (is_file($homeCache)) unlink($homeCache);
+    }
+}
+
 $action = $_GET['action'] ?? 'list';
 try {
     switch ($action) {
@@ -74,6 +87,13 @@ try {
             if ($id && is_numeric($id)) {
 
                 if (strpos($image, 'data:image/') === 0) {
+                    $stmt = $pdo->prepare("SELECT image FROM products WHERE id = ?");
+                    $stmt->execute([$id]);
+                    $oldProduct = $stmt->fetch(PDO::FETCH_ASSOC);
+                    if ($oldProduct && !empty($oldProduct['image']) && strpos($oldProduct['image'], 'uploads/') === 0) {
+                        $oldImg = __DIR__ . '/../' . $oldProduct['image'];
+                        if (is_file($oldImg)) unlink($oldImg);
+                    }
                     list($type, $imgData) = explode(';', $image);
                     list(, $imgData) = explode(',', $imgData);
                     $imgData = base64_decode($imgData);
@@ -108,14 +128,23 @@ try {
                     }
                 }
             }
+            clearProductCache();
             echo json_encode(["status" => "success", "id" => $id]);
             break;
         case 'delete':
             requireAdmin();
             $id = $_GET['id'] ?? null;
             if (!$id) throw new Exception("ID não fornecido");
+            $stmt = $pdo->prepare("SELECT image FROM products WHERE id = ?");
+            $stmt->execute([$id]);
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($product && !empty($product['image']) && strpos($product['image'], 'uploads/') === 0) {
+                $imgPath = __DIR__ . '/../' . $product['image'];
+                if (is_file($imgPath)) unlink($imgPath);
+            }
             $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
             $stmt->execute([$id]);
+            clearProductCache();
             echo json_encode(["status" => "success"]);
             break;
         case 'get':

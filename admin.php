@@ -13,7 +13,7 @@ if (!isAdmin()) {
     <title>Painel Admin | Infinity Variedades</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'light';
+            var theme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -21,7 +21,7 @@ if (!isAdmin()) {
     <link rel="stylesheet" href="assets/css/style.css?v=29">
     <script>
         (function() {
-            const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
+            const savedTheme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
         })();
     </script>
@@ -348,7 +348,7 @@ if (!isAdmin()) {
             </form>
         </div>
     </div>
-    <script src="assets/js/core/db.js?v=29"></script>
+    <script src="assets/js/core/db.js?v=30"></script>
     <script src="assets/js/core/app.js?v=29"></script>
     <script src="assets/js/pages/admin.js?v=4"></script>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>

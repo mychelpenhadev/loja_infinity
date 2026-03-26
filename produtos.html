@@ -6,7 +6,7 @@
     <title>Produtos | Infinity Variedades</title>
     <script>
         (function() {
-            var theme = localStorage.getItem('papelaria_theme') || 'light';
+            var theme = localStorage.getItem('papelaria_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -87,14 +87,14 @@
             </a>
             <nav class="nav-links">
             </nav>
+            <div class="header-search-container">
+                <form action="produtos.html" method="GET" class="header-search-form" id="header-search-form">
+                    <i class='bx bx-search'></i>
+                    <input type="text" name="q" id="header-search-input" placeholder="Buscar produtos..." autocomplete="off">
+                </form>
+                <div class="search-suggestions" id="header-search-suggestions"></div>
+            </div>
             <div class="nav-actions">
-                <div class="header-search-container">
-                    <form action="produtos.html" method="GET" class="header-search-form" id="header-search-form">
-                        <i class='bx bx-search'></i>
-                        <input type="text" name="q" id="header-search-input" placeholder="Buscar produtos..." autocomplete="off">
-                    </form>
-                    <div class="search-suggestions" id="header-search-suggestions"></div>
-                </div>
                 <a href="login.html" class="action-btn" title="Minha Conta">
                     <i class='bx bx-user'></i>
                 </a>
@@ -256,7 +256,7 @@
         </div>
     </footer>
     <script src="assets/js/core/db.js?v=29"></script>
-    <script src="assets/js/core/app.js?v=31"></script>
+    <script src="assets/js/core/app.js?v=37"></script>
     <script src="assets/js/pages/produtos.js?v=5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

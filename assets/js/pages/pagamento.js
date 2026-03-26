@@ -18,11 +18,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         setupCheckoutForm();
     };
     checkAuthStatus();
-    renderCheckoutSummary();
-    setupCheckoutForm();
     const supportWaBtn = document.getElementById('support-wa-btn');
     if (supportWaBtn) {
-        let waNum = window.ConfigManager.get('whatsappNumber') || '+5598985269184';
+        let waNum = (window.ConfigManager && window.ConfigManager.get('whatsappNumber')) || '+5598985269184';
         waNum = waNum.replace(/\D/g, '');
         if (waNum && !waNum.startsWith('55') && waNum.length <= 11) {
             waNum = '55' + waNum;
@@ -71,15 +69,20 @@ function setupCheckoutForm() {
     if (!form) return;
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        console.log("Form submitted!");
         const btn = document.getElementById('confirm-btn');
         if (btn) {
             btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Processando...";
             btn.style.opacity = '0.7';
             btn.disabled = true;
         }
+        try {
         const cartItems = window.CartManager.getCart();
+        console.log("Cart items:", cartItems);
         const productIds = [...new Set(cartItems.map(item => item.productId))];
+        console.log("Product IDs:", productIds);
         const allProducts = await window.ProductManager.getBatch(productIds);
+        console.log("All products:", allProducts);
         let subtotal = 0;
         let fullItemsData = [];
         cartItems.forEach(item => {
@@ -98,11 +101,12 @@ function setupCheckoutForm() {
             }
         });
 
-        let whatsappNumber = window.ConfigManager.get('whatsappNumber') || '+5598985269184';
+        let whatsappNumber = (window.ConfigManager && window.ConfigManager.get('whatsappNumber')) || '+5598985269184';
         whatsappNumber = whatsappNumber.replace(/\D/g, '');
         if (whatsappNumber && !whatsappNumber.startsWith('55') && whatsappNumber.length <= 11) {
             whatsappNumber = '55' + whatsappNumber;
         }
+        console.log("WhatsApp Number:", whatsappNumber);
 
         let message = `*Novo Pedido - Infinity Variedades*\n\n`;
         message += `*Cliente:* ${window.userName || 'Visitante'}\n\n`;
@@ -113,14 +117,19 @@ function setupCheckoutForm() {
         });
         message += `\n*Total da Compra:* ${window.formatCurrency(subtotal)}`;
         const encodedMessage = encodeURIComponent(message);
+        console.log("Order Data:", { user_id: window.userId, user_name: window.userName, items: fullItemsData, total: subtotal });
 
-        await window.OrderManager.add({
-            user_id: window.userId,
-            user_name: window.userName || "Cliente Padrão",
-            items: fullItemsData,
-            total: subtotal,
-            method: 'WhatsApp'
-        });
+        try {
+            await window.OrderManager.add({
+                user_id: window.userId,
+                user_name: window.userName || "Cliente Padrão",
+                items: fullItemsData,
+                total: subtotal,
+                method: 'WhatsApp'
+            });
+        } catch (err) {
+            console.error("Erro ao registrar pedido:", err);
+        }
         window.CartManager.clear();
         const container = document.getElementById('checkout-container');
         if (container) {
@@ -145,5 +154,15 @@ function setupCheckoutForm() {
         setTimeout(() => {
             window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
         }, 1500);
+        } catch (err) {
+            console.error("Erro ao processar pedido:", err);
+            const btn = document.getElementById('confirm-btn');
+            if (btn) {
+                btn.innerHTML = "Confirmar Compra <i class='bx bxl-whatsapp'></i>";
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+            window.showToast("Erro: " + (err.message || "Erro desconhecido"), "error");
+        }
     });
 }
