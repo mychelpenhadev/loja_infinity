@@ -16,8 +16,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 @ob_end_clean();
 
 try {
+    $tmpDir = __DIR__ . '/../temp_backup';
+    if (!is_dir($tmpDir)) {
+        mkdir($tmpDir, 0755, true);
+    }
+    $tmpZip = $tmpDir . '/backup_' . uniqid() . '.zip';
+    
     $zip = new ZipArchive();
-    $tmpZip = tempnam(sys_get_temp_dir(), 'backup_') . '.zip';
 
     if ($zip->open($tmpZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
         throw new Exception("Não foi possível criar o arquivo ZIP");
@@ -115,4 +120,10 @@ try {
     header('Content-Type: application/json');
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     if (isset($tmpZip) && file_exists($tmpZip)) unlink($tmpZip);
+    if (isset($tmpDir) && is_dir($tmpDir)) {
+        $files = glob($tmpDir . '/*');
+        foreach ($files as $file) {
+            if (is_file($file)) unlink($file);
+        }
+    }
 }

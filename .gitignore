@@ -1,4 +1,5 @@
 api/cache/*.json
+temp_backup/
 .env
 node_modules/
 vendor/

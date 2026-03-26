@@ -14,11 +14,20 @@ if (file_exists($envPath)) {
     }
 }
 
-$host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: '127.0.0.1');
-$user = getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: 'root');
-$pass = getenv('DB_PASS') ?: (getenv('MYSQLPASSWORD') ?: '');
-$dbname = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: 'papelaria_db');
-$port = getenv('MYSQLPORT') ?: (getenv('DB_PORT') ?: '3306');
+if (getenv('MYSQL_CONN_URL')) {
+    $connUrl = parse_url(getenv('MYSQL_CONN_URL'));
+    $host = $connUrl['host'] ?? $host;
+    $user = $connUrl['user'] ?? $user;
+    $pass = $connUrl['pass'] ?? $pass;
+    $dbname = ltrim($connUrl['path'], '/') ?? $dbname;
+    $port = $connUrl['port'] ?? '3306';
+} else {
+    $host = getenv('DB_HOST') ?: (getenv('MYSQLHOST') ?: $host);
+    $user = getenv('DB_USER') ?: (getenv('MYSQLUSER') ?: $user);
+    $pass = getenv('DB_PASS') ?: (getenv('MYSQLPASSWORD') ?: $pass);
+    $dbname = getenv('DB_NAME') ?: (getenv('MYSQLDATABASE') ?: $dbname);
+    $port = getenv('MYSQLPORT') ?: (getenv('DB_PORT') ?: '3306');
+}
 
 if ($host === 'localhost') {
     $host = '127.0.0.1';
