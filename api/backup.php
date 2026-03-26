@@ -1,4 +1,5 @@
 <?php
+ob_start();
 require_once 'security.php';
 require_once 'db.php';
 
@@ -7,11 +8,12 @@ requireAdmin();
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     header('Content-Type: application/json');
+    ob_end_clean();
     echo json_encode(["status" => "error", "message" => "Método não permitido"]);
     exit;
 }
 
-while (ob_get_level()) ob_end_clean();
+@ob_end_clean();
 
 try {
     $zip = new ZipArchive();
@@ -108,7 +110,7 @@ try {
     exit;
 
 } catch (Exception $e) {
-    while (ob_get_level()) ob_end_clean();
+    @ob_end_clean();
     http_response_code(500);
     header('Content-Type: application/json');
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
