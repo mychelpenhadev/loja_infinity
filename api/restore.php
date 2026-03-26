@@ -72,8 +72,12 @@ try {
 
     $sqlContent = preg_replace('/^--.*$/m', '', $sqlContent);
     $sqlContent = preg_replace('/^SET\s+.*;$/mi', '', $sqlContent);
-
-    $statements = explode(";", $sqlContent);
+    
+    // Normalize newlines to ensure consistent splitting
+    $sqlContent = str_replace("\r\n", "\n", $sqlContent);
+    
+    // Explode by semicolon followed by newline, avoiding splitting data inside strings (e.g. data:image/png;base64)
+    $statements = explode(";\n", $sqlContent);
     $errors = [];
 
     foreach ($statements as $stmt) {
