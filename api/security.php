@@ -1,7 +1,9 @@
 <?php
-require_once 'db.php';
-require_once 'session_db.php';
 if (session_status() === PHP_SESSION_NONE) {
+    require_once 'db.php';
+    require_once 'session_db.php';
+    $handler = new DatabaseSessionHandler($pdo);
+    session_set_save_handler($handler, true);
     session_start();
 }
 function isAdmin() {

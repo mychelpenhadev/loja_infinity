@@ -1,9 +1,20 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 ob_start();
 require_once 'security.php';
 require_once 'db.php';
 
 requireAdmin();
+
+if (!isset($pdo) || !$pdo) {
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(["status" => "error", "message" => "Banco de dados não conectado"]);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

@@ -13,7 +13,6 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
                 INDEX idx_last_access (last_access)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         } catch (Exception $e) {
-
         }
     }
     public function open($savePath, $sessionName) {
@@ -50,12 +49,4 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
         } catch (Exception $e) { return 0; }
     }
 }
-
-$session_lifetime = 30 * 24 * 60 * 60;
-ini_set('session.gc_maxlifetime', $session_lifetime);
-ini_set('session.cookie_lifetime', $session_lifetime);
-
-require_once 'db.php';
-$handler = new DatabaseSessionHandler($pdo);
-session_set_save_handler($handler, true);
 ?>
