@@ -55,8 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             if(profileView) {
                             profileView.style.display = 'block';
                             document.getElementById('prof-nome').value = data.name;
-                            if(document.getElementById('prof-cpf') && data.cpf) document.getElementById('prof-cpf').value = data.cpf;
-                            if(document.getElementById('prof-telefone') && data.telefone) document.getElementById('prof-telefone').value = data.telefone;
+                            if(document.getElementById('sec-email')) document.getElementById('sec-email').value = data.email || '';
+                            if(document.getElementById('sec-cpf') && data.cpf) document.getElementById('sec-cpf').value = data.cpf;
+                            if(document.getElementById('sec-telefone') && data.telefone) document.getElementById('sec-telefone').value = data.telefone;
                             const welcomeName = document.getElementById('prof-welcome-name');
                             if(welcomeName) welcomeName.innerText = data.name;
                             const picPreview = document.getElementById('prof-pic-preview');
@@ -70,6 +71,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             loadUserOrders(data.id);
                             loadMiniPromos();
                             setupWhatsAppSupport();
+                            
+                            const toggleSecurityBtn = document.getElementById('btn-toggle-security');
+                            const securityContent = document.getElementById('security-content');
+                            const securityChevron = document.getElementById('security-chevron');
+                            if(toggleSecurityBtn && securityContent) {
+                                toggleSecurityBtn.addEventListener('click', function() {
+                                    if(securityContent.style.display === 'none') {
+                                        securityContent.style.display = 'block';
+                                        if(securityChevron) securityChevron.classList.add('rotate');
+                                    } else {
+                                        securityContent.style.display = 'none';
+                                        if(securityChevron) securityChevron.classList.remove('rotate');
+                                    }
+                                });
+                            }
                         }
                     } else {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -246,25 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 profileForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const name = document.getElementById('prof-nome').value.trim();
-                    const cpf = document.getElementById('prof-cpf').value.trim();
-                    const telefone = document.getElementById('prof-telefone').value.trim();
-                    const passVal = document.getElementById('prof-senha').value;
-                    if(passVal) {
-                        const passRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-                        if(!passRegex.test(passVal)) {
-                            window.showToast("A senha nova deve ter no mínimo 8 caracteres, 1 maiúscula, 1 número e 1 especial.", "error");
-                            return;
-                        }
-                    }
                     const btn = e.target.querySelector('button[type="submit"]');
                     const originalText = btn.innerHTML;
                     btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Salvando...";
                     btn.disabled = true;
                     const fd = new FormData();
                     fd.append('name', name);
-                    fd.append('cpf', cpf);
-                    fd.append('telefone', telefone);
-                    fd.append('password', passVal);
                     if(window.pendingProfilePic) {
                         fd.append('profile_picture', window.pendingProfilePic);
                     }
@@ -281,11 +284,62 @@ document.addEventListener('DOMContentLoaded', () => {
                             window.showToast(json.message, 'error');
                         }
                     } catch(err) {
-                        window.showToast("Erro de rede ao salvar perfil.", 'error');
-                    } finally {
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
+                        window.showToast("Erro ao salvar.", 'error');
                     }
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            }
+            const securityForm = document.getElementById('security-form');
+            if(securityForm) {
+                securityForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('sec-email').value.trim();
+                    const cpf = document.getElementById('sec-cpf').value.trim();
+                    const telefone = document.getElementById('sec-telefone').value.trim();
+                    const currentPassword = document.getElementById('sec-senha-atual').value;
+                    const newPassword = document.getElementById('sec-nova-senha').value;
+                    const confirmPassword = document.getElementById('sec-repetir-senha').value;
+                    const btn = e.target.querySelector('button[type="submit"]');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Alterando...";
+                    btn.disabled = true;
+                    
+                    if (currentPassword || newPassword || confirmPassword) {
+                        if (!currentPassword || !newPassword || !confirmPassword) {
+                            window.showToast("Para alterar a senha, preencha todos os campos de senha.", 'error');
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                            return;
+                        }
+                    }
+                    
+                    if (email || cpf || telefone) {
+                        const fd = new FormData();
+                        fd.append('email', email);
+                        fd.append('cpf', cpf);
+                        fd.append('telefone', telefone);
+                        if(currentPassword) fd.append('current_password', currentPassword);
+                        if(newPassword) fd.append('new_password', newPassword);
+                        if(confirmPassword) fd.append('confirm_password', confirmPassword);
+                        
+                        try {
+                            const res = await fetch('api/auth.php?action=update_security', { method: 'POST', body: fd });
+                            const json = await res.json();
+                            if (json.status === 'success') {
+                                window.showToast(json.message, 'success');
+                                securityForm.reset();
+                            } else {
+                                window.showToast(json.message, 'error');
+                            }
+                        } catch(err) {
+                            window.showToast("Erro ao atualizar.", 'error');
+                        }
+                    } else {
+                        window.showToast("Preenha pelo menos um campo para atualizar.", 'error');
+                    }
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                 });
             }
             const btnLogout = document.getElementById('btn-logout');

@@ -9,7 +9,7 @@ if (!$data) {
     try {
         require_once 'api/db.php';
 
-        $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 12");
+        $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 100");
         $featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $stmt = $pdo->query("SELECT * FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
@@ -172,8 +172,8 @@ function generateStars($rating) {
                 <?php if (empty($featuredProducts)): ?>
                     <p>Nenhum produto em destaque encontrado.</p>
                 <?php else: ?>
-                    <?php foreach(array_slice($featuredProducts, 0, 12) as $product): ?>
-                        <div class="product-card" id="prod-<?= $product['id'] ?>">
+                    <?php foreach($featuredProducts as $index => $product): ?>
+                        <div class="product-card <?= $index >= 12 ? 'hidden-product' : '' ?>" id="prod-<?= $product['id'] ?>" data-index="<?= $index ?>">
                             <?php if ($product['rating'] >= 4.8): ?>
                                 <span class="product-badge">Novidade</span>
                             <?php endif; ?>
@@ -208,9 +208,13 @@ function generateStars($rating) {
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
-            <div style="text-align: center; margin-top: 1rem;">
-                <a href="produtos.html" style="font-size: 0.75rem; color: var(--clr-text-light); text-decoration: none;">Ver mais produtos</a>
+            <?php if (count($featuredProducts) > 12): ?>
+            <div style="text-align: center; margin-top: 0.5rem;">
+                <button id="load-more-btn" style="background: transparent; color: var(--clr-text-light); padding: 0.3rem 0.8rem; border: 1px solid var(--clr-border); border-radius: var(--radius-full); font-size: 0.65rem; cursor: pointer;">
+                    Ver mais produtos
+                </button>
             </div>
+            <?php endif; ?>
         </div>
     </section>
     <section class="section" style="background-color: var(--clr-surface); border-top: 1px solid var(--clr-border);">
@@ -427,6 +431,7 @@ function generateStars($rating) {
             box-shadow: var(--shadow-md);
         }
         .category-tab i { font-size: 1.25rem; }
+        .hidden-product { display: none; }
         .header-search-form {
             display: flex;
             align-items: center;
@@ -492,6 +497,30 @@ function generateStars($rating) {
     <script src="assets/js/core/db.js?v=29"></script>
     <script src="assets/js/core/app.js?v=29"></script>
     <script src="assets/js/pages/index.js?v=13"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            if (loadMoreBtn) {
+                let visibleCount = 12;
+                const increment = 12;
+                loadMoreBtn.addEventListener('click', function() {
+                    const hiddenProducts = document.querySelectorAll('.hidden-product');
+                    let shown = 0;
+                    hiddenProducts.forEach(function(product) {
+                        if (shown < increment && product.classList.contains('hidden-product')) {
+                            product.classList.remove('hidden-product');
+                            shown++;
+                        }
+                    });
+                    visibleCount += shown;
+                    const remaining = document.querySelectorAll('.hidden-product').length;
+                    if (remaining === 0) {
+                        loadMoreBtn.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
     <?php require_once 'api/security.php'; if(isAdmin()): ?>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>
     <?php endif; ?>

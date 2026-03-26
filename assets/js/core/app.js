@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   updateCartBadge();
   injectSearchOverlay();
-  injectChatbot();
   injectMobileNav();
   checkAuth();
   

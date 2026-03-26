@@ -184,6 +184,12 @@
         .password-toggle:hover {
             color: var(--clr-secondary);
         }
+        #security-chevron {
+            transition: transform 0.3s ease;
+        }
+        #security-chevron.rotate {
+            transform: rotate(180deg);
+        }
         .profile-layout {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -266,11 +272,6 @@
                 <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 90px; object-fit: contain;">
             </a>
             <nav class="nav-links">
-                <a href="index.php" class="nav-link">Home</a>
-                <a href="produtos.html?cat=promocoes" class="nav-link">Promoções</a>
-                <a href="produtos.html?cat=novidades" class="nav-link">Novidades</a>
-                <a href="produtos.html?cat=criancas" class="nav-link">Crianças</a>
-                <a href="produtos.html" class="nav-link">Todos os Produtos</a>
             </nav>
             <div class="nav-actions">
                 <button class="action-btn" id="search-toggle" title="Pesquisar">
@@ -382,8 +383,8 @@
                 </div>
             </div>
             <div id="profile-view" style="display: none; padding-top: 1rem;">
-                <h1 class="auth-title" style="text-align: left;">Meu Perfil</h1>
-                <p class="auth-subtitle" style="text-align: left; margin-bottom: 0;">Bem-vindo(a), <strong id="prof-welcome-name"></strong></p>
+                <h1 class="auth-title" style="text-align: center;">Meu Perfil</h1>
+                <p class="auth-subtitle" style="text-align: center; margin-bottom: 0;">Bem-vindo(a), <strong id="prof-welcome-name"></strong></p>
                 <div class="profile-layout">
 
                     <div class="profile-sidebar">
@@ -409,25 +410,55 @@
                                     <label for="prof-nome" style="font-size: 0.85rem;">Nome Completo</label>
                                     <input type="text" id="prof-nome" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" required>
                                 </div>
-                                <div class="form-group">
-                                    <label for="prof-cpf" style="font-size: 0.85rem;">CPF</label>
-                                    <input type="text" id="prof-cpf" class="form-control" placeholder="000.000.000-00" style="padding: 0.5rem; font-size: 0.9rem;">
-                                </div>
-                                <div class="form-group">
-                                    <label for="prof-telefone" style="font-size: 0.85rem;">Telefone / WhatsApp</label>
-                                    <input type="text" id="prof-telefone" class="form-control" placeholder="(00) 00000-0000" style="padding: 0.5rem; font-size: 0.9rem;">
-                                </div>
-                                <div class="form-group">
-                                    <label for="prof-senha" style="font-size: 0.85rem;">Nova Senha</label>
-                                    <div class="password-container">
-                                        <input type="password" id="prof-senha" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Mín 8 caract. Opcional.">
-                                        <i class='bx bx-show password-toggle' onclick="togglePassword('prof-senha', this)"></i>
-                                    </div>
-                                </div>
                                 <button type="submit" class="btn btn-primary btn-full" style="height: 38px; font-size: 0.9rem;">
                                     Salvar <i class='bx bx-save'></i>
                                 </button>
                             </form>
+                        </div>
+                        <div class="profile-box">
+                            <button id="btn-toggle-security" style="height: 38px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, var(--clr-accent), var(--clr-secondary)); color: white; border: none; border-radius: var(--radius-full); width: 100%;">
+                                Privacidade e Segurança
+                            </button>
+                            <div id="security-content" style="display: none; margin-top: 1rem;">
+                            <form class="auth-form" id="security-form" style="gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="sec-email" style="font-size: 0.85rem;">Gmail / E-mail</label>
+                                    <input type="email" id="sec-email" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Seu e-mail">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sec-cpf" style="font-size: 0.85rem;">CPF</label>
+                                    <input type="text" id="sec-cpf" class="form-control" placeholder="000.000.000-00" style="padding: 0.5rem; font-size: 0.9rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sec-telefone" style="font-size: 0.85rem;">Telefone / WhatsApp</label>
+                                    <input type="text" id="sec-telefone" class="form-control" placeholder="(00) 00000-0000" style="padding: 0.5rem; font-size: 0.9rem;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="sec-senha-atual" style="font-size: 0.85rem;">Senha Atual</label>
+                                    <div class="password-container">
+                                        <input type="password" id="sec-senha-atual" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Digite sua senha atual">
+                                        <i class='bx bx-show password-toggle' onclick="togglePassword('sec-senha-atual', this)"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sec-nova-senha" style="font-size: 0.85rem;">Nova Senha</label>
+                                    <div class="password-container">
+                                        <input type="password" id="sec-nova-senha" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Mínimo 8 caracteres">
+                                        <i class='bx bx-show password-toggle' onclick="togglePassword('sec-nova-senha', this)"></i>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sec-repetir-senha" style="font-size: 0.85rem;">Repetir Senha</label>
+                                    <div class="password-container">
+                                        <input type="password" id="sec-repetir-senha" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Confirme a nova senha">
+                                        <i class='bx bx-show password-toggle' onclick="togglePassword('sec-repetir-senha', this)"></i>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-full" style="height: 38px; font-size: 0.9rem;">
+                                    Alterar <i class='bx bx-lock-alt'></i>
+                                </button>
+                            </form>
+                            </div>
                         </div>
                         <div class="profile-box">
                             <h3 class="profile-box-title"><i class='bx bx-headphone'></i> Precisa de Ajuda?</h3>

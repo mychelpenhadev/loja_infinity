@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
             }
-            $hash = password_hash($password, PASSWORD_DEFAULT);
+                $hash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = $pdo->prepare("INSERT INTO users (name, cpf, telefone, email, password, role, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?)");
             if ($stmt->execute([$name, $cpf, $telefone, $email, $hash, $role, 1])) {
                 $_SESSION['user_id'] = $pdo->lastInsertId();
@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_role'] = $role;
                 $_SESSION['user_telefone'] = $telefone;
                 $_SESSION['user_cpf'] = $cpf;
+                $_SESSION['user_email'] = $email;
                 echo json_encode(["status" => "success", "message" => "Conta criada com sucesso."]);
             }
             else {
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['profile_picture'] = $user['profile_picture'];
                 $_SESSION['user_telefone'] = $user['telefone'];
                 $_SESSION['user_cpf'] = $user['cpf'];
+                $_SESSION['user_email'] = $user['email'];
                 echo json_encode(["status" => "success", "message" => "Login efetuado com sucesso.", "role" => $user['role'], "id" => $user['id'], "profile_picture" => $user['profile_picture']]);
             }
             else {
@@ -167,7 +169,8 @@ if ($action === 'check') {
             "role" => $_SESSION['user_role'],
             "profile_picture" => $_SESSION['profile_picture'] ?? null,
             "telefone" => $_SESSION['user_telefone'] ?? null,
-            "cpf" => $_SESSION['user_cpf'] ?? null
+            "cpf" => $_SESSION['user_cpf'] ?? null,
+            "email" => $_SESSION['user_email'] ?? null
         ]);
     }
     else {
@@ -186,7 +189,7 @@ if ($action === 'update_profile') {
         exit;
     }
     $newName = $_POST['name'] ?? '';
-    $newPassword = $_POST['password'] ?? '';
+    $newEmail = $_POST['email'] ?? '';
     $newPicture = $_POST['profile_picture'] ?? '';
     $newTelefone = $_POST['telefone'] ?? '';
     $newCpf = $_POST['cpf'] ?? '';
@@ -195,12 +198,18 @@ if ($action === 'update_profile') {
         echo json_encode(["status" => "error", "message" => "Nome não pode estar vazio."]);
         exit;
     }
-    $query = "UPDATE users SET name = ?, telefone = ?, cpf = ?";
-    $params = [$newName, $newTelefone, $newCpf];
-    if (!empty($newPassword)) {
-        $query .= ", password = ?";
-        $params[] = password_hash($newPassword, PASSWORD_DEFAULT);
+    if (empty($newEmail)) {
+        echo json_encode(["status" => "error", "message" => "E-mail não pode estar vazio."]);
+        exit;
     }
+    $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+    $stmtCheck->execute([$newEmail, $userId]);
+    if ($stmtCheck->fetch()) {
+        echo json_encode(["status" => "error", "message" => "Este e-mail já está em uso por outra conta."]);
+        exit;
+    }
+    $query = "UPDATE users SET name = ?, email = ?, telefone = ?, cpf = ?";
+    $params = [$newName, $newEmail, $newTelefone, $newCpf];
     if (!empty($newPicture) && strpos($newPicture, 'data:image/') === 0) {
 
         list($type, $data) = explode(';', $newPicture);
@@ -248,6 +257,135 @@ if ($action === 'update_profile') {
     } catch(PDOException $e) {
         @ob_clean();
         echo json_encode(["status" => "error", "message" => "Erro DB: " . $e->getMessage()]);
+    }
+    exit;
+}
+if ($action === 'change_password') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(["status" => "error", "message" => "Não autorizado."]);
+        exit;
+    }
+    $currentPassword = $_POST['current_password'] ?? '';
+    $newPassword = $_POST['new_password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+    $userId = $_SESSION['user_id'];
+    if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+        echo json_encode(["status" => "error", "message" => "Preencha todos os campos."]);
+        exit;
+    }
+    if ($newPassword !== $confirmPassword) {
+        echo json_encode(["status" => "error", "message" => "As senhas não conferem."]);
+        exit;
+    }
+    if (strlen($newPassword) < 8) {
+        echo json_encode(["status" => "error", "message" => "A senha deve ter pelo menos 8 caracteres."]);
+        exit;
+    }
+    try {
+        $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$user || !password_verify($currentPassword, $user['password'])) {
+            echo json_encode(["status" => "error", "message" => "Senha atual incorreta."]);
+            exit;
+        }
+        $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+        $stmt->execute([$newHash, $userId]);
+        @ob_clean();
+        echo json_encode(["status" => "success", "message" => "Senha alterada com sucesso!"]);
+    } catch(PDOException $e) {
+        @ob_clean();
+        echo json_encode(["status" => "error", "message" => "Erro: " . $e->getMessage()]);
+    }
+    exit;
+}
+if ($action === 'update_security') {
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode(["status" => "error", "message" => "Não autorizado."]);
+        exit;
+    }
+    $newEmail = $_POST['email'] ?? '';
+    $newCpf = $_POST['cpf'] ?? '';
+    $newTelefone = $_POST['telefone'] ?? '';
+    $currentPassword = $_POST['current_password'] ?? '';
+    $newPassword = $_POST['new_password'] ?? '';
+    $confirmPassword = $_POST['confirm_password'] ?? '';
+    $userId = $_SESSION['user_id'];
+    
+    if (!empty($newEmail) || !empty($newCpf) || !empty($newTelefone)) {
+        $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+        $stmtCheck->execute([$newEmail, $userId]);
+        if ($stmtCheck->fetch()) {
+            echo json_encode(["status" => "error", "message" => "Este e-mail já está em uso por outra conta."]);
+            exit;
+        }
+    }
+    
+    if (!empty($newPassword) || !empty($currentPassword) || !empty($confirmPassword)) {
+        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+            echo json_encode(["status" => "error", "message" => "Preencha todos os campos de senha para alterá-la."]);
+            exit;
+        }
+        if ($newPassword !== $confirmPassword) {
+            echo json_encode(["status" => "error", "message" => "As senhas não conferem."]);
+            exit;
+        }
+        if (strlen($newPassword) < 8) {
+            echo json_encode(["status" => "error", "message" => "A senha deve ter pelo menos 8 caracteres."]);
+            exit;
+        }
+        try {
+            $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+            $stmt->execute([$userId]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$user || !password_verify($currentPassword, $user['password'])) {
+                echo json_encode(["status" => "error", "message" => "Senha atual incorreta."]);
+                exit;
+            }
+            $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $stmt->execute([$newHash, $userId]);
+        } catch(PDOException $e) {
+            echo json_encode(["status" => "error", "message" => "Erro ao alterar senha: " . $e->getMessage()]);
+            exit;
+        }
+    }
+    
+    if (!empty($newEmail) || !empty($newCpf) || !empty($newTelefone)) {
+        try {
+            $query = "UPDATE users SET";
+            $params = [];
+            if (!empty($newEmail)) {
+                $query .= " email = ?,";
+                $params[] = $newEmail;
+                $_SESSION['user_email'] = $newEmail;
+            }
+            if (!empty($newCpf)) {
+                $query .= " cpf = ?,";
+                $params[] = $newCpf;
+                $_SESSION['user_cpf'] = $newCpf;
+            }
+            if (!empty($newTelefone)) {
+                $query .= " telefone = ?,";
+                $params[] = $newTelefone;
+                $_SESSION['user_telefone'] = $newTelefone;
+            }
+            $query = rtrim($query, ',');
+            $query .= " WHERE id = ?";
+            $params[] = $userId;
+            
+            $stmt = $pdo->prepare($query);
+            $stmt->execute($params);
+            @ob_clean();
+            echo json_encode(["status" => "success", "message" => "Dados atualizados com sucesso!"]);
+        } catch(PDOException $e) {
+            @ob_clean();
+            echo json_encode(["status" => "error", "message" => "Erro ao atualizar dados: " . $e->getMessage()]);
+        }
+    } else {
+        @ob_clean();
+        echo json_encode(["status" => "success", "message" => "Senha alterada com sucesso!"]);
     }
     exit;
 }
