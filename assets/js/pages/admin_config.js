@@ -252,8 +252,12 @@ function setupBackup() {
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || 'Erro ao gerar backup');
+                let errMsg = 'Erro ao gerar backup';
+                try {
+                    const errData = await response.json();
+                    errMsg = errData.message || errMsg;
+                } catch(e) {}
+                throw new Error(errMsg);
             }
 
             const blob = await response.blob();
@@ -334,7 +338,7 @@ function setupRestore() {
                 credentials: 'include'
             });
 
-            const result = await response.json();
+            const result = await response.json().catch(() => ({ status: 'error', message: 'Resposta inválida do servidor' }));
 
             if (result.status === 'success') {
                 if (statusEl) {
