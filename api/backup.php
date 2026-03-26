@@ -26,6 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 @ob_end_clean();
 
+if (!class_exists('ZipArchive')) {
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(["status" => "error", "message" => "A extensão ZIP não está instalada no servidor. Não é possível gerar o backup."]);
+    exit;
+}
+
 try {
     $tmpDir = __DIR__ . '/../temp_backup';
     if (!is_dir($tmpDir)) {

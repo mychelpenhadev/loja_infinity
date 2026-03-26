@@ -40,6 +40,12 @@ if ($file['size'] > 500 * 1024 * 1024) {
 $tmpDir = sys_get_temp_dir() . '/restore_' . uniqid();
 mkdir($tmpDir, 0755, true);
 
+if (!class_exists('ZipArchive')) {
+    http_response_code(500);
+    echo json_encode(["status" => "error", "message" => "A extensão ZIP do PHP não está instalada no servidor. Não é possível restaurar o backup."]);
+    exit;
+}
+
 try {
     $zip = new ZipArchive();
     if ($zip->open($file['tmp_name']) !== true) {
