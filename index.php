@@ -47,42 +47,21 @@ function generateStars($rating) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infinity Variedades</title>
+    <script>
+        (function() {
+            var theme = localStorage.getItem('papelaria_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="assets/css/style.css?v=29">
 
     <link rel="preload" href="assets/img/logoPNG.png" as="image">
-    <script>
-        (function() {
-            const savedTheme = localStorage.getItem('papelaria_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-
-            if (window.location.hash && window.location.hash.startsWith('
-                const style = document.createElement('style');
-                style.id = 'fast-scroll-hide';
-                style.textContent = 'body { visibility: hidden !important; }';
-                document.head.appendChild(style);
-                let attempts = 0;
-                const check = () => {
-                    attempts++;
-                    const target = document.querySelector(window.location.hash);
-                    if (target) {
-                        target.scrollIntoView();
-                        if (style.parentNode) style.parentNode.removeChild(style);
-                    } else if (attempts < 20) {
-                        setTimeout(check, 50);
-                    } else {
-                        if (style.parentNode) style.parentNode.removeChild(style);
-                    }
-                };
-                check();
-            }
-        })();
-    </script>
 </head>
 <body>
     <header class="header">

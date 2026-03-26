@@ -6,6 +6,8 @@
   --clr-secondary-rgb: 0, 191, 255;
   --clr-accent: #0044CC;
   --clr-accent-rgb: 0, 68, 204;
+  --clr-bg: #F8FAFC;
+  --clr-bg-alt: #F1F5F9;
   --clr-surface: #FFFFFF;
   --clr-surface-rgb: 255, 255, 255;
   --clr-text: #2D3748;
@@ -23,6 +25,7 @@
 }
 [data-theme='dark'] {
   --clr-bg: #0F172A;
+  --clr-bg-alt: #1A2332;
   --clr-surface: #1E293B;
   --clr-surface-rgb: 30, 41, 59;
   --clr-text: #F8FAFC;
@@ -48,7 +51,6 @@ body {
   background-color: var(--clr-bg);
   color: var(--clr-text);
   line-height: 1.6;
-  transition: background-color var(--transition), color var(--transition);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
