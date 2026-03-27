@@ -15,13 +15,13 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
         } catch (Exception $e) {
         }
     }
-    public function open($savePath, $sessionName) {
+    public function open(string $path, string $name): bool {
         return true;
     }
-    public function close() {
+    public function close(): bool {
         return true;
     }
-    public function read($id) {
+    public function read(string $id): string|false {
         try {
             $stmt = $this->pdo->prepare("SELECT data FROM sessions WHERE id = ?");
             $stmt->execute([$id]);
@@ -29,23 +29,23 @@ class DatabaseSessionHandler implements SessionHandlerInterface {
             return $row ? $row['data'] : '';
         } catch (Exception $e) { return ''; }
     }
-    public function write($id, $data) {
+    public function write(string $id, string $data): bool {
         try {
             $stmt = $this->pdo->prepare("REPLACE INTO sessions (id, data, last_access) VALUES (?, ?, ?)");
             return $stmt->execute([$id, $data, time()]);
         } catch (Exception $e) { return false; }
     }
-    public function destroy($id) {
+    public function destroy(string $id): bool {
         try {
             $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE id = ?");
             return $stmt->execute([$id]);
         } catch (Exception $e) { return false; }
     }
-    public function gc($maxLifetime) {
+    public function gc(int $maxLifetime): int|false {
         try {
             $stmt = $this->pdo->prepare("DELETE FROM sessions WHERE last_access < ?");
             $stmt->execute([time() - $maxLifetime]);
-            return true;
+            return $stmt->rowCount();
         } catch (Exception $e) { return 0; }
     }
 }
