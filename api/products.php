@@ -96,23 +96,27 @@ try {
             $description = $data['description'] ?? '';
             if ($id && is_numeric($id)) {
 
-                if (strpos($image, 'data:image/') === 0) {
+                if ($id) {
                     $stmt = $pdo->prepare("SELECT image FROM products WHERE id = ?");
                     $stmt->execute([$id]);
                     $oldProduct = $stmt->fetch(PDO::FETCH_ASSOC);
-                    if ($oldProduct && !empty($oldProduct['image']) && strpos($oldProduct['image'], 'uploads/') === 0) {
-                        $oldImg = __DIR__ . '/../' . $oldProduct['image'];
-                        if (is_file($oldImg)) unlink($oldImg);
+                    
+                    // If image is changing and old image was an upload, delete it
+                    if ($oldProduct && !empty($oldProduct['image']) && $oldProduct['image'] !== $image) {
+                        deleteFileIfInUploads($oldProduct['image']);
                     }
-                    list($type, $imgData) = explode(';', $image);
-                    list(, $imgData) = explode(',', $imgData);
-                    $imgData = base64_decode($imgData);
-                    $extension = explode('/', $type)[1];
-                    if ($extension === 'jpeg') $extension = 'jpg';
-                    $filename = 'prod_' . ($id ?: 'new') . '_' . time() . '.' . $extension;
-                    $uploadPath = __DIR__ . '/../uploads/products/' . $filename;
-                    if (file_put_contents($uploadPath, $imgData)) {
-                        $image = 'uploads/products/' . $filename;
+
+                    if (strpos($image, 'data:image/') === 0) {
+                        list($type, $imgData) = explode(';', $image);
+                        list(, $imgData) = explode(',', $imgData);
+                        $imgData = base64_decode($imgData);
+                        $extension = explode('/', $type)[1];
+                        if ($extension === 'jpeg') $extension = 'jpg';
+                        $filename = 'prod_' . $id . '_' . time() . '.' . $extension;
+                        $uploadPath = __DIR__ . '/../uploads/products/' . $filename;
+                        if (file_put_contents($uploadPath, $imgData)) {
+                            $image = 'uploads/products/' . $filename;
+                        }
                     }
                 }
                 $stmt = $pdo->prepare("UPDATE products SET name=?, price=?, category=?, brand=?, image=?, video=?, description=? WHERE id=?");
@@ -148,9 +152,8 @@ try {
             $stmt = $pdo->prepare("SELECT image FROM products WHERE id = ?");
             $stmt->execute([$id]);
             $product = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($product && !empty($product['image']) && strpos($product['image'], 'uploads/') === 0) {
-                $imgPath = __DIR__ . '/../' . $product['image'];
-                if (is_file($imgPath)) unlink($imgPath);
+            if ($product && !empty($product['image'])) {
+                deleteFileIfInUploads($product['image']);
             }
             $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
             $stmt->execute([$id]);

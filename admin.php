@@ -425,8 +425,11 @@ if (!isAdmin()) {
                     <input type="file" id="prod-imagem-file" class="form-control" accept="image/*">
                     <input type="hidden" id="prod-imagem-base64">
                     <small style="color: var(--clr-text-light); display: block; margin-top: 0.5rem; font-size: 0.75rem;">Selecione uma foto salva no seu computador.</small>
-                    <div id="image-preview-container" style="margin-top: 1rem; display: none;">
+                    <div id="image-preview-container" style="margin-top: 1rem; display: none; position: relative; width: 100px;">
                         <img id="image-preview" style="max-width: 100px; max-height: 100px; border-radius: 8px; border: 1px solid var(--clr-border); object-fit: cover;">
+                        <button type="button" id="btn-remove-prod-img" style="position: absolute; top: -10px; right: -10px; background: #EF4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; box-shadow: var(--shadow-sm);" title="Remover Foto">
+                            <i class='bx bx-x'></i>
+                        </button>
                     </div>
                 </div>
                 <div class="form-group">

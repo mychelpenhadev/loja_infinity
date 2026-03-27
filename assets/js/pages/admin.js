@@ -166,6 +166,14 @@
                     reader.readAsDataURL(file);
                 }
             });
+            const btnRemove = document.getElementById('btn-remove-prod-img');
+            if (btnRemove) {
+                btnRemove.onclick = () => {
+                    base64Input.value = '';
+                    fileInput.value = '';
+                    previewContainer.style.display = 'none';
+                };
+            }
         }
         window.editProduct = async (id) => {
             const row = document.querySelector(`tr[data-product-id="${id}"]`);
@@ -226,8 +234,8 @@
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const imageBase64 = document.getElementById('prod-imagem-base64').value;
-                if (!imageBase64) {
-                    alert("Por favor, selecione uma imagem.");
+                if (!imageBase64 && !id) {
+                    alert("Por favor, selecione uma imagem para o novo produto.");
                     return;
                 }
                 const id = document.getElementById('prod-id').value;

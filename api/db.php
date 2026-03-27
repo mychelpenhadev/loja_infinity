@@ -52,3 +52,20 @@ catch (Throwable $e) {
         ]
     ]));
 }
+
+/**
+ * Safely deletes a file from the uploads directory
+ * @param string|null $relativePath Path relative to the root (e.g. 'uploads/products/xyz.jpg')
+ * @return bool
+ */
+function deleteFileIfInUploads($relativePath) {
+    if (empty($relativePath)) return false;
+    // Security: Only allow deleting files inside the uploads directory
+    if (strpos($relativePath, 'uploads/') !== 0) return false;
+    
+    $fullPath = __DIR__ . '/../' . ltrim($relativePath, '/');
+    if (is_file($fullPath)) {
+        return @unlink($fullPath);
+    }
+    return false;
+}

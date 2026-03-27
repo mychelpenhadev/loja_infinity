@@ -249,8 +249,8 @@ if ($action === 'update_profile') {
             $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
             $stmt_old->execute([$userId]);
             $oldPic = $stmt_old->fetchColumn();
-            if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
-                @unlink(__DIR__ . '/../' . $oldPic);
+            if ($oldPic) {
+                deleteFileIfInUploads($oldPic);
             }
 
             $query .= ", profile_picture = ?";
@@ -266,8 +266,8 @@ if ($action === 'update_profile') {
         $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
         $stmt_old->execute([$userId]);
         $oldPic = $stmt_old->fetchColumn();
-        if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
-            @unlink(__DIR__ . '/../' . $oldPic);
+        if ($oldPic) {
+            deleteFileIfInUploads($oldPic);
         }
         $query .= ", profile_picture = NULL";
         $_SESSION['profile_picture'] = null;

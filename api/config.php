@@ -36,9 +36,8 @@ try {
                         $newBanners = json_decode($value, true) ?: [];
                         $newUrls = array_column($newBanners, 'url');
                         foreach ($oldBanners as $old) {
-                            if (!empty($old['url']) && !in_array($old['url'], $newUrls) && strpos($old['url'], 'uploads/') === 0) {
-                                $imgPath = __DIR__ . '/../' . $old['url'];
-                                if (is_file($imgPath)) unlink($imgPath);
+                            if (!empty($old['url']) && !in_array($old['url'], $newUrls)) {
+                                deleteFileIfInUploads($old['url']);
                             }
                         }
                     }
