@@ -7,7 +7,7 @@ if (file_exists(CACHE_FILE) && (time() - filemtime(CACHE_FILE) < CACHE_TIME)) {
 }
 if (!$data) {
     try {
-        require_once '../../backend/api/db.php';
+        require_once 'api/db.php';
 
         $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 100");
         $featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -845,7 +845,7 @@ function generateStars($rating) {
             }, {passive: true});
         })();
     </script>
-    <?php require_once '../../backend/api/security.php'; if(isAdmin()): ?>
+    <?php require_once 'api/security.php'; if(isAdmin()): ?>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>
     <?php endif; ?>
 </body>

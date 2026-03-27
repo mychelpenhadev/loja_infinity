@@ -26,11 +26,7 @@ php_value max_input_time 300
     RewriteCond %{ENV:REDIRECT_STATUS} 200
     RewriteRule ^ - [L]
 
-    # Route /api/ to backend/api/
-    RewriteRule ^api/(.*)$ backend/api/$1 [L,QSA]
-
-    # Route everything else to frontend/public/
+    # Route EVERYTHING to frontend/public/ automatically para o XAMPP
     RewriteCond %{REQUEST_URI} !frontend/public/
-    RewriteCond %{REQUEST_URI} !backend/api/
     RewriteRule ^(.*)$ frontend/public/$1 [L,QSA]
 </IfModule>

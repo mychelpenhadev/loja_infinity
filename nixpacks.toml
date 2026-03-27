@@ -1,0 +1,3 @@
+[variables]
+# Define a pasta public como o documento raiz pro Nginx interno do Railway.
+NIXPACKS_PHP_ROOT_DIR = "/frontend/public"
