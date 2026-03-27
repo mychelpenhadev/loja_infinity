@@ -16,4 +16,8 @@ COPY . /var/www/html/
 # Ajusta as permissões de gravação
 RUN chown -R www-data:www-data /var/www/html
 
-EXPOSE 80
+# Da permissão de execução ao nosso script
+RUN chmod +x /var/www/html/start.sh
+
+# Inicializa usando nosso script que amarra a porta dinamicamente
+CMD ["/var/www/html/start.sh"]
