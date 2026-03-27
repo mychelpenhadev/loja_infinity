@@ -30,7 +30,7 @@ try {
             $search = $_GET['search'] ?? null;
 
             $cacheDir = __DIR__ . "/cache";
-            if (!is_dir($cacheDir)) mkdir($cacheDir, 0777, true);
+            if (!is_dir($cacheDir)) @mkdir($cacheDir, 0777, true);
             $cacheFile = $cacheDir . "/list_" . md5($category . $search . $page . $limit) . ".json";
             if (empty($search) && file_exists($cacheFile) && (time() - filemtime($cacheFile) < 300)) {
                 echo file_get_contents($cacheFile);
@@ -77,7 +77,7 @@ try {
                 ]
             ], JSON_UNESCAPED_UNICODE);
             if (empty($search)) {
-                file_put_contents($cacheFile, $response);
+                @file_put_contents($cacheFile, $response);
             }
             echo $response;
             break;

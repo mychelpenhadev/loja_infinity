@@ -20,8 +20,8 @@ if (!$data) {
             'timestamp' => time()
         ];
         $cacheDir = dirname(CACHE_FILE);
-        if (!is_dir($cacheDir)) mkdir($cacheDir, 0755, true);
-        file_put_contents(CACHE_FILE, json_encode($data));
+        if (!is_dir($cacheDir)) @mkdir($cacheDir, 0755, true);
+        @file_put_contents(CACHE_FILE, json_encode($data));
     } catch (Exception $e) {
 
         $featuredProducts = [];
