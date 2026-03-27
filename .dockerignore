@@ -1,0 +1,6 @@
+.git
+.gitignore
+.env
+README.md
+composer.phar
+node_modules

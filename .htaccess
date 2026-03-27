@@ -30,7 +30,7 @@ php_value max_input_time 300
     RewriteRule ^api/(.*)$ backend/api/$1 [L,QSA]
 
     # Route everything else to frontend/public/
-    RewriteCond %{REQUEST_URI} !^/backend/
-    RewriteCond %{REQUEST_URI} !^/frontend/
+    RewriteCond %{REQUEST_URI} !frontend/public/
+    RewriteCond %{REQUEST_URI} !backend/api/
     RewriteRule ^(.*)$ frontend/public/$1 [L,QSA]
 </IfModule>
