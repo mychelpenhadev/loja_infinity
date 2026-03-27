@@ -691,8 +691,27 @@ function generateStars($rating) {
                 dots[idx].classList.add('active');
                 current = idx;
             }
-            setInterval(() => showSlide((current + 1) % items.length), 5000);
-            dots.forEach(dot => dot.addEventListener('click', () => showSlide(parseInt(dot.dataset.index))));
+            
+            let sliderInterval = setInterval(() => showSlide((current + 1) % items.length), 5000);
+            function resetInterval() {
+                clearInterval(sliderInterval);
+                sliderInterval = setInterval(() => showSlide((current + 1) % items.length), 5000);
+            }
+            function nextSlide() { showSlide((current + 1) % items.length); resetInterval(); }
+            function prevSlide() { showSlide((current - 1 + items.length) % items.length); resetInterval(); }
+            
+            dots.forEach(dot => dot.addEventListener('click', () => {
+                showSlide(parseInt(dot.dataset.index));
+                resetInterval();
+            }));
+
+            let touchStartX = 0;
+            heroSlider.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
+            heroSlider.addEventListener('touchend', e => {
+                let touchEndX = e.changedTouches[0].screenX;
+                if (touchStartX - touchEndX > 50) nextSlide();
+                if (touchEndX - touchStartX > 50) prevSlide();
+            }, {passive: true});
         })();
     </script>
     <script>
@@ -742,25 +761,28 @@ function generateStars($rating) {
                 current = idx;
             }
 
-            let bannerInterval = setInterval(() => {
-                showBanner((current + 1) % slides.length);
-            }, 5000);
+            let bannerInterval = setInterval(() => { showBanner((current + 1) % slides.length); }, 5000);
+            function resetBannerInterval() {
+                clearInterval(bannerInterval);
+                bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+            }
+            function nextBanner() { showBanner((current + 1) % slides.length); resetBannerInterval(); }
+            function prevBanner() { showBanner((current - 1 + slides.length) % slides.length); resetBannerInterval(); }
 
-            if (bannerPrev) bannerPrev.addEventListener('click', () => {
-                showBanner((current - 1 + slides.length) % slides.length);
-                clearInterval(bannerInterval);
-                bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
-            });
-            if (bannerNext) bannerNext.addEventListener('click', () => {
-                showBanner((current + 1) % slides.length);
-                clearInterval(bannerInterval);
-                bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
-            });
+            if (bannerPrev) bannerPrev.addEventListener('click', prevBanner);
+            if (bannerNext) bannerNext.addEventListener('click', nextBanner);
             dots.forEach(dot => dot.addEventListener('click', () => {
                 showBanner(parseInt(dot.dataset.index));
-                clearInterval(bannerInterval);
-                bannerInterval = setInterval(() => showBanner((current + 1) % slides.length), 5000);
+                resetBannerInterval();
             }));
+
+            let touchStartX = 0;
+            bannerSlider.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive: true});
+            bannerSlider.addEventListener('touchend', e => {
+                let touchEndX = e.changedTouches[0].screenX;
+                if (touchStartX - touchEndX > 50) nextBanner();
+                if (touchEndX - touchStartX > 50) prevBanner();
+            }, {passive: true});
         })();
     </script>
     <?php require_once 'api/security.php'; if(isAdmin()): ?>
