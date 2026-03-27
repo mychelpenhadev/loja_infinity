@@ -12,8 +12,5 @@ COPY . /var/www/html/
 # Ajusta as permissões
 RUN chown -R www-data:www-data /var/www/html
 
-# Configura o Apache para ouvir na variável ambiente $PORT fornecida pelo Railway
-RUN sed -i 's/80/${PORT}/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
-
-# Adiciona configuração AllowOverride All explícito para o diretório
-RUN echo "<Directory /var/www/html>\n\tAllowOverride All\n</Directory>" >> /etc/apache2/apache2.conf
+# Substitui a porta padrao do apache pela $PORT do Railway somenta na hora de rodar
+CMD sed -i "s/80/$PORT/g" /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf && apache2-foreground
