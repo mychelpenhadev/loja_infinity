@@ -1,13 +1,11 @@
 const normalizeString = (str) => (str || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   initTheme();
   initNotifications();
-  updateCartBadge();
   injectSearchOverlay();
   injectMobileNav();
+  updateCartBadge();
   checkAuth();
-  
-  prefetchLinks();
 
   const prefetchLinks = () => {
     const links = document.querySelectorAll('a[href$=".html"], a[href$=".php"]');
@@ -23,8 +21,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }, { once: true });
     });
   };
+  
+  prefetchLinks();
   window.addEventListener('cartUpdated', updateCartBadge);
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
 function initTheme() {
   document.documentElement.setAttribute('data-theme', 'dark');
 }
@@ -68,16 +74,28 @@ function initNotifications() {
 function updateCartBadge() {
   const badge = document.getElementById('cart-badge');
   const mobileBadge = document.getElementById('cart-badge-mobile');
+  if (!window.CartManager) return;
+  
   const totalItems = window.CartManager.getTotalItems();
   const formatItems = totalItems > 99 ? '99+' : totalItems;
-  if (badge) {
-    badge.textContent = formatItems;
-    badge.style.display = totalItems > 0 ? 'flex' : 'none';
-  }
-  if (mobileBadge) {
-    mobileBadge.textContent = formatItems;
-    mobileBadge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-  }
+  
+  console.log(`[CartDebug] Total items: ${totalItems}, Format: ${formatItems}, UserID: ${window.userId}`);
+
+  const applyUpdate = (el) => {
+    if (!el) return;
+    const isNewValue = el.textContent !== String(formatItems);
+    el.textContent = formatItems;
+    el.style.display = totalItems > 0 ? 'flex' : 'none';
+    
+    if (totalItems > 0 && isNewValue) {
+      el.classList.remove('pop');
+      void el.offsetWidth;
+      el.classList.add('pop');
+    }
+  };
+
+  applyUpdate(badge);
+  applyUpdate(mobileBadge);
 }
 window.isLoggedIn = false;
 window.userId = null;
@@ -85,47 +103,65 @@ window.userName = null;
 window.authChecked = false;
 async function checkAuth() {
   try {
-      const response = await fetch('api/auth.php?action=check');
-      const data = await response.json();
-      window.isLoggedIn = data.loggedIn;
-      window.userId = data.id || null;
-      window.userName = data.name || null;
-      window.authChecked = true;
-      window.dispatchEvent(new Event('cartUpdated'));
-      const userBtns = document.querySelectorAll('a[href="login.html"]');
-      if (data.loggedIn) {
-          userBtns.forEach(btn => {
-              if (data.profile_picture) {
-                  btn.innerHTML = `<img src="${data.profile_picture}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--clr-accent);" title="Minha Conta">`;
-              } else {
-                  btn.innerHTML = `<i class='bx bxs-user-circle' title="Minha Conta" style="font-size: 1.5rem; color: var(--clr-accent);"></i>`;
-              }
-
-          });
-          if(data.role === 'admin') {
-              document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'flex');
-          } else {
-              document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'none');
-          }
-      } else {
-          document.querySelectorAll('a[href="admin.php"]').forEach(el => el.style.display = 'none');
-      }
+    const response = await fetch(`api/auth.php?action=check&t=${Date.now()}`);
+    const data = await response.json();
+    window.isLoggedIn = data.loggedIn;
+    window.userId = data.id || null;
+    window.userName = data.name || null;
+    window.userRole = data.role || 'cliente';
+    window.profilePicture = data.profile_picture || null;
+    window.authChecked = true;
+    if (window.userId && window.CartManager) {
+        window.CartManager.mergeGuestCart();
+    }
+    window.dispatchEvent(new Event('cartUpdated'));
+    injectMobileNav();
+    updateUserIcons(data);
   } catch (err) {
       console.error("Erro ao verificar auth:", err);
   } finally {
-      if(document.querySelector('.mobile-bottom-nav')) {
-          const profileIcon = document.getElementById('mobile-profile-icon');
-          if(profileIcon) {
-             profileIcon.className = window.isLoggedIn ? 'bx bx-user-check' : 'bx bx-user';
-          }
-      }
+      window.authChecked = true;
   }
 }
+
+function updateUserIcons(data) {
+    const userLinks = document.querySelectorAll('.action-btn[href="login.html"], .action-btn[href="perfil.php"]');
+    if (data.loggedIn) {
+        const pic = data.profile_picture;
+        const name = data.name || 'User';
+        const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
+        
+        userLinks.forEach(btn => {
+            btn.href = 'perfil.php';
+            btn.innerHTML = `<img src="${pic || fallback}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 2px solid var(--clr-accent);" title="Meu Perfil">`;
+        });
+    } else {
+        userLinks.forEach(btn => {
+            btn.href = 'login.html';
+            btn.innerHTML = `<i class='bx bx-user' title="Minha Conta" style="font-size: 1.5rem; color: var(--clr-accent);"></i>`;
+        });
+    }
+}
 function injectMobileNav() {
-    if (document.querySelector('.mobile-bottom-nav')) return;
-    const nav = document.createElement('nav');
-    nav.className = 'mobile-bottom-nav';
+    let nav = document.querySelector('.mobile-bottom-nav');
+    if (!nav) {
+        nav = document.createElement('nav');
+        nav.className = 'mobile-bottom-nav';
+        document.body.appendChild(nav);
+    }
     const path = window.location.pathname;
+    const getProfileLabel = () => {
+        if (!window.isLoggedIn) return 'Entrar';
+        if (window.userRole === 'admin') return 'ADM';
+        const firstName = window.userName ? window.userName.split(' ')[0] : 'Conta';
+        return firstName.length > 10 ? '' : firstName;
+    };
+
+    const profileLabel = getProfileLabel();
+    const profileIconHtml = (window.isLoggedIn && window.profilePicture) 
+        ? `<img src="${window.profilePicture}" class="mobile-nav-profile-img" alt="Perfil">`
+        : `<i class='bx bx-user'></i>`;
+
     nav.innerHTML = `
         <a href="index.php" class="mobile-nav-item ${path.endsWith('index.php') || path === '/' ? 'active' : ''}">
             <i class='bx bx-home-alt'></i>
@@ -136,20 +172,19 @@ function injectMobileNav() {
             <span>Achei</span>
         </a>
         <a href="carrinho.html" class="mobile-nav-item ${path.endsWith('carrinho.html') ? 'active' : ''}" style="position: relative;">
-            <i class='bx bx-shopping-bag'></i>
+            <i class='bx bx-cart-alt'></i>
             <span>Carrinho</span>
-            <span id="cart-badge-mobile" style="position: absolute; top: 0px; right: 10px; background: var(--clr-accent); color: white; font-size: 10px; font-weight: bold; border-radius: 50%; padding: 2px 6px; display: none;">0</span>
+            <span id="cart-badge-mobile" class="cart-badge" style="top: 0px; right: 10px; display: none;">0</span>
         </a>
-        <a href="login.html" class="mobile-nav-item ${path.endsWith('login.html') ? 'active' : ''}">
-            <i class='bx bx-user' id="mobile-profile-icon"></i>
-            <span>Conta</span>
+        <a href="perfil.php" class="mobile-nav-item ${path.endsWith('perfil.php') || path.endsWith('login.html') ? 'active' : ''}">
+            ${profileIconHtml}
+            ${profileLabel ? `<span>${profileLabel}</span>` : ''}
         </a>
-        <a href="admin.php" class="mobile-nav-item ${path.endsWith('admin.php') || path.endsWith('admin_config.php') || path.endsWith('admin_pedidos.php') ? 'active' : ''}" style="display: none;">
+        <a href="admin.php" class="mobile-nav-item ${path.endsWith('admin.php') || path.endsWith('admin_config.php') || path.endsWith('admin_pedidos.php') ? 'active' : ''}" style="display: ${window.userRole === 'admin' ? 'flex' : 'none'};">
             <i class='bx bx-cog'></i>
             <span>Admin</span>
         </a>
     `;
-    document.body.appendChild(nav);
 }
 function injectSearchOverlay() {
     if (document.getElementById('search-overlay')) return;
@@ -260,164 +295,6 @@ function injectSearchOverlay() {
         }
     });
 }
-function injectChatbot() {
-  if (document.querySelector('.chatbot-fab')) return;
-  const chatBtn = document.createElement('button');
-  chatBtn.className = 'chatbot-fab';
-  chatBtn.innerHTML = `<img src="assets/img/chatbot_mascot.png" alt="Chatbot" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
-  chatBtn.title = "Fale com nossa IA!";
-  const chatWin = document.createElement('div');
-  chatWin.className = 'chat-window';
-  chatWin.id = 'chat-window';
-  chatWin.innerHTML = `
-      <div class="chat-header">
-         <div class="chat-header-info">
-             <img src="assets/img/chatbot_mascot.png" class="chat-avatar">
-             <div>
-                 <strong style="display:block; font-size:1rem;">Bolsinha IA</strong>
-                 <small style="opacity: 0.8; font-size: 0.75rem;">Sempre online</small>
-             </div>
-         </div>
-         <button class="chat-close-btn" id="chat-close-btn"><i class='bx bx-x'></i></button>
-      </div>
-      <div class="chat-body" id="chat-body">
-         <div class="chat-msg ai">Olá! Eu sou a Bolsinha, sua IA assistente! 🎒✨<br>Posso te ajudar a encontrar os melhores materiais hoje?</div>
-      </div>
-      <div class="chat-footer">
-         <input type="text" id="chat-input" class="chat-input" placeholder="Digite sua dúvida...">
-         <button class="chat-send-btn" id="chat-send-btn"><i class='bx bx-send'></i></button>
-      </div>
-  `;
-  document.body.appendChild(chatBtn);
-  document.body.appendChild(chatWin);
-  chatBtn.onclick = () => {
-      chatWin.classList.add('active');
-  };
-  document.getElementById('chat-close-btn').onclick = () => {
-      chatWin.classList.remove('active');
-  };
-
-  const chatInput = document.getElementById('chat-input');
-  const chatSend = document.getElementById('chat-send-btn');
-  const chatBody = document.getElementById('chat-body');
-  const addMessage = (text, type) => {
-      const msg = document.createElement('div');
-      msg.className = `chat-msg ${type}`;
-      if (type === 'user') {
-          msg.textContent = text;
-      } else {
-          msg.innerHTML = text;
-      }
-      chatBody.appendChild(msg);
-      chatBody.scrollTop = chatBody.scrollHeight;
-  };
-  const calculateFuzzyScore = (str1, str2) => {
-      const s1 = normalizeString(str1).replace(/[^a-z0-9]/g, '');
-      const s2 = normalizeString(str2).replace(/[^a-z0-9]/g, '');
-      if (s1 === s2) return 1.0;
-      if (s1.length < 2 || s2.length < 2) return s1.includes(s2) || s2.includes(s1) ? 0.5 : 0;
-      const getBigrams = (str) => {
-          const bigrams = new Set();
-          for (let i = 0; i < str.length - 1; i++) {
-              bigrams.add(str.substring(i, i + 2));
-          }
-          return bigrams;
-      };
-      const bigrams1 = getBigrams(s1);
-      const bigrams2 = getBigrams(s2);
-      let intersection = 0;
-      for (let b of bigrams1) {
-          if (bigrams2.has(b)) intersection++;
-      }
-      return (2.0 * intersection) / (bigrams1.size + bigrams2.size);
-  };
-  const getAIResponse = async (userText) => {
-      const lower = normalizeString(userText);
-
-      if (window.ProductManager) {
-          const data = await window.ProductManager.getAll();
-          const products = Array.isArray(data) ? data : (data.products || []);
-
-          const scored = products.map(p => {
-              const nameScore = calculateFuzzyScore(userText, p.name);
-
-              const bonus = normalizeString(p.name).includes(lower) ? 0.2 : 0;
-              return { product: p, score: nameScore + bonus };
-          })
-          .filter(item => item.score > 0.35)
-          .sort((a, b) => b.score - a.score);
-          if (scored.length > 0) {
-              const top = scored[0].product;
-
-              if (scored[0].score > 0.8) {
-                  return `Deixa comigo! Encontrei exatamente o que você procura: <br><br>
-                      <div style="display:flex; align-items:center; gap: 10px; margin-top:5px; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.05); border-left: 4px solid var(--clr-primary);">
-                         <img src="${top.image}" style="width:50px; height:50px; border-radius:5px; object-fit:cover;">
-                         <div style="flex:1;">
-                            <strong style="display:block; font-size:0.85rem;">${top.name}</strong>
-                            <span style="color:var(--clr-primary); font-weight:bold;">${window.formatCurrency(top.price)}</span>
-                         </div>
-                         <a href="detalhes.html?id=${top.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">Ver</a>
-                      </div>`;
-              }
-
-              let html = `Não tenho certeza absoluta, mas achei esses <b>${scored.length}</b> itens que parecem com o que você quer: <br><br>`;
-              scored.slice(0, 3).forEach(item => {
-                  const p = item.product;
-                  html += `
-                       <div style="display:flex; align-items:center; gap: 10px; margin-top:5px; padding: 5px; border-radius: 5px; background: rgba(0,0,0,0.03);">
-                          <img src="${p.image}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-                          <div style="flex:1;">
-                             <strong style="display:block; font-size:0.85rem;">${p.name}</strong>
-                             <small style="color:var(--clr-primary);">${window.formatCurrency(p.price)}</small>
-                          </div>
-                          <a href="detalhes.html?id=${p.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">Ver</a>
-                       </div>`;
-              });
-              if(scored.length > 3) html += `<div style="text-align:center; margin-top:10px; font-size:0.8rem;"><a href="produtos.html?q=${encodeURIComponent(userText)}" style="color:var(--clr-secondary); font-weight:bold;">Ver todos os resultados</a></div>`;
-              return html;
-          }
-      }
-
-      if (lower.includes('comprar') || lower.includes('pagamento') || lower.includes('frete')) {
-          return "Pode colocar tudo no carrinho e simular a compra lá! Como sou uma loja virtual incrível mas demonstrativa, o frete aqui é super de brincadeirinha! 🛒🎉";
-      } else if (lower.includes('caneta') || lower.includes('lápis') || lower.includes('lapis')) {
-          return "Nossas canetas são super coloridas e temos kits perfeitos pra deixar seus resumos lindos. 🖊️✨ Dá uma olhada lá nos Filtros!";
-      } else if (lower.includes('oi') || lower.includes('olá') || lower.includes('ola') || lower.includes('bom dia')) {
-          return "Oii! Tudo bem com você? Pode me perguntar o nome de um produto ou o que você deseja, e eu procuro pra você agora mesmo! 🥰";
-      } else {
-          return "Poxa, ainda estou aprendendo... 🤔 Tente digitar o nome de um produto (ex: Caneta, Caderno, Mochila) ou use a busca ali em cima para eu brilhar mais! ✨";
-      }
-  };
-  const handleSend = async () => {
-      const text = chatInput.value.trim();
-      if (!text) return;
-      addMessage(text, 'user');
-      chatInput.value = '';
-      const typingIndicator = document.createElement('div');
-      typingIndicator.className = 'chat-msg ai';
-      typingIndicator.innerHTML = '<span style="opacity:0.5;">A bolsinha está digitando... 💬</span>';
-      chatBody.appendChild(typingIndicator);
-      chatBody.scrollTop = chatBody.scrollHeight;
-      const aiResponse = await getAIResponse(text);
-      setTimeout(() => {
-          if (typingIndicator.parentNode) chatBody.removeChild(typingIndicator);
-          addMessage(aiResponse, 'ai');
-      }, 300 + Math.random() * 500);
-  };
-  chatBtn.onclick = () => {
-      chatWin.classList.add('active');
-
-      if (window.ProductManager) window.ProductManager.getAll();
-  };
-  document.getElementById('chat-close-btn').onclick = () => {
-      chatWin.classList.remove('active');
-  };
-  chatSend.onclick = handleSend;
-  chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleSend();
-  });
-}
 window.showToast = function(message, type = 'success') {
   let container = document.querySelector('.toast-container');
   if (!container) {
@@ -460,23 +337,8 @@ window.generateStars = (rating) => {
   return html;
 };
 window.handleAddToCart = async (productId, quantity = 1, color = null) => {
-  console.log("handleAddToCart called, authChecked:", window.authChecked, "isLoggedIn:", window.isLoggedIn);
-  if (!window.authChecked) {
-      await new Promise(resolve => {
-          const check = setInterval(() => {
-              if (window.authChecked) { clearInterval(check); resolve(); }
-          }, 50);
-      });
-  }
-  console.log("After waiting, authChecked:", window.authChecked, "isLoggedIn:", window.isLoggedIn);
-  if (!window.isLoggedIn) {
-      window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
-      setTimeout(() => {
-          window.location.href = 'login.html';
-      }, 1500);
-      return;
-  }
-
+  /* Guest additions are now allowed for a better UX */
+  
   if (!color) {
       const product = await window.ProductManager.getById(productId);
       if (product) {

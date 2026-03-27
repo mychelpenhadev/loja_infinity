@@ -67,7 +67,13 @@
             const sliderDots = document.getElementById('slider-dots');
 
             const alreadyRendered = container && container.children.length > 2;
-            const data = await window.ProductManager.getAll({ limit: 8 });
+            let data = { products: [] };
+            try {
+                data = await window.ProductManager.getAll({ limit: 8 });
+            } catch (e) {
+                console.error("Erro ao carregar produtos iniciais:", e);
+                if (container) container.innerHTML = '<p style="color: #EF4444; text-align: center; padding: 2rem;">Não foi possível carregar os produtos em destaque.</p>';
+            }
             const allProducts = data.products || [];
             if (!alreadyRendered && container) {
                 const products = allProducts.slice(0, 4);

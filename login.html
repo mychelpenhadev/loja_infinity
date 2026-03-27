@@ -304,7 +304,7 @@
                     </div>
                 </div>
                 <a href="carrinho.html" class="action-btn" title="Carrinho">
-                    <i class='bx bx-shopping-bag'></i>
+                    <i class='bx bx-cart-alt'></i>
                     <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
                 </a>
             </div>
@@ -399,125 +399,20 @@
                     Já tem uma conta? <a href="#" id="show-login">Faça Login</a>
                 </div>
             </div>
-            <div id="profile-view" style="display: none; padding-top: 1rem;">
-                <h1 class="auth-title" style="text-align: center;">Meu Perfil</h1>
-                <p class="auth-subtitle" style="text-align: center; margin-bottom: 0;">Bem-vindo(a), <strong id="prof-welcome-name"></strong></p>
-                <div class="profile-layout">
-
-                    <div class="profile-sidebar">
-                        <div class="profile-box">
-                            <h3 class="profile-box-title"><i class='bx bx-user'></i> Meus Dados</h3>
-                            <form class="auth-form" id="profile-form" style="gap: 1rem;">
-
-                                <div style="text-align: center; margin-bottom: 1rem;">
-                                    <div style="position: relative; display: inline-block; margin-bottom: 0.5rem;">
-                                        <img id="prof-pic-preview" src="https://ui-avatars.com/api/?name=User&background=random" alt="Profile Picture" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--clr-surface); box-shadow: var(--shadow-md);">
-                                        <input type="file" id="prof-pic-input" accept="image/*" style="display: none;">
-                                    </div>
-                                    <div style="display: flex; justify-content: center; gap: 0.5rem;">
-                                        <button type="button" class="btn" id="btn-edit-pic" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; background: var(--clr-primary); color: white; border-radius: var(--radius-full); display: flex; align-items: center; gap: 0.25rem;">
-                                            <i class='bx bx-edit-alt'></i> Alterar
-                                        </button>
-                                        <button type="button" class="btn" id="btn-delete-pic" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; background: #EF4444; color: white; border-radius: var(--radius-full); display: flex; align-items: center; gap: 0.25rem;">
-                                            <i class='bx bx-trash'></i> Remover
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="prof-nome" style="font-size: 0.85rem;">Nome Completo</label>
-                                    <input type="text" id="prof-nome" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-full" style="height: 38px; font-size: 0.9rem;">
-                                    Salvar <i class='bx bx-save'></i>
-                                </button>
-                            </form>
-                        </div>
-                        <div class="profile-box">
-                            <button id="btn-toggle-security" style="height: 38px; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(135deg, var(--clr-accent), var(--clr-secondary)); color: white; border: none; border-radius: var(--radius-full); width: 100%;">
-                                Privacidade e Segurança
-                            </button>
-                            <div id="security-content" style="display: none; margin-top: 1rem;">
-                            <form class="auth-form" id="security-form" style="gap: 1rem;">
-                                <div class="form-group">
-                                    <label for="sec-email" style="font-size: 0.85rem;">Gmail / E-mail</label>
-                                    <input type="email" id="sec-email" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Seu e-mail">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sec-cpf" style="font-size: 0.85rem;">CPF</label>
-                                    <input type="text" id="sec-cpf" class="form-control" placeholder="000.000.000-00" style="padding: 0.5rem; font-size: 0.9rem;">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sec-telefone" style="font-size: 0.85rem;">Telefone / WhatsApp</label>
-                                    <input type="text" id="sec-telefone" class="form-control" placeholder="(00) 00000-0000" style="padding: 0.5rem; font-size: 0.9rem;">
-                                </div>
-                                <div class="form-group">
-                                    <label for="sec-senha-atual" style="font-size: 0.85rem;">Senha Atual</label>
-                                    <div class="password-container">
-                                        <input type="password" id="sec-senha-atual" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Digite sua senha atual">
-                                        <i class='bx bx-show password-toggle' onclick="togglePassword('sec-senha-atual', this)"></i>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="sec-nova-senha" style="font-size: 0.85rem;">Nova Senha</label>
-                                    <div class="password-container">
-                                        <input type="password" id="sec-nova-senha" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Mínimo 8 caracteres">
-                                        <i class='bx bx-show password-toggle' onclick="togglePassword('sec-nova-senha', this)"></i>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="sec-repetir-senha" style="font-size: 0.85rem;">Repetir Senha</label>
-                                    <div class="password-container">
-                                        <input type="password" id="sec-repetir-senha" class="form-control" style="padding: 0.5rem; font-size: 0.9rem;" placeholder="Confirme a nova senha">
-                                        <i class='bx bx-show password-toggle' onclick="togglePassword('sec-repetir-senha', this)"></i>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-full" style="height: 38px; font-size: 0.9rem;">
-                                    Alterar <i class='bx bx-lock-alt'></i>
-                                </button>
-                            </form>
-                            </div>
-                        </div>
-                        <div class="profile-box">
-                            <h3 class="profile-box-title"><i class='bx bx-headphone'></i> Precisa de Ajuda?</h3>
-                            <p style="font-size: 0.8rem; color: var(--clr-text-light); margin-bottom: 1rem;">Tem alguma dúvida sobre seu pedido? Fale conosco direto no WhatsApp.</p>
-                            <a href="#" id="profile-wa-btn" target="_blank" class="btn btn-primary btn-full" style="background-color: #25D366; border-color: #25D366; display: flex; align-items: center; justify-content: center; gap: 0.5rem; height: 38px; font-size: 0.9rem;">
-                                <i class='bx bxl-whatsapp' style="font-size: 1.25rem;"></i> Suporte WhatsApp
-                            </a>
-                            <hr style="margin: 1.5rem 0; border: none; border-bottom: 1px solid var(--clr-border);">
-                            <button id="btn-logout" class="btn btn-full" style="height: 38px; font-size: 0.9rem; background: transparent; border: 1px solid #EF4444; color: #EF4444;">
-                                Sair da Conta <i class='bx bx-log-out'></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                        <div class="profile-box">
-                            <h3 class="profile-box-title"><i class='bx bx-shopping-bag'></i> Pedidos Realizados</h3>
-                            <div id="profile-orders-list">
-
-                            </div>
-                        </div>
-                        <div class="profile-box" style="border-color: var(--clr-accent);">
-                            <h3 class="profile-box-title" style="color: var(--clr-accent);"><i class='bx bxs-discount'></i> Promoções para Você</h3>
-                            <div class="promo-scroll" id="profile-promos-list">
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col">
-                    <a href="index.php" class="nav-brand" style="margin-bottom: 1.5rem; display: inline-flex;">
-                        <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 80px; object-fit: contain;">
-                    </a>
+                <div class="footer-col" id="footer-logo-col">
                     <p>Sua vida mais colorida e organizada. Entregamos criatividade em forma de papelaria para todo o Brasil.</p>
-                    <div class="social-links">
-                        <a href="https://instagram.com/infinityvariedades_" target="_blank" class="social-link"><i class='bx bxl-instagram'></i></a>
+                    <div style="display: flex; align-items: center; gap: 1.5rem;" class="footer-brand-wrap">
+                        <a href="index.php" class="footer-logo-link">
+                            <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 50px; object-fit: contain;">
+                        </a>
+                        <div class="social-links" style="margin-top: 0;">
+                            <a href="https://instagram.com/infinityvariedades_" target="_blank" class="social-link"><i class='bx bxl-instagram'></i></a>
+                        </div>
                     </div>
                 </div>
                 <div class="footer-col">
@@ -551,9 +446,9 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/core/db.js?v=30"></script>
-    <script src="assets/js/core/app.js?v=37"></script>
-    <script src="assets/js/pages/login.js?v=24"></script>
+    <script src="assets/js/core/db.js?v=41"></script>
+    <script src="assets/js/core/app.js?v=42"></script>
+    <script src="assets/js/pages/login.js?v=26"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const headerInput = document.getElementById('header-search-input');

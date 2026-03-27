@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = isset($data['email']) ? trim($data['email']) : trim($_POST['email'] ?? '');
         $password = isset($data['password']) ? $data['password'] : ($_POST['password'] ?? '');
         try {
-            $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, password, role, is_verified, profile_picture FROM users WHERE email = ?");
+            $stmt = $pdo->prepare("SELECT id, name, email, cpf, telefone, password, role, is_verified, profile_picture FROM users WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($user && password_verify($password, $user['password'])) {
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $email = $payload['email'];
                 $name = $payload['name'] ?? 'Usuário Google';
                 $picture = $payload['picture'] ?? null;
-                $stmt = $pdo->prepare("SELECT id, name, cpf, telefone, role, profile_picture FROM users WHERE email = ?");
+                $stmt = $pdo->prepare("SELECT id, name, email, cpf, telefone, role, profile_picture FROM users WHERE email = ?");
                 $stmt->execute([$email]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($user) {
@@ -119,8 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['profile_picture'] = $user['profile_picture'];
                     $_SESSION['user_telefone'] = $user['telefone'];
                     $_SESSION['user_cpf'] = $user['cpf'];
+                    $_SESSION['user_email'] = $user['email'];
                     if ($isRedirect) {
-                        $target = $user['role'] === 'admin' ? '../admin.php' : '../index.php';
+                        $target = $user['role'] === 'admin' ? '../admin.php' : '../perfil.php';
                         header("Location: $target");
                         exit;
                     }
@@ -137,8 +138,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['profile_picture'] = $picture;
                     $_SESSION['user_telefone'] = null;
                     $_SESSION['user_cpf'] = null;
+                    $_SESSION['user_email'] = $email;
                     if ($isRedirect) {
-                        header('Location: ../index.php');
+                        header('Location: ../perfil.php');
                         exit;
                     }
                     echo json_encode(["status" => "success", "message" => "Conta criada com sucesso pelo Google!", "role" => $role, "id" => $_SESSION['user_id'], "profile_picture" => $picture]);
@@ -179,6 +181,14 @@ if ($action === 'check') {
     exit;
 }
 if ($action === 'logout') {
+    $_SESSION = array();
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
     session_destroy();
     echo json_encode(["status" => "success"]);
     exit;
@@ -189,11 +199,14 @@ if ($action === 'update_profile') {
         exit;
     }
     $newName = $_POST['name'] ?? '';
-    $newEmail = $_POST['email'] ?? '';
+    // Use session values as default if not sent in POST (fixes "Email cannot be empty" bug)
+    $newEmail = !empty($_POST['email']) ? $_POST['email'] : ($_SESSION['user_email'] ?? '');
+    $newTelefone = !empty($_POST['telefone']) ? $_POST['telefone'] : ($_SESSION['user_telefone'] ?? '');
+    $newCpf = !empty($_POST['cpf']) ? $_POST['cpf'] : ($_SESSION['user_cpf'] ?? '');
     $newPicture = $_POST['profile_picture'] ?? '';
-    $newTelefone = $_POST['telefone'] ?? '';
-    $newCpf = $_POST['cpf'] ?? '';
+
     $userId = $_SESSION['user_id'];
+    
     if (empty($newName)) {
         echo json_encode(["status" => "error", "message" => "Nome não pode estar vazio."]);
         exit;
@@ -202,16 +215,25 @@ if ($action === 'update_profile') {
         echo json_encode(["status" => "error", "message" => "E-mail não pode estar vazio."]);
         exit;
     }
+    
+    // Check if email already exists for another user
     $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
     $stmtCheck->execute([$newEmail, $userId]);
     if ($stmtCheck->fetch()) {
         echo json_encode(["status" => "error", "message" => "Este e-mail já está em uso por outra conta."]);
         exit;
     }
+
     $query = "UPDATE users SET name = ?, email = ?, telefone = ?, cpf = ?";
     $params = [$newName, $newEmail, $newTelefone, $newCpf];
+    
+    // Update session values
+    $_SESSION['user_name'] = $newName;
+    $_SESSION['user_email'] = $newEmail;
+    $_SESSION['user_telefone'] = $newTelefone;
+    $_SESSION['user_cpf'] = $newCpf;
     if (!empty($newPicture) && strpos($newPicture, 'data:image/') === 0) {
-
+        // Process base64 image
         list($type, $data) = explode(';', $newPicture);
         list(, $data) = explode(',', $data);
         $data = base64_decode($data);
@@ -221,19 +243,26 @@ if ($action === 'update_profile') {
         $uploadPath = __DIR__ . '/../uploads/profile_pics/' . $filename;
         $dbPath = 'uploads/profile_pics/' . $filename;
 
-        $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
-        $stmt_old->execute([$userId]);
-        $oldPic = $stmt_old->fetchColumn();
-        if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
-            @unlink(__DIR__ . '/../' . $oldPic);
-        }
+        // Try to save file
         if (file_put_contents($uploadPath, $data)) {
+            // Delete old picture if exists
+            $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
+            $stmt_old->execute([$userId]);
+            $oldPic = $stmt_old->fetchColumn();
+            if ($oldPic && strpos($oldPic, 'uploads/') === 0 && file_exists(__DIR__ . '/../' . $oldPic)) {
+                @unlink(__DIR__ . '/../' . $oldPic);
+            }
+
             $query .= ", profile_picture = ?";
             $params[] = $dbPath;
             $_SESSION['profile_picture'] = $dbPath;
+        } else {
+            @ob_clean();
+            echo json_encode(["status" => "error", "message" => "Erro ao salvar foto de perfil. Verifique as permissões da pasta uploads/profile_pics."]);
+            exit;
         }
     } else if (isset($_POST['delete_photo']) && $_POST['delete_photo'] == '1') {
-
+        // Delete photo logic
         $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
         $stmt_old->execute([$userId]);
         $oldPic = $stmt_old->fetchColumn();

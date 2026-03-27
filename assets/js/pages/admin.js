@@ -51,7 +51,11 @@
                 filteredProducts = [...allProducts];
                 renderTable();
             } catch(e) {
+                console.error('Erro ao carregar dados:', e);
                 window.showToast('Erro ao carregar dados.', 'error');
+                if (tableBody) {
+                    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem; color: #EF4444;"><i class="bx bx-error-circle"></i> Não foi possível carregar o catálogo. Verifique sua conexão.</td></tr>';
+                }
             }
         }
         function setupSearchHandler() {
@@ -90,7 +94,7 @@
                 tr.innerHTML = `
                     <td>
                         <div class="prod-cell">
-                            <img src="${p.image}" class="prod-thumb" alt="${p.name}">
+                            <img src="${p.image || 'assets/img/logoPNG.png'}" class="prod-thumb" alt="${p.name}">
                             <span style="font-weight: 500;">${p.name}</span>
                         </div>
                     </td>

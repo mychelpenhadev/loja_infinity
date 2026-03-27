@@ -157,7 +157,7 @@
                 <div class="search-suggestions" id="header-search-suggestions"></div>
             </div>
             <div class="nav-actions">
-                <a href="login.html" class="action-btn" title="Minha Conta">
+                <a href="perfil.php" class="action-btn" title="Meu Perfil">
                     <i class='bx bx-user'></i>
                 </a>
                 <a href="admin.php" class="action-btn" title="Painel Admin" style="display: none;">
@@ -180,7 +180,7 @@
                     </div>
                 </div>
                 <a href="carrinho.html" class="action-btn" title="Carrinho">
-                    <i class='bx bx-shopping-bag'></i>
+                    <i class='bx bx-cart-alt'></i>
                     <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
                 </a>
             </div>
@@ -198,13 +198,15 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col">
-                    <a href="index.php" class="nav-brand" style="margin-bottom: 1.5rem; display: inline-flex;">
-                        <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 80px; object-fit: contain;">
-                    </a>
+                <div class="footer-col" id="footer-logo-col">
                     <p>Sua vida mais colorida e organizada. Entregamos criatividade em forma de papelaria para todo o Brasil.</p>
-                    <div class="social-links">
-                        <a href="https://instagram.com/infinityvariedades_" target="_blank" class="social-link"><i class='bx bxl-instagram'></i></a>
+                    <div style="display: flex; align-items: center; gap: 1.5rem;" class="footer-brand-wrap">
+                        <a href="index.php" class="footer-logo-link">
+                            <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 50px; object-fit: contain;">
+                        </a>
+                        <div class="social-links" style="margin-top: 0;">
+                            <a href="https://instagram.com/infinityvariedades_" target="_blank" class="social-link"><i class='bx bxl-instagram'></i></a>
+                        </div>
                     </div>
                 </div>
                 <div class="footer-col">
@@ -238,8 +240,8 @@
             </div>
         </div>
     </footer>
-    <script src="assets/js/core/db.js?v=29"></script>
-    <script src="assets/js/core/app.js?v=37"></script>
+    <script src="assets/js/core/db.js?v=41"></script>
+    <script src="assets/js/core/app.js?v=42"></script>
     <script src="assets/js/pages/detalhes.js?v=9"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

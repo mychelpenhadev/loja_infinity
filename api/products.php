@@ -60,8 +60,7 @@ try {
             $slim = isset($_GET['slim']) && $_GET['slim'] == '1';
             if ($slim) {
                 // Return tiny payload without heavy Base64 image strings or descriptions
-                $stmt = $pdo->prepare("SELECT id, name, price, category, brand, rating, created_at, 
-                                              CASE WHEN image LIKE 'data:image/%' THEN '' ELSE image END as image 
+                $stmt = $pdo->prepare("SELECT id, name, price, category, brand, rating, created_at,                                               CASE WHEN image LIKE 'data:image/%' THEN 'assets/img/logoPNG.png' ELSE image END as image 
                                        FROM products $where ORDER BY name ASC LIMIT $limit OFFSET $offset");
             } else {
                 $stmt = $pdo->prepare("SELECT * FROM products $where ORDER BY name ASC LIMIT $limit OFFSET $offset");

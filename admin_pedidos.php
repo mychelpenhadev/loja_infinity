@@ -199,7 +199,7 @@ if (!isAdmin()) {
                     <i class='bx bx-cube-alt'></i> Produtos
                 </a>
                 <a href="admin_pedidos.php" class="admin-link active">
-                    <i class='bx bx-shopping-bag'></i> Pedidos (Retirada)
+                    <i class='bx bx-cart-alt'></i> Pedidos (Retirada)
                 </a>
                 <a href="admin_config.php" class="admin-link">
                     <i class='bx bx-cog'></i> Configurações

@@ -78,7 +78,7 @@ function generateStars($rating) {
                 <div class="search-suggestions" id="header-search-suggestions"></div>
             </div>
             <div class="nav-actions">
-                <a href="login.html" class="action-btn" title="Minha Conta">
+                <a href="perfil.php" class="action-btn" title="Meu Perfil">
                     <i class='bx bx-user'></i>
                 </a>
                 <a href="admin.php" class="action-btn" title="Painel Admin" style="display: none;">
@@ -101,7 +101,7 @@ function generateStars($rating) {
                     </div>
                 </div>
                 <a href="carrinho.html" class="action-btn" title="Carrinho">
-                    <i class='bx bx-shopping-bag'></i>
+                    <i class='bx bx-cart-alt'></i>
                     <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
                 </a>
             </div>
@@ -158,18 +158,18 @@ function generateStars($rating) {
                 <h2 class="section-title">Destaques da Semana</h2>
                 <p class="section-subtitle">Os produtos mais amados pelos nossos criativos</p>
             </div>
-            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
-                <a href="produtos.html?cat=promocoes" class="category-tab">
-                    <i class='bx bxs-gift'></i> Promoções
+            <div class="category-tabs-container">
+                <a href="produtos.html?cat=promocoes" class="category-tab tab-promo">
+                    <i class='bx bxs-purchase-tag-alt'></i> Promoções
                 </a>
-                <a href="produtos.html?cat=novidades" class="category-tab">
-                    <i class='bx bxs-sparkling'></i> Novidades
+                <a href="produtos.html?cat=novidades" class="category-tab tab-new">
+                    <i class='bx bxs-rocket'></i> Novidades
                 </a>
-                <a href="produtos.html?cat=criancas" class="category-tab">
-                    <i class='bx bxs-happy-beaming'></i> Crianças
+                <a href="produtos.html?cat=criancas" class="category-tab tab-kids">
+                    <i class='bx bxs-smile'></i> Crianças
                 </a>
-                <a href="produtos.html" class="category-tab">
-                    <i class='bx bxs-grid'></i> Todos os Produtos
+                <a href="produtos.html" class="category-tab tab-all">
+                    <i class='bx bxs-shopping-bags'></i> Ver Tudo
                 </a>
             </div>
             <div class="product-grid" id="featured-products">
@@ -221,7 +221,7 @@ function generateStars($rating) {
             <?php endif; ?>
         </div>
     </section>
-    <section class="section" style="background-color: var(--clr-surface); border-top: 1px solid var(--clr-border);">
+    <section class="section hide-mobile" style="background-color: var(--clr-surface); border-top: 1px solid var(--clr-border);">
         <div class="container">
             <div class="hero-grid" style="align-items: center;">
                 <div>
@@ -244,13 +244,15 @@ function generateStars($rating) {
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
-                <div class="footer-col">
-                    <a href="index.php" class="nav-brand" style="margin-bottom: 1.5rem; display: inline-flex;">
-                        <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 80px; object-fit: contain;">
-                    </a>
+                <div class="footer-col" id="footer-logo-col">
                     <p>Sua vida mais colorida e organizada. Entregamos criatividade em forma de papelaria para todo o Brasil.</p>
-                    <div class="social-links">
-                        <a href="https://instagram.com/infinityvariedades_" target="_blank" class="social-link"><i class='bx bxl-instagram'></i></a>
+                    <div style="display: flex; align-items: center; gap: 1.5rem;" class="footer-brand-wrap">
+                        <a href="index.php" class="footer-logo-link">
+                            <img src="assets/img/logoPNG.png" alt="Infinity Variedades" style="height: 50px; object-fit: contain;">
+                        </a>
+                        <div class="social-links" style="margin-top: 0;">
+                            <a href="https://instagram.com/infinityvariedades_" target="_blank" class="social-link"><i class='bx bxl-instagram'></i></a>
+                        </div>
                     </div>
                 </div>
                 <div class="footer-col">
@@ -417,24 +419,43 @@ function generateStars($rating) {
         .category-tab {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
+            gap: 0.75rem;
+            padding: 0.8rem 1.75rem;
             background: var(--clr-surface);
             border: 1px solid var(--clr-border);
             border-radius: var(--radius-lg);
             color: var(--clr-text);
             text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        .category-tab i { 
+            font-size: 1.5rem; 
+            transition: transform 0.3s ease;
         }
         .category-tab:hover {
-            background: var(--clr-primary);
-            color: white;
-            border-color: var(--clr-primary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            color: white !important;
         }
-        .category-tab i { font-size: 1.25rem; }
+        .category-tab:hover i { transform: scale(1.2) rotate(5deg); }
+
+        .tab-promo { border-left: 4px solid #EF4444; }
+        .tab-promo:hover { background: linear-gradient(135deg, #EF4444, #F87171); border-color: transparent; }
+        .tab-promo i { color: #EF4444; }
+
+        .tab-new { border-left: 4px solid #8B5CF6; }
+        .tab-new:hover { background: linear-gradient(135deg, #8B5CF6, #A78BFA); border-color: transparent; }
+        .tab-new i { color: #8B5CF6; }
+
+        .tab-kids { border-left: 4px solid #EC4899; }
+        .tab-kids:hover { background: linear-gradient(135deg, #EC4899, #F472B6); border-color: transparent; }
+        .tab-kids i { color: #EC4899; }
+
+        .tab-all { border-left: 4px solid #06B6D4; }
+        .tab-all:hover { background: linear-gradient(135deg, #06B6D4, #22D3EE); border-color: transparent; }
+        .tab-all i { color: #06B6D4; }
         .hidden-product { display: none; }
         .header-search-container {
             position: relative;
@@ -486,6 +507,45 @@ function generateStars($rating) {
                 font-size: 0.9rem;
             }
         }
+
+        /* --- CATEGORY TABS MOBILE APP-LIKE --- */
+        .category-tabs-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 768px) {
+            .category-tabs-container {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+                padding: 0 0.5rem;
+                margin-bottom: 1.5rem;
+            }
+            .category-tab {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                padding: 0.5rem 0.25rem;
+                font-size: 0.65rem;
+                gap: 0.25rem;
+                white-space: normal;
+                line-height: 1.2;
+                border-radius: var(--radius-md);
+                border: none;
+                border-top: 3px solid var(--clr-border);
+            }
+            .tab-promo { border-top: 3px solid #EF4444; }
+            .tab-new { border-top: 3px solid #8B5CF6; }
+            .tab-kids { border-top: 3px solid #EC4899; }
+            .tab-all { border-top: 3px solid #06B6D4; }
+            .category-tab i {
+                font-size: 1.5rem !important;
+                margin-bottom: 0.15rem;
+            }
+        }
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -513,8 +573,8 @@ function generateStars($rating) {
             }
         });
     </script>
-    <script src="assets/js/core/db.js?v=29"></script>
-    <script src="assets/js/core/app.js?v=37"></script>
+    <script src="assets/js/core/db.js?v=41"></script>
+    <script src="assets/js/core/app.js?v=42"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {

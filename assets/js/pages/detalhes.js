@@ -35,7 +35,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             };
             setupBackLink();
-            const product = await window.ProductManager.getById(productId);
+            let product = null;
+            try {
+                product = await window.ProductManager.getById(productId);
+            } catch (e) {
+                console.error('[Debug] Erro ao buscar produto:', e);
+            }
+
             console.log('[Debug] Produto retornado pelo Manager:', product);
             if (!product) {
                 if(container) {
@@ -203,11 +209,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 window.showToast('Por favor, selecione uma cor antes de continuar!', 'warning');
                                 return;
                             }
-                            if (!window.isLoggedIn) {
+                            /* if (!window.isLoggedIn) {
                                 window.showToast('Faça login para adicionar produtos ao carrinho!', 'error');
                                 setTimeout(() => { window.location.href = 'login.html'; }, 1500);
                                 return;
-                            }
+                            } */
                             window.CartManager.add(product.id, quantity, selectedColor);
                             const colorInfo = selectedColor ? ` (${selectedColor})` : '';
                             window.showToast(`${Number(quantity)}x ${product.name}${colorInfo} adicionado ao carrinho!`);

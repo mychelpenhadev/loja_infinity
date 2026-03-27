@@ -52,7 +52,7 @@ try {
     $sqlDump .= "SET SQL_MODE='NO_AUTO_VALUE_ON_ZERO';\n";
     $sqlDump .= "SET NAMES utf8mb4;\n\n";
 
-    $tables = ['products', 'users', 'orders', 'configs'];
+    $tables = ['products', 'users', 'orders', 'configs', 'migrations'];
 
     foreach ($tables as $table) {
         try {

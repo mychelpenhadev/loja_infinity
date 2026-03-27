@@ -94,8 +94,52 @@ try {
     // Fix collation issues between MySQL 8 (XAMPP) and older MariaDB/MySQL versions (Railway)
     $sqlContent = str_replace('utf8mb4_0900_ai_ci', 'utf8mb4_unicode_ci', $sqlContent);
     
-    // Explode by semicolon followed by newline, avoiding splitting data inside strings (e.g. data:image/png;base64)
-    $statements = explode(";\n", $sqlContent);
+    // Robust SQL splitting that respects quoted strings
+    $statements = [];
+    $currentStmt = '';
+    $inString = false;
+    $stringChar = '';
+    $escaped = false;
+
+    $len = strlen($sqlContent);
+
+    for ($i = 0; $i < $len; $i++) {
+        $c = $sqlContent[$i];
+
+        if ($escaped) {
+            $currentStmt .= $c;
+            $escaped = false;
+            continue;
+        }
+
+        if ($c === '\\') {
+            $currentStmt .= $c;
+            $escaped = true;
+            continue;
+        }
+
+        if (!$inString) {
+            if ($c === "'" || $c === '"' || $c === '`') {
+                $inString = true;
+                $stringChar = $c;
+            } else if ($c === ';') {
+                // Peek ahead for newline to maintain the "split by semicolon at end of line" behavior
+                // but actually any semicolon outside a string acts as a delimiter in SQL.
+                $statements[] = trim($currentStmt);
+                $currentStmt = '';
+                continue;
+            }
+        } else {
+            if ($c === $stringChar) {
+                $inString = false;
+            }
+        }
+        $currentStmt .= $c;
+    }
+    if (trim($currentStmt) !== '') {
+        $statements[] = trim($currentStmt);
+    }
+
     $errors = [];
 
     foreach ($statements as $stmt) {

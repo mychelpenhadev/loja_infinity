@@ -238,29 +238,63 @@ function setupBackup() {
 
     backupBtn.addEventListener('click', async () => {
         backupBtn.disabled = true;
+        const originalHTML = backupBtn.innerHTML;
         backupBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Gerando backup...";
+        
         if (statusEl) {
             statusEl.style.display = 'block';
             statusEl.style.color = 'var(--clr-text-light)';
-            statusEl.textContent = 'Preparando arquivo ZIP, aguarde...';
+            statusEl.textContent = 'Preparando arquivo ZIP, isso pode levar alguns segundos...';
         }
 
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'api/backup.php';
-        form.style.display = 'none';
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
+        try {
+            const response = await fetch('api/backup.php', {
+                method: 'POST'
+            });
 
-        setTimeout(() => {
-            backupBtn.disabled = false;
-            backupBtn.innerHTML = "<i class='bx bx-data'></i> Gerar Backup";
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || 'Erro ao gerar backup');
+            }
+
+            // Get the filename from Content-Disposition if available
+            const disposition = response.headers.get('Content-Disposition');
+            let filename = 'backup_loja.zip';
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                const matches = filenameRegex.exec(disposition);
+                if (matches != null && matches[1]) { 
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
             if (statusEl) {
                 statusEl.style.color = '#10B981';
-                statusEl.textContent = 'Backup gerado com sucesso!';
+                statusEl.textContent = 'Backup gerado e download iniciado!';
             }
-        }, 3000);
+            window.showToast("Backup gerado com sucesso!", "success");
+        } catch (err) {
+            console.error(err);
+            if (statusEl) {
+                statusEl.style.color = '#EF4444';
+                statusEl.textContent = 'Erro: ' + err.message;
+            }
+            window.showToast(err.message, "error");
+        } finally {
+            backupBtn.disabled = false;
+            backupBtn.innerHTML = originalHTML;
+        }
     });
 }
 

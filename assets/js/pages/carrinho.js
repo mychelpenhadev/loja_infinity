@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(!container.querySelector('.bxs-check-circle')){
                     container.innerHTML = `
                         <div class="empty-cart">
-                            <i class='bx bx-shopping-bag' style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <i class='bx bx-cart-alt' style="font-size: 5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                             <h2>Seu carrinho está vazio</h2>
                             <p style="margin-bottom: 2rem;">Adicione itens adoráveis para começar suas compras!</p>
                             <a href="produtos.html" class="btn btn-primary">Ir para Loja</a>
@@ -63,8 +63,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p>Preparando seu carrinho adorável...</p>
                 </div>
             `;
-            const productIds = [...new Set(cartItems.map(item => item.productId))];
-            const allProducts = await window.ProductManager.getBatch(productIds);
+            let allProducts = [];
+            try {
+                const productIds = [...new Set(cartItems.map(item => item.productId))];
+                allProducts = await window.ProductManager.getBatch(productIds);
+            } catch (e) {
+                console.error("Erro ao carregar produtos do carrinho:", e);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 4rem; color: #EF4444;">
+                        <i class='bx bx-error-circle' style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>Erro ao carregar detalhes dos produtos. Verifique sua conexão.</p>
+                        <button class="btn btn-primary" onclick="renderCart()" style="margin-top: 1rem;">Tentar Novamente</button>
+                    </div>
+                `;
+                return;
+            }
             let itemsHTML = '';
             let subtotal = 0;
             cartItems.forEach(item => {
