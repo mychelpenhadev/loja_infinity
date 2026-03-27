@@ -1,4 +1,5 @@
 <?php
+require_once 'api/security.php';
 define('CACHE_FILE', __DIR__ . '/api/cache/home_data.json');
 define('CACHE_TIME', 600);
 $data = null;
@@ -847,7 +848,7 @@ function generateStars($rating) {
             }, {passive: true});
         })();
     </script>
-    <?php require_once 'api/security.php'; if(isAdmin()): ?>
+    <?php if(isAdmin()): ?>
     <script src="assets/js/core/admin_notifications.js?v=4"></script>
     <?php endif; ?>
 </body>
