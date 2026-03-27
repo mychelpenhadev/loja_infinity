@@ -36,9 +36,11 @@ try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS `configs` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `config_key` varchar(100) NOT NULL UNIQUE,
-        `config_value` text DEFAULT NULL,
+        `config_value` LONGTEXT DEFAULT NULL,
         PRIMARY KEY (`id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    $pdo->exec("ALTER TABLE `configs` MODIFY COLUMN `config_value` LONGTEXT DEFAULT NULL");
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS `users` (
         `id` int(11) NOT NULL AUTO_INCREMENT,

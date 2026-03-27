@@ -4,6 +4,9 @@ header('Content-Type: application/json');
 require_once 'security.php';
 require_once 'db.php';
 ob_clean();
+
+try { $pdo->exec("ALTER TABLE configs MODIFY COLUMN config_value LONGTEXT DEFAULT NULL"); } catch(Exception $e) {}
+
 $action = $_GET['action'] ?? 'get';
 try {
     switch ($action) {
@@ -28,19 +31,7 @@ try {
             if (!$data) throw new Exception("Dados inválidos");
             foreach ($data as $key => $value) {
                 if ($key === 'hero_banners') {
-                    $stmt = $pdo->prepare("SELECT config_value FROM configs WHERE config_key = 'hero_banners'");
-                    $stmt->execute();
-                    $oldRow = $stmt->fetch(PDO::FETCH_ASSOC);
-                    if ($oldRow && $oldRow['config_value']) {
-                        $oldBanners = json_decode($oldRow['config_value'], true) ?: [];
-                        $newBanners = json_decode($value, true) ?: [];
-                        $newUrls = array_column($newBanners, 'url');
-                        foreach ($oldBanners as $old) {
-                            if (!empty($old['url']) && !in_array($old['url'], $newUrls)) {
-                                deleteFileIfInUploads($old['url']);
-                            }
-                        }
-                    }
+                    // Old file-based banners cleanup no longer needed (base64 stored in DB)
                 }
                 $stmt = $pdo->prepare("INSERT INTO configs (config_key, config_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE config_value = ?");
                 $stmt->execute([$key, $value, $value]);
@@ -63,11 +54,15 @@ try {
             }
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
             $filename = 'banner_' . uniqid() . '_' . time() . '.' . $ext;
-            $uploadDir = __DIR__ . '/../uploads/banners/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            $uploadDir = getUploadPath('banners/');
+            if (!is_dir($uploadDir)) {
+                if (!@mkdir($uploadDir, 0755, true)) {
+                    throw new Exception("Não foi possível criar diretório: $uploadDir (UPLOAD_DIR=" . (getenv('UPLOAD_DIR') ?: 'não definido') . ")");
+                }
+            }
             $dest = $uploadDir . $filename;
-            if (!move_uploaded_file($file['tmp_name'], $dest)) {
-                throw new Exception("Falha ao salvar o arquivo.");
+            if (!@move_uploaded_file($file['tmp_name'], $dest)) {
+                throw new Exception("Falha ao salvar em: $dest (dir gravável=" . (is_writable($uploadDir) ? 'sim' : 'não') . ", tmp=" . $file['tmp_name'] . ")");
             }
             echo json_encode(["status" => "success", "url" => "uploads/banners/" . $filename]);
             break;

@@ -1,7 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+error_reporting(0);
+ini_set('display_errors', '0');
 
 ob_start();
 require_once 'security.php';
@@ -34,10 +33,7 @@ if (!class_exists('ZipArchive')) {
 }
 
 try {
-    $tmpDir = __DIR__ . '/../temp_backup';
-    if (!is_dir($tmpDir)) {
-        mkdir($tmpDir, 0755, true);
-    }
+    $tmpDir = sys_get_temp_dir();
     $tmpZip = $tmpDir . '/backup_' . uniqid() . '.zip';
     
     $zip = new ZipArchive();
@@ -133,15 +129,9 @@ try {
     exit;
 
 } catch (Exception $e) {
-    @ob_end_clean();
+    while (ob_get_level()) @ob_end_clean();
     http_response_code(500);
     header('Content-Type: application/json');
     echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     if (isset($tmpZip) && file_exists($tmpZip)) unlink($tmpZip);
-    if (isset($tmpDir) && is_dir($tmpDir)) {
-        $files = glob($tmpDir . '/*');
-        foreach ($files as $file) {
-            if (is_file($file)) unlink($file);
-        }
-    }
 }

@@ -20,7 +20,7 @@ const ProductManager = {
       const cached = sessionStorage.getItem(cacheKey);
       const exp = sessionStorage.getItem(expKey);
       if (cached && exp && now < parseInt(exp)) {
-        return JSON.parse(cached);
+        try { return JSON.parse(cached); } catch(e) { sessionStorage.removeItem(cacheKey); }
       }
     }
     try {
@@ -29,9 +29,22 @@ const ProductManager = {
       const data = await response.json();
       if (!hasSearch) {
         try {
-          sessionStorage.setItem(cacheKey, JSON.stringify(data));
-          sessionStorage.setItem(expKey, (now + 600000).toString());
-        } catch (e) { console.warn("Cache quota", e); }
+          const cacheData = JSON.parse(JSON.stringify(data));
+          if (cacheData.products) {
+            cacheData.products = cacheData.products.map(p => ({
+              ...p,
+              image: (p.image && p.image.startsWith('data:image')) ? 'assets/img/logoPNG.png' : p.image
+            }));
+          }
+          const json = JSON.stringify(cacheData);
+          if (json.length < 2000000) {
+            sessionStorage.setItem(cacheKey, json);
+            sessionStorage.setItem(expKey, (now + 600000).toString());
+          }
+        } catch (e) {
+          ProductManager.clearCache();
+          console.warn("Cache quota", e);
+        }
       }
       return data;
     } catch (err) {
@@ -43,7 +56,7 @@ const ProductManager = {
     const keysToRemove = [];
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-      if (key && (key.startsWith('papelaria_prods_list_') || key === STORAGE_KEYS.PRODUCTS_CACHE || key === STORAGE_KEYS.PRODUCTS_CACHE_EXP)) {
+      if (key && (key.startsWith('papelaria_prods_list_') || key.startsWith('papelaria_prod_') || key === STORAGE_KEYS.PRODUCTS_CACHE || key === STORAGE_KEYS.PRODUCTS_CACHE_EXP)) {
         keysToRemove.push(key);
       }
     }
@@ -66,7 +79,10 @@ const ProductManager = {
       if (data) {
         ProductManager._cache[id] = data;
         try {
-          sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id, JSON.stringify(data));
+          const json = JSON.stringify(data);
+          if (json.length < 500000) {
+            sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + id, json);
+          }
         } catch (e) {
           console.warn("[DB] Falha ao salvar no sessionStorage (provavelmente cota excedida):", e);
         }
@@ -106,7 +122,10 @@ const ProductManager = {
       data.forEach(p => {
         ProductManager._cache[p.id] = p;
         try {
-          sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + p.id, JSON.stringify(p));
+          const json = JSON.stringify(p);
+          if (json.length < 500000) {
+            sessionStorage.setItem(STORAGE_KEYS.PRODUCT_DETAIL_PREFIX + p.id, json);
+          }
         } catch (e) {
           console.warn("[DB] Falha ao salvar item no sessionStorage (lote):", e);
         }
@@ -340,14 +359,17 @@ const ConfigManager = {
     try {
       ConfigManager.clearCache();
       ConfigManager._cache[key] = value;
-      await fetch('api/config.php?action=save', {
+      const resp = await fetch('api/config.php?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [key]: value }),
         credentials: 'include'
       });
+      const result = await resp.json();
+      return result;
     } catch (err) {
       console.error("Erro ao salvar config:", err);
+      return { status: 'error', message: err.message };
     }
   }
 };

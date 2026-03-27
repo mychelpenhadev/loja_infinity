@@ -233,42 +233,21 @@ if ($action === 'update_profile') {
     $_SESSION['user_telefone'] = $newTelefone;
     $_SESSION['user_cpf'] = $newCpf;
     if (!empty($newPicture) && strpos($newPicture, 'data:image/') === 0) {
-        // Process base64 image
         list($type, $data) = explode(';', $newPicture);
         list(, $data) = explode(',', $data);
         $data = base64_decode($data);
-
         $extension = 'jpg';
-        $filename = 'user_' . $userId . '_' . time() . '.' . $extension;
-        $uploadPath = __DIR__ . '/../uploads/profile_pics/' . $filename;
-        $dbPath = 'uploads/profile_pics/' . $filename;
-
-        // Try to save file
-        if (file_put_contents($uploadPath, $data)) {
-            // Delete old picture if exists
-            $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
-            $stmt_old->execute([$userId]);
-            $oldPic = $stmt_old->fetchColumn();
-            if ($oldPic) {
-                deleteFileIfInUploads($oldPic);
-            }
-
+        $filename = 'cliente_' . $userId . '_' . time() . '.' . $extension;
+        $uploadDir = getUploadPath('clientes/');
+        if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
+        $uploadPath = $uploadDir . $filename;
+        $dbPath = 'uploads/clientes/' . $filename;
+        if (@file_put_contents($uploadPath, $data)) {
             $query .= ", profile_picture = ?";
             $params[] = $dbPath;
             $_SESSION['profile_picture'] = $dbPath;
-        } else {
-            @ob_clean();
-            echo json_encode(["status" => "error", "message" => "Erro ao salvar foto de perfil. Verifique as permissões da pasta uploads/profile_pics."]);
-            exit;
         }
     } else if (isset($_POST['delete_photo']) && $_POST['delete_photo'] == '1') {
-        // Delete photo logic
-        $stmt_old = $pdo->prepare("SELECT profile_picture FROM users WHERE id = ?");
-        $stmt_old->execute([$userId]);
-        $oldPic = $stmt_old->fetchColumn();
-        if ($oldPic) {
-            deleteFileIfInUploads($oldPic);
-        }
         $query .= ", profile_picture = NULL";
         $_SESSION['profile_picture'] = null;
     }

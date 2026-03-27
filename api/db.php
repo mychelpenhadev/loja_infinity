@@ -60,12 +60,20 @@ catch (Throwable $e) {
  */
 function deleteFileIfInUploads($relativePath) {
     if (empty($relativePath)) return false;
-    // Security: Only allow deleting files inside the uploads directory
     if (strpos($relativePath, 'uploads/') !== 0) return false;
     
-    $fullPath = __DIR__ . '/../' . ltrim($relativePath, '/');
+    $subPath = substr($relativePath, strlen('uploads/'));
+    $fullPath = getUploadPath($subPath);
     if (is_file($fullPath)) {
         return @unlink($fullPath);
     }
     return false;
+}
+
+function getUploadPath($relativePath = '') {
+    $base = getenv('UPLOAD_DIR') ?: (__DIR__ . '/../uploads');
+    if ($relativePath) {
+        return rtrim($base, '/') . '/' . ltrim($relativePath, '/');
+    }
+    return rtrim($base, '/');
 }

@@ -96,7 +96,8 @@ async function setupBanners() {
                 try {
                     const resp = await fetch('api/config.php?action=upload-banner', {
                         method: 'POST',
-                        body: formData
+                        body: formData,
+                        credentials: 'include'
                     });
                     const result = await resp.json();
                     if (result.status === 'success') {
@@ -112,10 +113,14 @@ async function setupBanners() {
             }
         }
 
-        await window.ConfigManager.set('hero_banners', JSON.stringify(banners));
+        const result = await window.ConfigManager.set('hero_banners', JSON.stringify(banners));
         saveBtn.disabled = false;
         saveBtn.innerHTML = "<i class='bx bx-save'></i> Salvar Banners";
-        window.showToast(`${banners.length} banner(s) salvo(s) com sucesso!`, "success");
+        if (result && result.status === 'error') {
+            window.showToast(result.message || 'Erro ao salvar banners', 'error');
+        } else {
+            window.showToast(`${banners.length} banner(s) salvo(s) com sucesso!`, "success");
+        }
     });
 }
 
@@ -257,7 +262,6 @@ function setupBackup() {
                 throw new Error(errorData.message || 'Erro ao gerar backup');
             }
 
-            // Get the filename from Content-Disposition if available
             const disposition = response.headers.get('Content-Disposition');
             let filename = 'backup_loja.zip';
             if (disposition && disposition.indexOf('attachment') !== -1) {

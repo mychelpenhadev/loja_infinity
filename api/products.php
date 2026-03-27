@@ -113,9 +113,11 @@ try {
                         $extension = explode('/', $type)[1];
                         if ($extension === 'jpeg') $extension = 'jpg';
                         $filename = 'prod_' . $id . '_' . time() . '.' . $extension;
-                        $uploadPath = __DIR__ . '/../uploads/products/' . $filename;
-                        if (file_put_contents($uploadPath, $imgData)) {
-                            $image = 'uploads/products/' . $filename;
+                        $uploadDir = getUploadPath('produtos/');
+                        if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
+                        $uploadPath = $uploadDir . $filename;
+                        if (@file_put_contents($uploadPath, $imgData)) {
+                            $image = 'uploads/produtos/' . $filename;
                         }
                     }
                 }
@@ -134,9 +136,11 @@ try {
                     $extension = explode('/', $type)[1];
                     if ($extension === 'jpeg') $extension = 'jpg';
                     $filename = 'prod_' . $id . '_' . time() . '.' . $extension;
-                    $uploadPath = __DIR__ . '/../uploads/products/' . $filename;
-                    if (file_put_contents($uploadPath, $imgData)) {
-                        $newPath = 'uploads/products/' . $filename;
+                    $uploadDir = getUploadPath('produtos/');
+                    if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
+                    $uploadPath = $uploadDir . $filename;
+                    if (@file_put_contents($uploadPath, $imgData)) {
+                        $newPath = 'uploads/produtos/' . $filename;
                         $stmt = $pdo->prepare("UPDATE products SET image=? WHERE id=?");
                         $stmt->execute([$newPath, $id]);
                     }
