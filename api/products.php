@@ -1,9 +1,12 @@
 <?php
-ob_start();
+if (isset($_SERVER['HTTP_ACCEPT_ENCODING']) && substr_count($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip')) {
+    ob_start("ob_gzhandler");
+} else {
+    ob_start();
+}
 header('Content-Type: application/json');
 require_once 'db.php';
 require_once 'security.php';
-ob_clean();
 
 function clearProductCache() {
     $cacheDir = __DIR__ . "/cache";
@@ -54,7 +57,15 @@ try {
             $countStmt->execute($params);
             $total = $countStmt->fetchColumn();
 
-            $stmt = $pdo->prepare("SELECT * FROM products $where ORDER BY name ASC LIMIT $limit OFFSET $offset");
+            $slim = isset($_GET['slim']) && $_GET['slim'] == '1';
+            if ($slim) {
+                // Return tiny payload without heavy Base64 image strings or descriptions
+                $stmt = $pdo->prepare("SELECT id, name, price, category, brand, rating, created_at, 
+                                              CASE WHEN image LIKE 'data:image/%' THEN '' ELSE image END as image 
+                                       FROM products $where ORDER BY name ASC LIMIT $limit OFFSET $offset");
+            } else {
+                $stmt = $pdo->prepare("SELECT * FROM products $where ORDER BY name ASC LIMIT $limit OFFSET $offset");
+            }
             $stmt->execute($params);
             $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $response = json_encode([

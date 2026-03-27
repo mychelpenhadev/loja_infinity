@@ -520,7 +520,7 @@ function generateStars($rating) {
             setTimeout(function() {
                 const notifList = document.getElementById('notification-list');
                 if (notifList && window.ProductManager) {
-                fetch('api/products.php?action=list&limit=100', { credentials: 'include' })
+                fetch('api/products.php?action=list&limit=100&slim=1', { credentials: 'include' })
                 .then(res => res.json())
                 .then(data => {
                     const products = data.products || [];
@@ -600,7 +600,7 @@ function generateStars($rating) {
             const loadAllProducts = async () => {
                 if (allProducts) return;
                 try {
-                    const res = await fetch('api/products.php?action=list&limit=500');
+                    const res = await fetch('api/products.php?action=list&limit=500&slim=1');
                     const data = await res.json();
                     allProducts = data.products || [];
                 } catch(e) { allProducts = []; }

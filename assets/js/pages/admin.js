@@ -46,7 +46,7 @@
             tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;"><i class="bx bx-loader-alt bx-spin"></i> Carregando catálogo...</td></tr>';
             try {
                 window.ProductManager.clearCache();
-                const data = await window.ProductManager.getAll({ limit: 1000 });
+                const data = await window.ProductManager.getAll({ limit: 1000, slim: 1 });
                 allProducts = data.products || [];
                 filteredProducts = [...allProducts];
                 renderTable();
@@ -164,21 +164,32 @@
             });
         }
         window.editProduct = async (id) => {
-            const product = allProducts.find(p => p.id == id);
-            if (product) {
-                document.getElementById('modal-title').innerText = 'Editar Produto';
-                document.getElementById('prod-id').value = product.id;
-                document.getElementById('prod-nome').value = product.name;
-                document.getElementById('prod-preco').value = product.price;
-                document.getElementById('prod-categoria').value = product.category;
-                document.getElementById('prod-marca').value = product.brand || '';
-                document.getElementById('prod-imagem-base64').value = product.image;
-                imagePreview.src = product.image;
-                previewContainer.style.display = 'block';
-                fileInput.value = '';
-                document.getElementById('prod-video').value = product.video || '';
-                document.getElementById('prod-desc').value = product.description;
-                modal.classList.add('active');
+            const row = document.querySelector(`tr[data-product-id="${id}"]`);
+            if (row) row.style.opacity = '0.5';
+            try {
+                const res = await fetch(`api/products.php?action=get&id=${id}`, { credentials: 'include' });
+                const product = await res.json();
+                if (product && !product.error) {
+                    document.getElementById('modal-title').innerText = 'Editar Produto';
+                    document.getElementById('prod-id').value = product.id;
+                    document.getElementById('prod-nome').value = product.name;
+                    document.getElementById('prod-preco').value = product.price;
+                    document.getElementById('prod-categoria').value = product.category;
+                    document.getElementById('prod-marca').value = product.brand || '';
+                    document.getElementById('prod-imagem-base64').value = product.image;
+                    imagePreview.src = product.image;
+                    previewContainer.style.display = 'block';
+                    fileInput.value = '';
+                    document.getElementById('prod-video').value = product.video || '';
+                    document.getElementById('prod-desc').value = product.description;
+                    modal.classList.add('active');
+                } else {
+                    window.showToast('Erro ao carregar dados.', 'error');
+                }
+            } catch(e) {
+                window.showToast('Erro de conexão ao buscar detalhes.', 'error');
+            } finally {
+                if (row) row.style.opacity = '1';
             }
         };
         window.deleteProduct = async (id) => {
