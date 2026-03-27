@@ -46,7 +46,7 @@
             tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 2rem;"><i class="bx bx-loader-alt bx-spin"></i> Carregando catálogo...</td></tr>';
             try {
                 window.ProductManager.clearCache();
-                const data = await window.ProductManager.getAll({ limit: 1000, slim: 1 });
+                const data = await window.ProductManager.getAll({ limit: 1000 });
                 allProducts = data.products || [];
                 filteredProducts = [...allProducts];
                 renderTable();

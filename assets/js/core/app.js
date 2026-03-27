@@ -234,7 +234,7 @@ function injectSearchOverlay() {
             suggestions.innerHTML = `<div class="suggestion-empty">Nenhum produto encontrado</div>`;
         } else {
             suggestions.innerHTML = products.slice(0, 5).map(p => {
-                const imgSrc = p.image && !p.image.startsWith('data:') ? p.image : 'assets/img/logoPNG.png';
+                const imgSrc = p.image || 'assets/img/logoPNG.png';
                 const priceVal = parseFloat(p.price) || 0;
                 const price = priceVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 return `<div class="suggestion-item" data-id="${p.id}" data-name="${p.name}">
