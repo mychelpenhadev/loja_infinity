@@ -1,0 +1,168 @@
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const checkAuthStatus = () => {
+        if (!window.authChecked) {
+            setTimeout(checkAuthStatus, 50);
+            return;
+        }
+        if (!window.isLoggedIn) {
+            window.location.href = 'login.html';
+            return;
+        }
+        const cart = window.CartManager.getCart();
+        if (cart.length === 0) {
+            window.location.href = 'carrinho.html';
+            return;
+        }
+        renderCheckoutSummary();
+        setupCheckoutForm();
+    };
+    checkAuthStatus();
+    const supportWaBtn = document.getElementById('support-wa-btn');
+    if (supportWaBtn) {
+        let waNum = (window.ConfigManager && window.ConfigManager.get('whatsappNumber')) || '+5598985269184';
+        waNum = waNum.replace(/\D/g, '');
+        if (waNum && !waNum.startsWith('55') && waNum.length <= 11) {
+            waNum = '55' + waNum;
+        }
+        supportWaBtn.href = `https://wa.me/${waNum}?text=Ol%C3%A1!%20Fiz%20um%20pedido%20no%20site%20e%20gostaria%20de%20tirar%20uma%20d%C3%BAvida%20sobre%20a%20retirada.`;
+    }
+});
+async function renderCheckoutSummary() {
+    const container = document.getElementById('checkout-summary');
+    if (!container) return;
+    const cartItems = window.CartManager.getCart();
+
+    container.style.opacity = '0.6';
+    const productIds = [...new Set(cartItems.map(item => item.productId))];
+    const allProducts = await window.ProductManager.getBatch(productIds);
+    container.style.opacity = '1';
+    let subtotal = 0;
+    cartItems.forEach(item => {
+        const product = allProducts.find(p => String(p.id) === String(item.productId));
+        if (product) {
+            subtotal += parseFloat(product.price) * item.quantity;
+        }
+    });
+    const shipping = 0.00;
+    const total = subtotal + shipping;
+    container.innerHTML = `
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Retirada na loja</h2>
+        <div class="summary-row">
+            <span>Subtotal (${window.CartManager.getTotalItems()} itens)</span>
+            <span style="color: var(--clr-text); font-weight: 500;">${window.formatCurrency(subtotal)}</span>
+        </div>
+        <div class="summary-total">
+            <span>Total a Pagar</span>
+            <span style="color: var(--clr-accent);" id="total-val">${window.formatCurrency(total)}</span>
+        </div>
+        <button type="submit" form="payment-form" id="confirm-btn" class="btn btn-primary" style="width: 100%; margin-top: 2rem; padding: 1rem;">
+            Confirmar Compra <i class='bx bxl-whatsapp' ></i>
+        </button>
+        <p style="text-align: center; margin-top: 1rem; color: var(--clr-text-light); font-size: 0.75rem;">
+            Seu pedido será enviado via WhatsApp
+        </p>
+    `;
+}
+function setupCheckoutForm() {
+    const form = document.getElementById('payment-form');
+    if (!form) return;
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        console.log("Form submitted!");
+        const btn = document.getElementById('confirm-btn');
+        if (btn) {
+            btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Processando...";
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+        }
+        try {
+        const cartItems = window.CartManager.getCart();
+        console.log("Cart items:", cartItems);
+        const productIds = [...new Set(cartItems.map(item => item.productId))];
+        console.log("Product IDs:", productIds);
+        const allProducts = await window.ProductManager.getBatch(productIds);
+        console.log("All products:", allProducts);
+        let subtotal = 0;
+        let fullItemsData = [];
+        cartItems.forEach(item => {
+            const product = allProducts.find(p => String(p.id) === String(item.productId));
+            if(product) {
+                const price = parseFloat(product.price);
+                subtotal += price * item.quantity;
+                fullItemsData.push({
+                    productId: product.id,
+                    name: product.name,
+                    price: price,
+                    quantity: item.quantity,
+                    color: item.color,
+                    image: product.image
+                });
+            }
+        });
+
+        let whatsappNumber = (window.ConfigManager && window.ConfigManager.get('whatsappNumber')) || '+5598985269184';
+        whatsappNumber = whatsappNumber.replace(/\D/g, '');
+        if (whatsappNumber && !whatsappNumber.startsWith('55') && whatsappNumber.length <= 11) {
+            whatsappNumber = '55' + whatsappNumber;
+        }
+        console.log("WhatsApp Number:", whatsappNumber);
+
+        let message = `*Novo Pedido - Infinity Variedades*\n\n`;
+        message += `*Cliente:* ${window.userName || 'Visitante'}\n\n`;
+        message += `*Produtos:*\n`;
+        fullItemsData.forEach(item => {
+            const colorStr = item.color ? ` (Cor: ${item.color})` : '';
+            message += `- ${item.quantity}x ${item.name}${colorStr} (${window.formatCurrency(item.price)})\n`;
+        });
+        message += `\n*Total da Compra:* ${window.formatCurrency(subtotal)}`;
+        const encodedMessage = encodeURIComponent(message);
+        console.log("Order Data:", { user_id: window.userId, user_name: window.userName, items: fullItemsData, total: subtotal });
+
+        try {
+            await window.OrderManager.add({
+                user_id: window.userId,
+                user_name: window.userName || "Cliente Padrão",
+                items: fullItemsData,
+                total: subtotal,
+                method: 'WhatsApp'
+            });
+        } catch (err) {
+            console.error("Erro ao registrar pedido:", err);
+        }
+        window.CartManager.clear();
+        const container = document.getElementById('checkout-container');
+        if (container) {
+            container.innerHTML = `
+                <div style="padding: 2rem; background-color: var(--clr-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); max-width: 700px; margin: 0 auto; text-align: center;">
+                    <i class='bx bxs-check-circle' style="font-size: 5rem; color: #10B981; margin-bottom: 0.5rem;" id="status-icon"></i>
+                    <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;" id="status-title">Pedido Registrado!</h2>
+                    <p style="color: var(--clr-text-light); margin-bottom: 2rem;" id="status-desc">Você será redirecionado para o WhatsApp para enviar o pedido à loja.</p>
+                    <div style="margin-top: 1.5rem;">
+                        <a href="https://wa.me/${whatsappNumber}?text=${encodedMessage}" target="_blank" class="btn btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i class='bx bxl-whatsapp' style="font-size: 1.25rem;"></i> Enviar Pedido no WhatsApp
+                        </a>
+                    </div>
+                    <div style="margin-top: 1rem;" id="back-btn-box">
+                        <a href="index.php" class="btn" style="border: 1px solid var(--clr-border); background: transparent; color: var(--clr-text); width: 100%;">Voltar para a Página Inicial</a>
+                    </div>
+                </div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        setTimeout(() => {
+            window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
+        }, 1500);
+        } catch (err) {
+            console.error("Erro ao processar pedido:", err);
+            const btn = document.getElementById('confirm-btn');
+            if (btn) {
+                btn.innerHTML = "Confirmar Compra <i class='bx bxl-whatsapp'></i>";
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }
+            window.showToast("Erro: " + (err.message || "Erro desconhecido"), "error");
+        }
+    });
+}

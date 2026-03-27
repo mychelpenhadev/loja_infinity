@@ -18,3 +18,19 @@ php_value max_input_time 300
     ExpiresByType application/javascript "access plus 1 month"
     ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Prevent infinite loops
+    RewriteCond %{ENV:REDIRECT_STATUS} 200
+    RewriteRule ^ - [L]
+
+    # Route /api/ to backend/api/
+    RewriteRule ^api/(.*)$ backend/api/$1 [L,QSA]
+
+    # Route everything else to frontend/public/
+    RewriteCond %{REQUEST_URI} !^/backend/
+    RewriteCond %{REQUEST_URI} !^/frontend/
+    RewriteRule ^(.*)$ frontend/public/$1 [L,QSA]
+</IfModule>
