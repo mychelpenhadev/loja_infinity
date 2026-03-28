@@ -71,9 +71,18 @@ function deleteFileIfInUploads($relativePath) {
 }
 
 function getUploadPath($relativePath = '') {
-    $base = getenv('UPLOAD_DIR') ?: (__DIR__ . '/../uploads');
+    // No Railway, usar /tmp/uploads (efêmero mas funcional)
+    if (getenv('RAILWAY_ENVIRONMENT') || getenv('PORT')) {
+        $base = '/tmp/uploads';
+    } else {
+        $base = getenv('UPLOAD_DIR') ?: (__DIR__ . '/../uploads');
+    }
+    if (!is_dir($base)) @mkdir($base, 0777, true);
     if ($relativePath) {
-        return rtrim($base, '/') . '/' . ltrim($relativePath, '/');
+        $full = rtrim($base, '/') . '/' . ltrim($relativePath, '/');
+        $dir = dirname($full);
+        if (!is_dir($dir)) @mkdir($dir, 0777, true);
+        return $full;
     }
     return rtrim($base, '/');
 }

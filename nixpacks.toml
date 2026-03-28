@@ -4,4 +4,8 @@ providers = ["php"]
 NIXPACKS_PHP_EXTENSIONS = "zip pdo_mysql"
 
 [phases.setup]
-cmds = ["cp php.ini $NIXPACKS_PHP_INI_DIR/overrides.ini 2>/dev/null || true", "mkdir -p api/cache uploads/banners uploads/products uploads/profile_pics uploads/clientes", "chmod -R 777 uploads api/cache"]
+cmds = [
+    "cp php.ini $NIXPACKS_PHP_INI_DIR/overrides.ini 2>/dev/null || true",
+    "mkdir -p uploads/banners uploads/products uploads/profile_pics uploads/clientes api/cache",
+    "chmod -R 777 uploads api/cache 2>/dev/null || true"
+]

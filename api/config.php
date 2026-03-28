@@ -45,30 +45,64 @@ try {
         case 'upload-banner':
             requireAdmin();
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') throw new Exception("Método não permitido");
-            if (!isset($_FILES['banner']) || $_FILES['banner']['error'] !== UPLOAD_ERR_OK) {
-                throw new Exception("Erro no upload do arquivo");
+            
+            if (!isset($_FILES['banner'])) {
+                $uploadMax = ini_get('upload_max_filesize');
+                $postMax = ini_get('post_max_size');
+                throw new Exception("Nenhum arquivo enviado. Limites: upload_max_filesize=$uploadMax, post_max_size=$postMax");
             }
+            
+            $errorCode = $_FILES['banner']['error'];
+            if ($errorCode !== UPLOAD_ERR_OK) {
+                $errorNames = [
+                    0 => 'UPLOAD_ERR_OK',
+                    1 => 'UPLOAD_ERR_INI_SIZE (excede upload_max_filesize)',
+                    2 => 'UPLOAD_ERR_FORM_SIZE (excede MAX_FILE_SIZE do form)',
+                    3 => 'UPLOAD_ERR_PARTIAL (upload parcial)',
+                    4 => 'UPLOAD_ERR_NO_FILE (nenhum arquivo)',
+                    6 => 'UPLOAD_ERR_NO_TMP_DIR (sem diretório tmp)',
+                    7 => 'UPLOAD_ERR_CANT_WRITE (sem permissão para escrever)',
+                    8 => 'UPLOAD_ERR_EXTENSION (extensão interrompeu)',
+                ];
+                $errorName = $errorNames[$errorCode] ?? "Erro desconhecido ($errorCode)";
+                $tmpDir = sys_get_temp_dir();
+                $tmpWritable = is_writable($tmpDir) ? 'sim' : 'não';
+                throw new Exception("Erro no upload: $errorName | tmp_dir=$tmpDir (gravável=$tmpWritable) | upload_max=" . ini_get('upload_max_filesize') . " | post_max=" . ini_get('post_max_size'));
+            }
+            
             $file = $_FILES['banner'];
             $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!in_array($file['type'], $allowed)) {
-                throw new Exception("Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WEBP.");
+                throw new Exception("Tipo de arquivo não permitido. Use JPG, PNG, GIF ou WEBP. Recebido: " . $file['type']);
             }
             if ($file['size'] > 20 * 1024 * 1024) {
-                throw new Exception("Arquivo muito grande. Máximo 20MB.");
+                throw new Exception("Arquivo muito grande. Máximo 20MB. Tamanho: " . round($file['size']/1024/1024, 2) . "MB");
             }
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            
+            $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             $filename = 'banner_' . uniqid() . '_' . time() . '.' . $ext;
             $uploadDir = getUploadPath('banners/');
+            
             if (!is_dir($uploadDir)) {
-                if (!@mkdir($uploadDir, 0755, true)) {
-                    throw new Exception("Não foi possível criar diretório: $uploadDir (UPLOAD_DIR=" . (getenv('UPLOAD_DIR') ?: 'não definido') . ")");
+                if (!mkdir($uploadDir, 0777, true)) {
+                    throw new Exception("Não foi possível criar diretório: $uploadDir");
                 }
             }
-            $dest = $uploadDir . $filename;
-            if (!@move_uploaded_file($file['tmp_name'], $dest)) {
-                throw new Exception("Falha ao salvar em: $dest (dir gravável=" . (is_writable($uploadDir) ? 'sim' : 'não') . ", tmp=" . $file['tmp_name'] . ")");
+            
+            if (!is_writable($uploadDir)) {
+                chmod($uploadDir, 0777);
+                if (!is_writable($uploadDir)) {
+                    throw new Exception("Diretório não é gravável: $uploadDir");
+                }
             }
-            echo json_encode(["status" => "success", "url" => "uploads/banners/" . $filename]);
+            
+            $dest = $uploadDir . $filename;
+            if (!move_uploaded_file($file['tmp_name'], $dest)) {
+                throw new Exception("Falha ao mover arquivo para: $dest");
+            }
+            
+            chmod($dest, 0666);
+            echo json_encode(["status" => "success", "url" => "api/uploads.php?file=banners/" . $filename]);
             break;
     }
 } catch (Exception $e) {

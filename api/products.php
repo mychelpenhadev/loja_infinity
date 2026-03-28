@@ -78,6 +78,7 @@ try {
             ], JSON_UNESCAPED_UNICODE);
             if (empty($search)) {
                 @file_put_contents($cacheFile, $response);
+                @chmod($cacheFile, 0666);
             }
             echo $response;
             break;

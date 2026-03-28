@@ -1,5 +1,8 @@
 <?php
 require_once 'api/security.php';
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 define('CACHE_FILE', __DIR__ . '/api/cache/home_data.json');
 define('CACHE_TIME', 3600);
 $data = null;
@@ -21,8 +24,9 @@ if (!$data) {
             'timestamp' => time()
         ];
         $cacheDir = dirname(CACHE_FILE);
-        if (!is_dir($cacheDir)) @mkdir($cacheDir, 0755, true);
+        if (!is_dir($cacheDir)) @mkdir($cacheDir, 0777, true);
         @file_put_contents(CACHE_FILE, json_encode($data));
+        @chmod(CACHE_FILE, 0666);
     } catch (Exception $e) {
 
         $featuredProducts = [];
