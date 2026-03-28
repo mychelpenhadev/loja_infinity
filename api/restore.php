@@ -186,7 +186,6 @@ try {
         if (is_dir($srcDir)) {
             $backupFiles = @scandir($srcDir);
             if ($backupFiles) {
-                // Limpa arquivos existentes no destino (mantém .gitkeep)
                 $existingFiles = @scandir($dstDir);
                 if ($existingFiles) {
                     foreach ($existingFiles as $ef) {
@@ -194,7 +193,6 @@ try {
                         @unlink($dstDir . $ef);
                     }
                 }
-                // Copia arquivos do backup
                 foreach ($backupFiles as $f) {
                     if ($f === '.' || $f === '..' || $f === '.gitkeep') continue;
                     $src = $srcDir . $f;

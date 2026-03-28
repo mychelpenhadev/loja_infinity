@@ -387,6 +387,100 @@ window.formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 };
 
+// Autocomplete compartilhado - carrega produtos uma única vez
+window.SearchAutocomplete = {
+    _products: null,
+    _loading: false,
+    _callbacks: [],
+    
+    load: async function() {
+        if (this._products) return this._products;
+        if (this._loading) {
+            return new Promise(resolve => this._callbacks.push(resolve));
+        }
+        
+        this._loading = true;
+        try {
+            const data = await window.ProductManager.getAll({ limit: 50, slim: 1 });
+            this._products = (data.products || []).map(p => ({
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                image: (p.image && p.image.startsWith('data:image')) ? 'assets/img/logoPNG.png' : p.image
+            }));
+            this._callbacks.forEach(cb => cb(this._products));
+            this._callbacks = [];
+            return this._products;
+        } catch (e) {
+            console.warn('SearchAutocomplete load error:', e);
+            return [];
+        } finally {
+            this._loading = false;
+        }
+    },
+    
+    setup: function(inputEl, resultsEl, options = {}) {
+        if (!inputEl || !resultsEl) return;
+        
+        const onSelect = options.onSelect || ((product) => {
+            window.location.href = 'detalhes.html?id=' + product.id;
+        });
+        
+        inputEl.addEventListener('input', async () => {
+            const query = inputEl.value.trim().toLowerCase();
+            if (query.length < 2) {
+                resultsEl.style.display = 'none';
+                return;
+            }
+            
+            const products = await this.load();
+            const matches = products.filter(p => 
+                p.name.toLowerCase().includes(query) ||
+                (p.category && p.category.toLowerCase().includes(query))
+            ).slice(0, 8);
+            
+            if (matches.length === 0) {
+                resultsEl.innerHTML = '<div style="padding:0.6rem; color:var(--clr-text-light); font-size:0.85rem;">Nenhum produto encontrado</div>';
+            } else {
+                resultsEl.innerHTML = matches.map(p =>
+                    `<div class="search-item" data-id="${p.id}" style="padding:0.5rem 0.7rem; cursor:pointer; font-size:0.85rem; border-bottom:1px solid var(--clr-border, #eee); display:flex; align-items:center; gap:0.5rem;">
+                        <img src="${p.image}" style="width:35px; height:35px; object-fit:cover; border-radius:4px;" loading="lazy" onerror="this.style.display='none'">
+                        <div style="flex:1; min-width:0;">
+                            <div style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+                            <div style="color:var(--clr-primary, #e11d48); font-weight:600;">${window.formatCurrency(p.price)}</div>
+                        </div>
+                    </div>`
+                ).join('');
+            }
+            resultsEl.style.display = 'block';
+            
+            resultsEl.querySelectorAll('.search-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    const product = products.find(p => p.id == id);
+                    if (product) {
+                        resultsEl.style.display = 'none';
+                        inputEl.value = '';
+                        onSelect(product);
+                    }
+                });
+            });
+        });
+        
+        inputEl.addEventListener('focus', () => {
+            if (inputEl.value.trim().length >= 2) {
+                inputEl.dispatchEvent(new Event('input'));
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!inputEl.parentElement.contains(e.target)) {
+                resultsEl.style.display = 'none';
+            }
+        });
+    }
+};
+
 function initLogin() {
     const btnLogout = document.getElementById('btn-logout');
     if(btnLogout) {

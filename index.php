@@ -1,7 +1,7 @@
 <?php
 require_once 'api/security.php';
 define('CACHE_FILE', __DIR__ . '/api/cache/home_data.json');
-define('CACHE_TIME', 600);
+define('CACHE_TIME', 3600);
 $data = null;
 if (file_exists(CACHE_FILE) && (time() - filemtime(CACHE_FILE) < CACHE_TIME)) {
     $data = json_decode(file_get_contents(CACHE_FILE), true);
@@ -10,10 +10,10 @@ if (!$data) {
     try {
         require_once 'api/db.php';
 
-        $stmt = $pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 100");
+        $stmt = $pdo->query("SELECT id, name, price, category, rating, image, created_at FROM products ORDER BY created_at DESC LIMIT 100");
         $featuredProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $stmt = $pdo->query("SELECT * FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
+        $stmt = $pdo->query("SELECT id, name, price, category, rating, image, created_at FROM products WHERE rating >= 4.8 ORDER BY created_at DESC LIMIT 5");
         $sliderProducts = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $data = [
             'featured' => $featuredProducts,
@@ -190,14 +190,14 @@ function generateStars($rating) {
                                 </button>
                             </div>
                             <a href="detalhes.html?id=<?= $product['id'] ?>" class="product-image-container">
-                                <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" loading="eager" fetchpriority="high">
+                                <img src="<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" <?= $index < 4 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy" decoding="async"' ?>>
                             </a>
                             <div class="product-info">
                                 <span class="product-category"><?= htmlspecialchars($product['category']) ?></span>
                                 <a href="detalhes.html?id=<?= $product['id'] ?>" class="product-title"><?= htmlspecialchars($product['name']) ?></a>
                                 <div class="product-rating">
                                     <?= generateStars($product['rating']) ?>
-                                    <span style="color: var(--clr-text-light); margin-left: auto; font-size: 0.75rem;">(<?= rand(10, 60) ?>)</span>
+                                    <span style="color: var(--clr-text-light); margin-left: auto; font-size: 0.75rem;">(<?= (int)(($product['id'] % 50) + 10) ?>)</span>
                                 </div>
                                 <div class="product-footer">
                                     <span class="product-price"><?= formatCurrency($product['price']) ?></span>
@@ -653,41 +653,20 @@ function generateStars($rating) {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const headerInput = document.getElementById('header-search-input');
-            const headerForm = document.getElementById('header-search-form');
             const headerSuggestions = document.getElementById('header-search-suggestions');
-            if (!headerInput || !headerForm || !headerSuggestions) return;
+            if (!headerInput || !headerSuggestions) return;
 
-            let allProducts = null;
             const normalizeString = (str) => (str || '').toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
-
-            const loadAllProducts = async () => {
-                if (allProducts) return;
-                try {
-                    const res = await fetch('api/products.php?action=list&limit=500&slim=1');
-                    const data = await res.json();
-                    allProducts = data.products || [];
-                } catch(e) { allProducts = []; }
-            };
-
-            const filterLocal = (query) => {
-                const q = normalizeString(query);
-                return (allProducts || []).filter(p =>
-                    normalizeString(p.name).includes(q) ||
-                    (p.description && normalizeString(p.description).includes(q))
-                );
-            };
-
             const hideSuggestions = () => headerSuggestions.classList.remove('visible');
-            const showSuggestions = (products, query) => {
+            const showSuggestions = (products) => {
                 if (!products || products.length === 0) {
                     headerSuggestions.innerHTML = `<div class="suggestion-empty">Nenhum produto encontrado</div>`;
                 } else {
                     headerSuggestions.innerHTML = products.slice(0, 5).map(p => {
                         const imgSrc = p.image && !p.image.startsWith('data:') ? p.image : 'assets/img/logoPNG.png';
-                        const priceVal = parseFloat(p.price) || 0;
-                        const price = priceVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        const price = window.formatCurrency(p.price);
                         return `<a href="detalhes.html?id=${p.id}" class="suggestion-item">
-                            <img class="suggestion-img" src="${imgSrc}" onerror="this.src='assets/img/logoPNG.png'" alt="">
+                            <img class="suggestion-img" src="${imgSrc}" loading="lazy" onerror="this.src='assets/img/logoPNG.png'" alt="">
                             <div class="suggestion-info">
                                 <div class="suggestion-name">${p.name}</div>
                                 <div class="suggestion-price">${price}</div>
@@ -700,40 +679,24 @@ function generateStars($rating) {
 
             headerInput.addEventListener('input', async (e) => {
                 const query = e.target.value.trim();
-                if (query.length < 2) {
-                    hideSuggestions();
-                    return;
-                }
-                await loadAllProducts();
-                const results = filterLocal(query);
-                showSuggestions(results, query);
+                if (query.length < 2) { hideSuggestions(); return; }
+                const products = await window.SearchAutocomplete.load();
+                const q = normalizeString(query);
+                const results = products.filter(p => normalizeString(p.name).includes(q)).slice(0, 5);
+                showSuggestions(results);
             });
 
             headerInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     const query = headerInput.value.trim();
-                    if (query) {
-                        hideSuggestions();
-                        window.location.href = `produtos.html?q=${encodeURIComponent(query)}`;
-                    }
+                    if (query) { hideSuggestions(); window.location.href = `produtos.html?q=${encodeURIComponent(query)}`; }
                 }
-                if (e.key === 'Escape') {
-                    headerInput.blur();
-                    hideSuggestions();
-                }
+                if (e.key === 'Escape') { headerInput.blur(); hideSuggestions(); }
             });
 
-            headerInput.addEventListener('blur', () => {
-                setTimeout(hideSuggestions, 200);
-            });
-
-            headerInput.addEventListener('focus', async () => {
-                const query = headerInput.value.trim();
-                if (query.length >= 2) {
-                    await loadAllProducts();
-                    const results = filterLocal(query);
-                    showSuggestions(results, query);
-                }
+            headerInput.addEventListener('blur', () => setTimeout(hideSuggestions, 200));
+            headerInput.addEventListener('focus', () => {
+                if (headerInput.value.trim().length >= 2) headerInput.dispatchEvent(new Event('input'));
             });
         });
     </script>

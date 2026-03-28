@@ -32,7 +32,7 @@ try {
             $cacheDir = __DIR__ . "/cache";
             if (!is_dir($cacheDir)) @mkdir($cacheDir, 0777, true);
             $cacheFile = $cacheDir . "/list_" . md5($category . $search . $page . $limit) . ".json";
-            if (empty($search) && file_exists($cacheFile) && (time() - filemtime($cacheFile) < 300)) {
+            if (empty($search) && file_exists($cacheFile) && (time() - filemtime($cacheFile) < 3600)) {
                 echo file_get_contents($cacheFile);
                 exit;
             }
