@@ -24,7 +24,11 @@ function initProfile() {
             const picPreview = document.getElementById('prof-pic-preview');
             if (picPreview) {
                 if (data.profile_picture) {
-                    picPreview.src = data.profile_picture;
+                    let pic = data.profile_picture;
+                    if (!pic.startsWith('http') && !pic.startsWith('api/') && pic.startsWith('uploads/')) {
+                        pic = 'api/uploads.php?file=' + pic.replace('uploads/', '');
+                    }
+                    picPreview.src = pic;
                 } else {
                     picPreview.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`;
                 }

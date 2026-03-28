@@ -241,7 +241,7 @@ if ($action === 'update_profile') {
         $uploadDir = getUploadPath('clientes/');
         if (!is_dir($uploadDir)) @mkdir($uploadDir, 0755, true);
         $uploadPath = $uploadDir . $filename;
-        $dbPath = 'uploads/clientes/' . $filename;
+        $dbPath = 'api/uploads.php?file=clientes/' . $filename;
         if (@file_put_contents($uploadPath, $data)) {
             $query .= ", profile_picture = ?";
             $params[] = $dbPath;

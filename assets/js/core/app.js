@@ -127,7 +127,10 @@ async function checkAuth() {
 function updateUserIcons(data) {
     const userLinks = document.querySelectorAll('.action-btn[href="login.html"], .action-btn[href="perfil.php"]');
     if (data.loggedIn) {
-        const pic = data.profile_picture;
+        let pic = data.profile_picture;
+        if (pic && !pic.startsWith('http') && !pic.startsWith('api/') && pic.startsWith('uploads/')) {
+            pic = 'api/uploads.php?file=' + pic.replace('uploads/', '');
+        }
         const name = data.name || 'User';
         const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`;
         
@@ -158,8 +161,12 @@ function injectMobileNav() {
     };
 
     const profileLabel = getProfileLabel();
-    const profileIconHtml = (window.isLoggedIn && window.profilePicture) 
-        ? `<img src="${window.profilePicture}" class="mobile-nav-profile-img" alt="Perfil">`
+    let profPic = window.profilePicture;
+    if (profPic && !profPic.startsWith('http') && !profPic.startsWith('api/') && profPic.startsWith('uploads/')) {
+        profPic = 'api/uploads.php?file=' + profPic.replace('uploads/', '');
+    }
+    const profileIconHtml = (window.isLoggedIn && profPic) 
+        ? `<img src="${profPic}" class="mobile-nav-profile-img" alt="Perfil">`
         : `<i class='bx bx-user'></i>`;
 
     nav.innerHTML = `
