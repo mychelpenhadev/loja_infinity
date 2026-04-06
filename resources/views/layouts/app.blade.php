@@ -391,7 +391,17 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        const data = await res.json();
+                        
+                        const text = await res.text();
+                        let data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (e) {
+                            console.error('Resposta não é JSON:', text);
+                            // Se estiver em modo debug, o HTML vai aparecer no console
+                            if(window.showToast) window.showToast('Erro interno no servidor (Veja o console)', 'error');
+                            return;
+                        }
                         
                         if (data.status === 'success') {
                             if(window.showToast) window.showToast(window.isRegisterMode ? 'Cadastro realizado com sucesso!' : 'Login realizado com sucesso!', 'success');
