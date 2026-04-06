@@ -14,6 +14,7 @@ class User extends Authenticatable
 {
     protected $fillable = ['name', 'email', 'password', 'cpf', 'telefone', 'role', 'profile_picture'];
     protected $hidden = ['password', 'remember_token'];
+    public $timestamps = false;
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
