@@ -2,4 +2,4 @@
 installCommand = "composer install --no-interaction --prefer-dist --optimize-autoloader && npm install && npm run build"
 
 [run]
-startCommand = "export APP_KEY=base64:jP21cJxk75i8Fpj5xJ8br/e7Wu/6zv5mrIdoI+Afc2s= && php artisan migrate --seed --force && php artisan optimize && php artisan view:cache && nginx -g 'daemon off;' -c /etc/nginx/nginx.conf"
+startCommand = "export APP_KEY=base64:jP21cJxk75i8Fpj5xJ8br/e7Wu/6zv5mrIdoI+Afc2s= && export SESSION_DRIVER=file && mkdir -p database && touch database/database.sqlite && php artisan migrate --seed --force && php artisan optimize && php artisan view:cache && nginx -g 'daemon off;' -c /etc/nginx/nginx.conf"
