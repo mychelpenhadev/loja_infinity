@@ -19,6 +19,21 @@ try {
         PDO::ATTR_TIMEOUT => 5
     ]);
     echo "<h2 style='color:green'>SUCESSO! Conectado ao MySQL com sucesso.</h2>";
+
+    echo "<h3>Tabelas encontradas:</h3>";
+    $stmt = $pdo->query("SHOW TABLES");
+    $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
+    if (count($tables) > 0) {
+        echo "<ul>";
+        foreach ($tables as $table) {
+            echo "<li>$table</li>";
+        }
+        echo "</ul>";
+    } else {
+        echo "<p style='color:orange'>O banco de dados está VAZIO (nenhuma tabela encontrada).</p>";
+    }
+
 } catch (PDOException $e) {
     echo "<h2 style='color:red'>ERRO DE CONEXÃO:</h2>";
     echo "<pre>" . $e->getMessage() . "</pre>";
