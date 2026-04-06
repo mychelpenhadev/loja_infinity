@@ -21,7 +21,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (config('app.env') === 'production') {
-            URL::forceScheme('https');
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+            
+            // Self-healing database check
+            try {
+                if (!\Illuminate\Support\Facades\Schema::hasTable('products')) {
+                    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true, '--seed' => true]);
+                }
+            } catch (\Exception $e) {
+                // Silently fail or log if needed
+            }
         }
     }
 }
