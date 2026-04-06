@@ -45,6 +45,7 @@ Route::get('/admin_pedidos', function() { return view('admin_pedidos'); });
 
 Route::any('/api/products.php', [ProductController::class, 'apiHandler']);
 
+Route::any('/api/auth', [App\Http\Controllers\AuthController::class, 'apiHandler']);
 Route::any('/api/auth.php', [App\Http\Controllers\AuthController::class, 'apiHandler']);
 
 Route::any('/api/orders.php', [App\Http\Controllers\OrderController::class, 'apiHandler']);

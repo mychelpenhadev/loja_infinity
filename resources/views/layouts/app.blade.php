@@ -246,7 +246,7 @@
             let notify = window.showToast || alert;
             notify('Autenticando com o Google...', 'success');
             try {
-                const res = await fetch('{{ url("api/auth.php?action=google_login") }}', {
+                const res = await fetch('{{ url("api/auth?action=google_login") }}', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: response.credential })
@@ -378,7 +378,7 @@
                     submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Aguarde...';
                     submitBtn.disabled = true;
 
-                    const actionUrl = window.isRegisterMode ? '{{ url("api/auth.php?action=register") }}' : '{{ url("api/auth.php?action=login") }}';
+                    const actionUrl = window.isRegisterMode ? '{{ url("api/auth?action=register") }}' : '{{ url("api/auth?action=login") }}';
                     const payload = { email, password };
                     
                     if(window.isRegisterMode) {
