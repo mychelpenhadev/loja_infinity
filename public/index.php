@@ -3,12 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
-if (!file_exists(__DIR__ . '/../storage/database.sqlite')) {
-    if (!is_dir(__DIR__ . '/../storage')) mkdir(__DIR__ . '/../storage', 0755, true);
-    touch(__DIR__ . '/../storage/database.sqlite');
-    chmod(__DIR__ . '/../storage/database.sqlite', 0666);
-}
-
 define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode...
