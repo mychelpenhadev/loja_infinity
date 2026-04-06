@@ -51,7 +51,7 @@ const ProductManager = {
     }
     try {
       const query = new URLSearchParams(params).toString();
-      const response = await fetch(`api/products.php?action=list&${query}&_=${Date.now()}`, { credentials: 'include' });
+      const response = await fetch(`api/products?action=list&${query}&_=${Date.now()}`, { credentials: 'include' });
       const data = await response.json();
       if (!hasSearch) {
         try {
@@ -99,7 +99,7 @@ const ProductManager = {
     }
     try {
       console.log(`[DB] Buscando produto na API para ID: ${id}`);
-      const response = await fetch(`api/products.php?action=get&id=${id}`, { credentials: 'include' });
+      const response = await fetch(`api/products?action=get&id=${id}`, { credentials: 'include' });
       const data = await response.json();
       console.log(`[DB] Resposta da API para ID ${id}:`, data);
       if (data) {
@@ -143,7 +143,7 @@ const ProductManager = {
     });
     if (missingIds.length === 0) return results;
     try {
-      const response = await fetch(`api/products.php?action=get_batch&ids=${missingIds.join(',')}`);
+      const response = await fetch(`api/products?action=get_batch&ids=${missingIds.join(',')}`);
       const data = await response.json();
       data.forEach(p => {
         ProductManager._cache[p.id] = p;
@@ -166,7 +166,7 @@ const ProductManager = {
   add: async (product) => {
     try {
       ProductManager.clearCache();
-      const response = await fetch('api/products.php?action=save', {
+      const response = await fetch('api/products?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product),
@@ -190,7 +190,7 @@ const ProductManager = {
   update: async (id, updatedData) => {
     try {
       ProductManager.clearCache();
-      const response = await fetch('api/products.php?action=save', {
+      const response = await fetch('api/products?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...updatedData, id }),
@@ -205,7 +205,7 @@ const ProductManager = {
   remove: async (id) => {
     try {
       ProductManager.clearCache();
-      const response = await fetch(`api/products.php?action=delete&id=${id}`, { credentials: 'include' });
+      const response = await fetch(`api/products?action=delete&id=${id}`, { credentials: 'include' });
       return await response.json();
     } catch (err) {
       console.error("Erro ao remover produto:", err);
@@ -305,7 +305,7 @@ const CartManager = {
 const OrderManager = {
   getAll: async () => {
     try {
-      const response = await fetch('api/orders.php?action=list', { credentials: 'include' });
+      const response = await fetch('api/orders?action=list', { credentials: 'include' });
       return await response.json();
     } catch (err) {
       console.error("Erro ao buscar pedidos:", err);
@@ -314,7 +314,7 @@ const OrderManager = {
   },
   getByUser: async (userId) => {
     try {
-      const response = await fetch(`api/orders.php?action=list_user&user_id=${userId}`, { credentials: 'include' });
+      const response = await fetch(`api/orders?action=list_user&user_id=${userId}`, { credentials: 'include' });
       return await response.json();
     } catch (err) {
       console.error("Erro ao buscar pedidos do usuário:", err);
@@ -323,7 +323,7 @@ const OrderManager = {
   },
   add: async (orderData) => {
     try {
-      const response = await fetch('api/orders.php?action=save', {
+      const response = await fetch('api/orders?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -337,7 +337,7 @@ const OrderManager = {
   },
   updateStatus: async (orderId, newStatus) => {
     try {
-      const response = await fetch(`api/orders.php?action=update_status&id=${orderId}&status=${newStatus}`);
+      const response = await fetch(`api/orders?action=update_status&id=${orderId}&status=${newStatus}`);
       return await response.json();
     } catch (err) {
       console.error("Erro ao atualizar status:", err);
@@ -346,7 +346,7 @@ const OrderManager = {
   },
   remove: async (orderId) => {
     try {
-      const response = await fetch(`api/orders.php?action=delete&id=${orderId}`);
+      const response = await fetch(`api/orders?action=delete&id=${orderId}`);
       return await response.json();
     } catch (err) {
       console.error("Erro ao remover pedido:", err);
@@ -355,7 +355,7 @@ const OrderManager = {
   },
   deleteUserOrder: async (orderId, userId) => {
     try {
-      const response = await fetch(`api/orders.php?action=delete_user&id=${orderId}`, { credentials: 'include' });
+      const response = await fetch(`api/orders?action=delete_user&id=${orderId}`, { credentials: 'include' });
       return await response.json();
     } catch (err) {
       console.error("Erro ao remover pedido:", err);
@@ -374,7 +374,7 @@ const ConfigManager = {
         });
     }
     try {
-      const response = await fetch('api/config.php?action=get', { credentials: 'include' });
+      const response = await fetch('api/config?action=get', { credentials: 'include' });
       const data = await response.json();
       ConfigManager._cache = data || {};
       if (ConfigManager._resolveReady) ConfigManager._resolveReady();
@@ -402,7 +402,7 @@ const ConfigManager = {
     try {
       ConfigManager.clearCache();
       ConfigManager._cache[key] = value;
-      const resp = await fetch('api/config.php?action=save', {
+      const resp = await fetch('api/config?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [key]: value }),
@@ -531,7 +531,7 @@ function initLogin() {
             e.preventDefault();
             if(confirm("Tem certeza que deseja sair de sua conta?")) {
                 try {
-                    await fetch('api/auth.php?action=logout');
+                    await fetch('api/auth?action=logout');
                     window.location.replace('login.html');
                 } catch(err) {
                     window.location.replace('login.html');
@@ -589,7 +589,7 @@ function initLogin() {
         switchToLogin();
     });
 
-    fetch('api/auth.php?action=check')
+    fetch('api/auth?action=check')
         .then(r => r.json())
         .then(data => {
             if(data.loggedIn) {
@@ -665,7 +665,7 @@ function initLogin() {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             try {
-                const res = await fetch('api/auth.php?action=login', {
+                const res = await fetch('api/auth?action=login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -736,7 +736,7 @@ function initLogin() {
                 return;
             }
             try {
-                const res = await fetch('api/auth.php?action=register', {
+                const res = await fetch('api/auth?action=register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, cpf, telefone, email, password })
@@ -832,7 +832,7 @@ function initLogin() {
             if(window.deleteProfilePic) fd.append('delete_photo', '1');
             
             try {
-                const res = await fetch('api/auth.php?action=update_profile', { method: 'POST', body: fd });
+                const res = await fetch('api/auth?action=update_profile', { method: 'POST', body: fd });
                 const json = await res.json();
                 if (json.status === 'success') {
                     window.showToast(json.message, 'success');
@@ -882,7 +882,7 @@ function initLogin() {
                 if(confirmPassword) fd.append('confirm_password', confirmPassword);
                 
                 try {
-                    const res = await fetch('api/auth.php?action=update_security', { method: 'POST', body: fd });
+                    const res = await fetch('api/auth?action=update_security', { method: 'POST', body: fd });
                     const json = await res.json();
                     if (json.status === 'success') {
                         window.showToast(json.message, 'success');

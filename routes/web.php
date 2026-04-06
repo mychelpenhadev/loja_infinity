@@ -43,15 +43,27 @@ Route::get('/admin_config', function() { return view('admin_config'); });
 Route::get('/admin_pedidos.php', function() { return view('admin_pedidos'); });
 Route::get('/admin_pedidos', function() { return view('admin_pedidos'); });
 
+Route::any('/api/products', [ProductController::class, 'apiHandler']);
 Route::any('/api/products.php', [ProductController::class, 'apiHandler']);
 
 Route::any('/api/auth', [App\Http\Controllers\AuthController::class, 'apiHandler']);
 Route::any('/api/auth.php', [App\Http\Controllers\AuthController::class, 'apiHandler']);
 
+Route::any('/api/orders', [App\Http\Controllers\OrderController::class, 'apiHandler']);
 Route::any('/api/orders.php', [App\Http\Controllers\OrderController::class, 'apiHandler']);
+
+Route::any('/api/config', [App\Http\Controllers\ConfigController::class, 'apiHandler']);
 Route::any('/api/config.php', [App\Http\Controllers\ConfigController::class, 'apiHandler']);
+
+Route::any('/api/backup', [App\Http\Controllers\BackupController::class, 'apiBackup']);
 Route::any('/api/backup.php', [App\Http\Controllers\BackupController::class, 'apiBackup']);
+
+Route::any('/api/restore', [App\Http\Controllers\BackupController::class, 'apiRestore']);
 Route::any('/api/restore.php', [App\Http\Controllers\BackupController::class, 'apiRestore']);
+
+Route::post('/api/upload-chunk', [App\Http\Controllers\BackupController::class, 'uploadChunk']);
 Route::post('/api/upload-chunk.php', [App\Http\Controllers\BackupController::class, 'uploadChunk']);
+
+Route::post('/api/restore-final', [App\Http\Controllers\BackupController::class, 'restoreFinal']);
 Route::post('/api/restore-final.php', [App\Http\Controllers\BackupController::class, 'restoreFinal']);
 

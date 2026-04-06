@@ -231,7 +231,7 @@ async function loadDynamicNotifications() {
   if (!list || !badge) return;
 
   try {
-    const response = await fetch('api/products.php?action=list&limit=50');
+    const response = await fetch('api/products?action=list&limit=50');
     const data = await response.json();
     const products = data.products || [];
 
@@ -331,7 +331,7 @@ window.userName = null;
 window.authChecked = false;
 async function checkAuth() {
   try {
-    const response = await fetch(`api/auth.php?action=check&t=${Date.now()}`);
+    const response = await fetch(`api/auth?action=check&t=${Date.now()}`);
     const data = await response.json();
     window.isLoggedIn = data.loggedIn;
     window.userId = data.id || null;
@@ -441,7 +441,7 @@ function injectSearchOverlay() {
     const loadAllProducts = async () => {
         if (allProducts) return;
         try {
-            const res = await fetch('api/products.php?action=list&limit=500');
+            const res = await fetch('api/products?action=list&limit=500');
             const data = await res.json();
             allProducts = data.products || [];
         } catch(e) { allProducts = []; }
