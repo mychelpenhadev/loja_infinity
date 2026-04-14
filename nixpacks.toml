@@ -1,5 +1,6 @@
 [build]
-installCommand = "composer install --no-interaction --prefer-dist --optimize-autoloader && npm install && npm run build && mkdir -p public/uploads/banners public/uploads/products public/uploads/clientes && chmod -R 777 public/uploads"
+installCommand = "composer install --no-interaction --prefer-dist --optimize-autoloader && rm -f package-lock.json && npm install && npm run build && mkdir -p public/uploads/banners public/uploads/products public/uploads/clientes && chmod -R 777 public/uploads"
 
 [run]
 startCommand = "export APP_KEY=base64:jP21cJxk75i8Fpj5xJ8br/e7Wu/6zv5mrIdoI+Afc2s= && (mkdir -p storage bootstrap/cache public/uploads/banners public/uploads/products && chmod -R 777 storage bootstrap/cache public/uploads) && php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan migrate --force && php artisan serve --host 0.0.0.0 --port ${PORT:-8080}"
+
