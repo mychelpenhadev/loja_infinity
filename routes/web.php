@@ -67,3 +67,11 @@ Route::post('/api/upload-chunk.php', [App\Http\Controllers\BackupController::cla
 Route::post('/api/restore-final', [App\Http\Controllers\BackupController::class, 'restoreFinal']);
 Route::post('/api/restore-final.php', [App\Http\Controllers\BackupController::class, 'restoreFinal']);
 
+// Catch all for unmatched routes
+Route::any('{any}', function(\Illuminate\Http\Request $request) {
+    return response()->json([
+        'status' => 'error',
+        'message' => '404 - Rota não encontrada no servidor hospedado. Method: ' . $request->method() . ' | URL: ' . $request->fullUrl()
+    ], 404);
+})->where('any', '.*');
+
