@@ -105,7 +105,13 @@ async function setupBanners() {
 
     const savedBannersRaw = window.ConfigManager.get('hero_banners');
     let savedBanners = [];
-    try { savedBanners = JSON.parse(savedBannersRaw) || []; } catch(e) {}
+    if (savedBannersRaw) {
+        if (typeof savedBannersRaw === 'string') {
+            try { savedBanners = JSON.parse(savedBannersRaw) || []; } catch(e) {}
+        } else {
+            savedBanners = savedBannersRaw;
+        }
+    }
 
     if (savedBanners.length > 0) {
         savedBanners.forEach(b => {
@@ -121,14 +127,7 @@ async function setupBanners() {
     }
 
     addBtn.addEventListener('click', () => {
-        console.log("[Admin] Botão Novo Banner clicado!");
-        alert("Botão Novo Banner Clicado!");
-        try {
-            addBannerItem(list, allProducts, '', 'novo', []);
-        } catch (e) {
-            console.error("[Admin] Erro ao adicionar banner:", e);
-            alert("Erro ao adicionar banner: " + e.message);
-        }
+        addBannerItem(list, allProducts, '', 'novo', []);
     });
 
     saveBtn.addEventListener('click', async () => {
