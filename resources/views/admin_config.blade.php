@@ -14,7 +14,7 @@
         })();
     </script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css?v=29') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css?v=31') }}">
     <script>
         (function() {
             document.documentElement.setAttribute('data-theme', 'dark');
@@ -401,9 +401,9 @@
             document.body.style.overflow = isOpen ? 'hidden' : '';
         }
     </script>
-    <script src="{{ asset('assets/js/core/db.js?v=29') }}"></script>
-    <script src="{{ asset('assets/js/core/app.js?v=29') }}"></script>
-    <script src="{{ asset('assets/js/pages/admin_config.js?v=4') }}"></script>
-    <script src="{{ asset('assets/js/core/admin_notifications.js?v=4') }}"></script>
+    <script src="{{ asset('assets/js/core/db.js?v=31') }}"></script>
+    <script src="{{ asset('assets/js/core/app.js?v=31') }}"></script>
+    <script src="{{ asset('assets/js/pages/admin_config.js?v=31') }}"></script>
+    <script src="{{ asset('assets/js/core/admin_notifications.js?v=31') }}"></script>
 </body>
 </html>

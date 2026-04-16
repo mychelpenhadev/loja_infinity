@@ -28,12 +28,12 @@
         }
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
+    async function initAdmin() {
         const isAuthorized = await verifyAdminAccess();
         if (!isAuthorized) return;
 
         // Initialize Elements
-        tableBody = document.getElementById('table-body');
+        tableBody = document.getElementById('table-body') || document.getElementById('admin-product-table');
         modal = document.getElementById('productFormModal');
         form = document.getElementById('productForm');
         fileInput = document.getElementById('prod-imagem-file');
@@ -46,7 +46,10 @@
         setupSearchHandler();
         setupFormHandler();
         setupPricingLogic();
-    });
+    }
+
+    document.addEventListener('DOMContentLoaded', initAdmin);
+    if (document.readyState !== 'loading') initAdmin();
 
     async function initialLoad() {
         if (!tableBody) return;

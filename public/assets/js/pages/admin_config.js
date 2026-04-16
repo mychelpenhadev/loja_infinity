@@ -1,5 +1,5 @@
-document.addEventListener('DOMContentLoaded', async () => {
-
+async function initConfig() {
+    console.log("[Admin] Iniciando Configurações...");
     try {
         const response = await fetch('api/auth?action=check');
         const data = await response.json();
@@ -21,7 +21,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupBanners();
     setupBackup();
     setupRestore();
-});
+}
+
+document.addEventListener('DOMContentLoaded', initConfig);
+if (document.readyState !== 'loading') initConfig();
 
 function loadSettings() {
     const whatsappInput = document.getElementById('config-whatsapp');
