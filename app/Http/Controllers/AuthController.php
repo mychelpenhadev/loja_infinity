@@ -207,6 +207,10 @@ class AuthController extends Controller
         // Handling Profile Picture Upload if it is sent as Base64 like before
         $newPicture = $request->input('profile_picture');
         if (!empty($newPicture) && strpos($newPicture, 'data:image/') === 0) {
+            // Limit to 2MB of base64 (~1.5MB of image data)
+            if (strlen($newPicture) > 2 * 1024 * 1024) {
+                return response()->json(["status" => "error", "message" => "A foto de perfil é muito grande."]);
+            }
             list($type, $bdata) = explode(';', $newPicture);
             list(, $bdata) = explode(',', $bdata);
             $bdata = base64_decode($bdata);

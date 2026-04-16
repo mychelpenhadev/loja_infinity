@@ -312,19 +312,33 @@
 
     function setupImageHandler() {
         if (!fileInput) return;
-        fileInput.addEventListener('change', (e) => {
+        fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const base64 = event.target.result;
-                    if (base64Input) base64Input.value = base64;
-                    if (imagePreview) imagePreview.src = base64;
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Otimizando...";
+
+                try {
+                    const compressedBase64 = await window.ImageOptimizer.compress(file, {
+                        maxWidth: 1000,
+                        maxHeight: 1000,
+                        quality: 0.8,
+                        returnBase64: true
+                    });
+                    if (base64Input) base64Input.value = compressedBase64;
+                    if (imagePreview) imagePreview.src = compressedBase64;
                     if (previewContainer) previewContainer.style.display = 'block';
                     const placeholder = document.getElementById('upload-placeholder');
                     if (placeholder) placeholder.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error("Erro ao otimizar imagem:", err);
+                    window.showToast?.('Erro ao processar imagem.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                }
             }
         });
         const btnRemove = document.getElementById('btn-remove-prod-img');

@@ -24,6 +24,68 @@
     };
 })();
 
+/**
+ * Image Optimizer Utility for Client-side Compression
+ */
+window.ImageOptimizer = {
+    compress: function(file, options = {}) {
+        const maxWidth = options.maxWidth || 1200;
+        const maxHeight = options.maxHeight || 1200;
+        const quality = options.quality || 0.75;
+        const returnBase64 = options.returnBase64 || false;
+
+        return new Promise((resolve, reject) => {
+            if (!file || !file.type.startsWith('image/')) {
+                return reject(new Error('Arquivo selecionado não é uma imagem válida.'));
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    if (returnBase64) {
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    } else {
+                        canvas.toBlob((blob) => {
+                            const compressedFile = new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            resolve(compressedFile);
+                        }, 'image/jpeg', quality);
+                    }
+                };
+                img.onerror = () => reject(new Error('Erro ao processar imagem.'));
+                img.src = e.target.result;
+            };
+            reader.onerror = () => reject(new Error('Erro ao ler arquivo.'));
+            reader.readAsDataURL(file);
+        });
+    }
+};
+
+
 const STORAGE_KEYS = {
   CART: 'papelaria_cart',
   THEME: 'papelaria_theme',
@@ -778,41 +840,23 @@ function initLogin() {
         };
     }
     if(picInput) {
-        picInput.addEventListener('change', function() {
+        picInput.addEventListener('change', async function() {
             if (this.files && this.files[0]) {
                 const file = this.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        const MAX_WIDTH = 300;
-                        const MAX_HEIGHT = 300;
-                        let width = img.width;
-                        let height = img.height;
-                        if (width > height) {
-                          if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                          }
-                        } else {
-                          if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                          }
-                        }
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                        picPreview.src = dataUrl;
-                        window.pendingProfilePic = dataUrl;
-                        window.deleteProfilePic = false;
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
+                try {
+                    const compressedBase64 = await window.ImageOptimizer.compress(file, {
+                        maxWidth: 400,
+                        maxHeight: 400,
+                        quality: 0.8,
+                        returnBase64: true
+                    });
+                    picPreview.src = compressedBase64;
+                    window.pendingProfilePic = compressedBase64;
+                    window.deleteProfilePic = false;
+                } catch (err) {
+                    console.error("Erro ao otimizar foto de perfil:", err);
+                    window.showToast("Erro ao processar imagem.", "error");
+                }
             }
         });
     }

@@ -131,7 +131,8 @@ async function setupBanners() {
 
             if (fileInput && fileInput.files.length > 0) {
                 const formData = new FormData();
-                formData.append('banner', fileInput.files[0]);
+                const fileToUpload = fileInput._compressedFile || fileInput.files[0];
+                formData.append('banner', fileToUpload);
                 try {
                     const resp = await fetch('api/config.php?action=upload-banner', {
                         method: 'POST',
@@ -273,18 +274,35 @@ function addBannerItem(list, allProducts, url, style, promo_ids) {
     item.querySelector('.banner-remove-btn').addEventListener('click', () => item.remove());
 
     const fileInput = item.querySelector('.banner-file-input');
-    fileInput.addEventListener('change', () => {
+    fileInput.addEventListener('change', async () => {
         if (fileInput.files.length > 0) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const preview = item.querySelector('.banner-preview');
-                if (preview) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-                delete item.dataset.existingUrl;
-            };
-            reader.readAsDataURL(fileInput.files[0]);
+            const file = fileInput.files[0];
+            try {
+                // Resize banners to 1920px max width, quality 0.8
+                // We'll store the compressed file object on the input itself or a property
+                const compressedFile = await window.ImageOptimizer.compress(file, {
+                    maxWidth: 1920,
+                    maxHeight: 1080,
+                    quality: 0.82,
+                    returnBase64: false
+                });
+
+                fileInput._compressedFile = compressedFile;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const preview = item.querySelector('.banner-preview');
+                    if (preview) {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    }
+                    delete item.dataset.existingUrl;
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (err) {
+                console.error("Erro ao otimizar banner:", err);
+                window.showToast?.("Erro ao processar imagem.", "error");
+            }
         }
     });
 

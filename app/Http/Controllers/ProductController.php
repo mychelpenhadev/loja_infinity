@@ -85,6 +85,11 @@ class ProductController extends Controller
                     }
 
                     if (str_starts_with($image, 'data:image/')) {
+                        // Limit to 5MB of base64 (~3.7MB of image data)
+                        if (strlen($image) > 5 * 1024 * 1024) {
+                            throw new \Exception("A imagem é muito grande. O limite é de 3MB após compressão.");
+                        }
+
                         list($type, $imgData) = explode(';', $image);
                         list(, $imgData) = explode(',', $imgData);
                         $imgData = base64_decode($imgData);

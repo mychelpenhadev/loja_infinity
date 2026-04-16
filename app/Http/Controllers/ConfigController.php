@@ -57,6 +57,11 @@ class ConfigController extends Controller
                     }
                     
                     $file = $request->file('banner');
+                    
+                    // Limit to 4MB for banners
+                    if ($file->getSize() > 4 * 1024 * 1024) {
+                        return response()->json(["status" => "error", "message" => "O banner é muito grande. O limite é de 4MB."], 400);
+                    }
                     $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                     if (!in_array($file->getMimeType(), $allowed)) {
                         return response()->json(["status" => "error", "message" => "Tipo não permitido"], 400);
