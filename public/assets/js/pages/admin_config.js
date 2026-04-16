@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
     } catch(err) {
-        window.location.href = 'index';
+        window.location.href = '/';
         return;
     }
 
@@ -96,7 +96,9 @@ async function setupBanners() {
     try {
         const data = await window.ProductManager.getAll({ limit: 500 });
         (data.products || []).forEach(p => allProducts.push(p));
-    } catch(e) {}
+    } catch(e) {
+        console.warn("Aviso: Falha ao carregar produtos para a busca de banners.", e);
+    }
 
     const savedBannersRaw = window.ConfigManager.get('hero_banners');
     let savedBanners = [];
@@ -326,7 +328,7 @@ function setupBackup() {
         }
 
         try {
-            const response = await fetch('api/backup.php', {
+            const response = await fetch('api/backup', {
                 method: 'POST'
             });
 
@@ -430,7 +432,7 @@ function setupRestore() {
                     statusEl.textContent = `Enviando parte ${i + 1} de ${totalChunks}... (${Math.round((i / totalChunks) * 100)}%)`;
                 }
 
-                const resp = await fetch('api/upload-chunk.php', {
+                const resp = await fetch('api/upload-chunk', {
                     method: 'POST',
                     body: formData,
                     credentials: 'include'
@@ -445,7 +447,7 @@ function setupRestore() {
                 statusEl.textContent = 'Processando restauração no servidor... Isso pode levar um minuto.';
             }
 
-            const finalResp = await fetch('api/restore-final.php', {
+            const finalResp = await fetch('api/restore-final', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
