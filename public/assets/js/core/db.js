@@ -426,9 +426,25 @@ const OrderManager = {
   }
 };
 const ConfigManager = {
-  _cache: {},
   _readyPromise: null,
   _resolveReady: null,
+  _sanitize: (data) => {
+    if (!data) return data;
+    try {
+        if (data.hero_banners) {
+            let banners = typeof data.hero_banners === 'string' ? JSON.parse(data.hero_banners) : data.hero_banners;
+            if (Array.isArray(banners)) {
+                banners.forEach(b => {
+                    if (b.url && b.url.includes('uploads/banners/')) {
+                        b.url = 'uploads/banners/' + b.url.split('/').pop();
+                    }
+                });
+                data.hero_banners = banners;
+            }
+        }
+    } catch(e) {}
+    return data;
+  },
   init: async () => {
     if (!ConfigManager._readyPromise) {
         ConfigManager._readyPromise = new Promise(resolve => {
@@ -438,22 +454,28 @@ const ConfigManager = {
 
     const cached = sessionStorage.getItem('papelaria_config');
     if (cached) {
-        ConfigManager._cache = JSON.parse(cached);
-        if (ConfigManager._resolveReady) ConfigManager._resolveReady();
-        // Silent update in background
-        fetch('api/config?action=get', { credentials: 'include' })
-          .then(r => r.json())
-          .then(d => {
-             ConfigManager._cache = d || {};
-             sessionStorage.setItem('papelaria_config', JSON.stringify(ConfigManager._cache));
-          }).catch(() => {});
-        return;
+        let data = JSON.parse(cached);
+        // Force clear if it contains old local URLs
+        if (cached.includes('127.0.0.1') || cached.includes('localhost')) {
+            sessionStorage.removeItem('papelaria_config');
+        } else {
+            ConfigManager._cache = ConfigManager._sanitize(data);
+            if (ConfigManager._resolveReady) ConfigManager._resolveReady();
+            // Silent update in background
+            fetch('api/config?action=get', { credentials: 'include' })
+              .then(r => r.json())
+              .then(d => {
+                 ConfigManager._cache = ConfigManager._sanitize(d || {});
+                 sessionStorage.setItem('papelaria_config', JSON.stringify(ConfigManager._cache));
+              }).catch(() => {});
+            return;
+        }
     }
 
     try {
       const response = await fetch('api/config?action=get', { credentials: 'include' });
       const data = await response.json();
-      ConfigManager._cache = data || {};
+      ConfigManager._cache = ConfigManager._sanitize(data || {});
       sessionStorage.setItem('papelaria_config', JSON.stringify(ConfigManager._cache));
       if (ConfigManager._resolveReady) ConfigManager._resolveReady();
     } catch (err) {
