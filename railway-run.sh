@@ -21,9 +21,9 @@ php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
-# Tenta rodar migrações (só funciona se o DB estiver configurado)
+# Tenta rodar migrações (usamos driver 'array' durante a migração para evitar erro se a tabela de sessões estiver quebrada)
 echo "[Laravel] Executando migrações..."
-php artisan migrate --force || echo "Aviso: Falha ao rodar migrações. Verifique a conexão com o banco de dados."
+SESSION_DRIVER=array php artisan migrate --force || echo "Aviso: Falha ao rodar migrações."
 
 # Inicia o servidor
 echo "[Server] Iniciando Laravel na porta $PORT..."
