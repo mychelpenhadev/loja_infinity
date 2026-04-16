@@ -21,9 +21,9 @@ php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
-# Tenta rodar migrações (usamos driver 'array' e forçamos a limpeza da tabela de sessões se ela estiver corrompida)
-echo "[Laravel] Reparando banco de dados..."
-SESSION_DRIVER=array php artisan tinker --execute="Schema::dropIfExists('sessions')"
+# Tenta rodar migrações e garante que a tabela de sessões existe
+echo "[Laravel] Garantindo integridade da tabela de sessões..."
+SESSION_DRIVER=array php artisan tinker --execute="if(!Schema::hasTable('sessions')){ Schema::create('sessions', function (\$table) { \$table->string('id')->primary(); \$table->foreignId('user_id')->nullable()->index(); \$table->string('ip_address', 45)->nullable(); \$table->text('user_agent')->nullable(); \$table->longText('payload'); \$table->integer('last_activity')->index(); }); echo 'Tabela de sessoes criada.'; }"
 SESSION_DRIVER=array php artisan migrate --force || echo "Aviso: Falha ao rodar migrações."
 
 # Inicia o servidor
