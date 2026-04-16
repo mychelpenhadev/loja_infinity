@@ -31,8 +31,13 @@
                         if (bannerPlaceholder) bannerPlaceholder.remove();
                         bannerSlider.innerHTML = banners.map((b, i) => {
                             const tag = b.link ? `a href="${b.link}"` : 'div';
+                            let bannerUrl = b.url;
+                            if (bannerUrl.includes('uploads/banners/')) {
+                                const filename = bannerUrl.split('/').pop();
+                                bannerUrl = (window.APP_URL || '').replace(/\/$/, '') + '/uploads/banners/' + filename;
+                            }
                             return `<${tag} class="hb-slide ${i === 0 ? 'active' : ''}">
-                                <img src="${b.url}" alt="Banner ${i+1}">
+                                <img src="${bannerUrl}" alt="Banner ${i+1}">
                             </${tag.endsWith('a') ? 'a' : 'div'}>`;
                         }).join('');
                     } else if (bannerPlaceholder) {

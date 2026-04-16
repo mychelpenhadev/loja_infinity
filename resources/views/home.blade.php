@@ -83,7 +83,14 @@
                                 $href = !empty($b['link']) ? 'href="' . $b['link'] . '"' : '';
                             @endphp
                             <{{ $tag }} {{ $href }} class="hb-slide {{ $index === 0 ? 'active' : '' }}">
-                                <img src="{{ $b['url'] }}" alt="Banner {{ $index + 1 }}" 
+                                @php
+                                    $bannerUrl = $b['url'];
+                                    // If URL is absolute but points to another domain (like localhost), try to fix it
+                                    if (str_contains($bannerUrl, 'uploads/banners/')) {
+                                        $bannerUrl = asset('uploads/banners/' . basename($bannerUrl));
+                                    }
+                                @endphp
+                                <img src="{{ $bannerUrl }}" alt="Banner {{ $index + 1 }}" 
                                      {{ $index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"' }}>
                             </{{ $tag }}>
                         @endforeach

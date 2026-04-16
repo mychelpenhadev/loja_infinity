@@ -80,8 +80,8 @@ class ConfigController extends Controller
                     
                     $file->move($uploadDir, $filename);
                     
-                    $url = asset('uploads/banners/' . $filename);
-                    return response()->json(["status" => "success", "url" => $url]);
+                    $url = 'uploads/banners/' . $filename;
+                    return response()->json(["status" => "success", "url" => '/' . $url]);
 
                 default:
                     return response()->json(['error' => 'Action not supported yet'], 400);
