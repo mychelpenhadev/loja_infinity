@@ -435,13 +435,32 @@ const ConfigManager = {
             ConfigManager._resolveReady = resolve;
         });
     }
+
+    const cached = sessionStorage.getItem('papelaria_config');
+    if (cached) {
+        ConfigManager._cache = JSON.parse(cached);
+        if (ConfigManager._resolveReady) ConfigManager._resolveReady();
+        // Silent update in background
+        fetch('api/config?action=get', { credentials: 'include' })
+          .then(r => r.json())
+          .then(d => {
+             ConfigManager._cache = d || {};
+             sessionStorage.setItem('papelaria_config', JSON.stringify(ConfigManager._cache));
+          }).catch(() => {});
+        return;
+    }
+
     try {
       const response = await fetch('api/config?action=get', { credentials: 'include' });
       const data = await response.json();
       ConfigManager._cache = data || {};
+      sessionStorage.setItem('papelaria_config', JSON.stringify(ConfigManager._cache));
       if (ConfigManager._resolveReady) ConfigManager._resolveReady();
     } catch (err) {
       console.error("Erro ao inicializar ConfigManager:", err);
+      if (ConfigManager._resolveReady) ConfigManager._resolveReady();
+    }
+  },
       if (ConfigManager._resolveReady) ConfigManager._resolveReady();
     }
   },

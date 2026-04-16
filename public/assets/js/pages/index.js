@@ -16,7 +16,7 @@
                     const raw = window.ConfigManager.get('hero_banners');
                     banners = typeof raw === 'string' ? JSON.parse(raw) : (raw || []);
 
-                    const pData = await window.ProductManager.getAll({ limit: 500 });
+                    const pData = await window.ProductManager.getAll({ limit: 50, slim: 1 });
                     const pList = pData.products || [];
                     topProductsForFallback = pList.slice(0, 3);
                     pList.forEach(p => allProductsMap[p.id] = p);

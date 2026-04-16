@@ -42,7 +42,7 @@ window.SmartSearch = {
     load: async function() {
         if (this._products) return this._products;
         try {
-            const data = await window.ProductManager.getAll({ limit: 500 });
+            const data = await window.ProductManager.getAll({ limit: 100, slim: 1 });
             this._products = (data.products || []).map(p => ({
                 id: p.id, name: p.name, price: p.price,
                 image: (p.image_url) ? p.image_url : ((p.image && p.image.startsWith('data:image')) ? 'assets/img/logoPNG.png' : (p.image || 'assets/img/logoPNG.png'))
@@ -230,11 +230,25 @@ async function loadDynamicNotifications() {
   const badge = document.getElementById('notification-badge');
   if (!list || !badge) return;
 
-  try {
-    const response = await fetch('api/products?action=list&limit=50');
-    const data = await response.json();
-    const products = data.products || [];
+  const cachedNotifs = sessionStorage.getItem('papelaria_notifs');
+  if (cachedNotifs) {
+    const data = JSON.parse(cachedNotifs);
+    renderNotifications(data.products || [], list, badge);
+    return;
+  }
 
+  try {
+    const response = await fetch('api/products?action=list&limit=50&slim=1');
+    const data = await response.json();
+    sessionStorage.setItem('papelaria_notifs', JSON.stringify(data));
+    renderNotifications(data.products || [], list, badge);
+  } catch (err) {
+    console.error("Erro ao carregar notificações:", err);
+    list.innerHTML = '<div class="notification-empty">Erro ao carregar novidades.</div>';
+  }
+}
+
+function renderNotifications(products, list, badge) {
     // Filter for "Novidades" and "Promoções"
     const news = products.filter(p => {
         const cat = normalizeString(p.category);
@@ -569,21 +583,18 @@ window.generateStars = (rating) => {
   return html;
 };
 window.handleAddToCart = async (productId, quantity = 1, color = null) => {
-  /* Guest additions are now allowed for a better UX */
+  const product = await window.ProductManager.getById(productId);
   
-  if (!color) {
-      const product = await window.ProductManager.getById(productId);
-      if (product) {
-          const cat = (product.category || '').toLowerCase();
-          const colorCats = window.COLOR_CATEGORIES || [];
-          if (colorCats.includes(cat)) {
-              window.location.href = `${window.APP_URL || ''}/detalhes/${productId}`;
-              return;
-          }
+  if (!color && product) {
+      const cat = (product.category || '').toLowerCase();
+      const colorCats = window.COLOR_CATEGORIES || [];
+      if (colorCats.includes(cat)) {
+          window.location.href = `${window.APP_URL || ''}/detalhes/${productId}`;
+          return;
       }
   }
+
   window.CartManager.add(productId, quantity, color);
-  const product = await window.ProductManager.getById(productId);
   const colorInfo = color ? ` (${color})` : '';
   window.showToast(`${Number(quantity)}x ${product ? product.name : 'Produto'}${colorInfo} adicionado ao carrinho!`);
 };
