@@ -2,7 +2,7 @@ function initProfile() {
     console.log("Iniciando Perfil Premium...");
     
     // Auth Check
-    fetch('api/auth.php?action=check&_t=' + new Date().getTime(), { cache: 'no-store' })
+    fetch('api/auth?action=check&_t=' + new Date().getTime(), { cache: 'no-store' })
         .then(r => r.json())
         .then(data => {
             if (!data.loggedIn) {
@@ -141,7 +141,7 @@ function initProfile() {
             if (window.deleteProfilePic) fd.append('delete_photo', '1');
             
             try {
-                const r = await fetch('api/auth.php?action=update_profile', { method: 'POST', body: fd });
+                const r = await fetch('api/auth?action=update_profile', { method: 'POST', body: fd });
                 const json = await r.json();
                 if (json.status === 'success') {
                     window.showToast("Perfil atualizado!", "success");
@@ -177,7 +177,7 @@ function initProfile() {
             if (next) fd.append('new_password', next);
             
             try {
-                const r = await fetch('api/auth.php?action=update_security', { method: 'POST', body: fd });
+                const r = await fetch('api/auth?action=update_security', { method: 'POST', body: fd });
                 const json = await r.json();
                 if (json.status === 'success') {
                     window.showToast("Dados atualizados!", "success");
@@ -192,7 +192,7 @@ function initProfile() {
     const logoutBtn = document.getElementById('btn-logout');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
-            const r = await fetch('api/auth.php?action=logout');
+            const r = await fetch('api/auth?action=logout');
             const data = await r.json();
             if (data.status === 'success') window.location.href = window.APP_URL || '/';
         });

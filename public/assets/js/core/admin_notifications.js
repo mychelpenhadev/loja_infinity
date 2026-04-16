@@ -7,7 +7,7 @@
         try {
             console.log("[Notificações] Verificando novos pedidos...");
 
-            const response = await fetch(`api/orders.php?action=list&limit=1&t=${Date.now()}`, { credentials: 'include' });
+            const response = await fetch(`api/orders?action=list&limit=1&t=${Date.now()}`, { credentials: 'include' });
             const data = await response.json();
             if (data && data.length > 0) {
                 const latestOrder = data[0];
@@ -27,7 +27,7 @@
                     lastOrderId = latestId;
                     localStorage.setItem('last_notified_order_id', latestId);
 
-                    if (window.location.pathname.includes('admin_pedidos.php') && typeof window.renderOrdersTable === 'function') {
+                    if (window.location.pathname.includes('/admin_pedidos') && typeof window.renderOrdersTable === 'function') {
                         console.log("[Notificações] Atualizando tabela de pedidos...");
                         window.renderOrdersTable();
                     }

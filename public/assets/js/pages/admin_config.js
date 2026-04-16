@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
     try {
-        const response = await fetch('api/auth.php?action=check');
+        const response = await fetch('api/auth?action=check');
         const data = await response.json();
         if (!data.loggedIn || data.role !== 'admin') {
-            window.location.href = 'index.php';
+            window.location.href = '/';
             return;
         }
     } catch(err) {
-        window.location.href = 'index.php';
+        window.location.href = 'index';
         return;
     }
 
@@ -134,7 +134,7 @@ async function setupBanners() {
                 const fileToUpload = fileInput._compressedFile || fileInput.files[0];
                 formData.append('banner', fileToUpload);
                 try {
-                    const resp = await fetch('api/config.php?action=upload-banner', {
+                    const resp = await fetch('api/config?action=upload-banner', {
                         method: 'POST',
                         body: formData,
                         credentials: 'include',

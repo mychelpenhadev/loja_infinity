@@ -777,7 +777,7 @@ function initLogin() {
                 if (data.status === 'success') {
                     window.showToast(data.message, 'success');
                     setTimeout(() => {
-                        window.location.href = data.role === 'admin' ? 'admin.php' : 'index.php';
+                        window.location.href = data.role === 'admin' ? '/admin' : '/';
                     }, 1000);
                 } else if (data.require_verification) {
                     window.showToast(data.message, 'warning');
@@ -848,7 +848,7 @@ function initLogin() {
                 if (data.status === 'success') {
                     window.showToast(data.message, 'success');
                     setTimeout(() => {
-                        window.location.href = 'index.php';
+                        window.location.href = '/';
                     }, 1500);
                 } else {
                     window.showToast(data.message, 'error');

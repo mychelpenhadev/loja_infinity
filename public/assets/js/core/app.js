@@ -409,24 +409,24 @@ function injectMobileNav() {
         : `<i class='bx bx-user'></i>`;
 
     nav.innerHTML = `
-        <a href="index.php" class="mobile-nav-item ${path.endsWith('index.php') || path === '/' ? 'active' : ''}">
+        <a href="/" class="mobile-nav-item ${path.endsWith('index.php') || path === '/' ? 'active' : ''}">
             <i class='bx bx-home-alt'></i>
             <span>Início</span>
         </a>
-        <a href="produtos.html" class="mobile-nav-item ${path.endsWith('produtos.html') ? 'active' : ''}">
+        <a href="/produtos" class="mobile-nav-item ${path.endsWith('produtos.html') ? 'active' : ''}">
             <i class='bx bx-grid-alt'></i>
             <span>Achei</span>
         </a>
-        <a href="carrinho.html" class="mobile-nav-item ${path.endsWith('carrinho.html') ? 'active' : ''}" style="position: relative;">
+        <a href="/carrinho" class="mobile-nav-item ${path.endsWith('carrinho.html') ? 'active' : ''}" style="position: relative;">
             <i class='bx bx-cart-alt'></i>
             <span>Carrinho</span>
             <span id="cart-badge-mobile" class="cart-badge" style="top: 0px; right: 10px; display: none;">0</span>
         </a>
-        <a href="perfil.php" class="mobile-nav-item ${path.endsWith('perfil.php') || path.endsWith('login.html') ? 'active' : ''}">
+        <a href="/perfil" class="mobile-nav-item ${path.endsWith('perfil.php') || path.endsWith('login.html') ? 'active' : ''}">
             ${profileIconHtml}
             ${profileLabel ? `<span>${profileLabel}</span>` : ''}
         </a>
-        <a href="admin.php" class="mobile-nav-item ${path.endsWith('admin.php') || path.endsWith('admin_config.php') || path.endsWith('admin_pedidos.php') ? 'active' : ''}" style="display: ${window.userRole === 'admin' ? 'flex' : 'none'};">
+        <a href="/admin" class="mobile-nav-item ${path.endsWith('admin.php') || path.endsWith('admin_config.php') || path.endsWith('admin_pedidos.php') ? 'active' : ''}" style="display: ${window.userRole === 'admin' ? 'flex' : 'none'};">
             <i class='bx bx-cog'></i>
             <span>Admin</span>
         </a>

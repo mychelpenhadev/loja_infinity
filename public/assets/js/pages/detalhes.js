@@ -15,10 +15,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const backText = document.getElementById('back-text');
                 const referrer = document.referrer;
                 if (backLink && backText) {
-                    if (referrer.includes('index.php') || referrer.includes('index.php') || (referrer === window.location.origin + '/') || referrer === '') {
-                        backLink.href = 'index.php#prod-' + productId;
+                    if (referrer.includes('index.php') || referrer.includes('/') || (referrer === window.location.origin + '/') || referrer === '') {
+                        backLink.href = '/#prod-' + productId;
                         backText.textContent = 'Voltar para o Início';
-                    } else if (referrer.includes('produtos.html')) {
+                    } else if (referrer.includes('/produtos')) {
 
                         const baseReferrer = referrer.split('#')[0];
                         backLink.href = baseReferrer + '#prod-' + productId;
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <i class='bx bx-error-circle' style="font-size: 4rem; color: var(--clr-text-light); margin-bottom: 1rem;"></i>
                             <h2>Ops! Esse produto não foi encontrado no nosso banco de dados.</h2>
                             <p style="color: var(--clr-text-light); margin-bottom: 2rem;">Ele pode ter sido removido ou o link está incorreto.</p>
-                            <a href="produtos.html" class="btn btn-primary">Ver Todos os Produtos</a>
+                            <a href="/produtos" class="btn btn-primary">Ver Todos os Produtos</a>
                         </div>
                     `;
                 }

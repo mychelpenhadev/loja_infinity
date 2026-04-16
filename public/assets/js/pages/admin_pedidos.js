@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const response = await fetch('api/auth.php?action=check', { credentials: 'include' });
+        const response = await fetch('api/auth?action=check', { credentials: 'include' });
         const data = await response.json();
         if (!data.loggedIn || data.role !== 'admin') {
-            window.location.href = 'index.php';
+            window.location.href = '/';
             return;
         }
     } catch(err) {
