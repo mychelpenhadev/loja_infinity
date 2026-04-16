@@ -20,6 +20,9 @@
                 }
             }
         }
+        if (typeof options.credentials === 'undefined') {
+            options.credentials = 'include';
+        }
         return originalFetch(finalUrl, options);
     };
 })();
@@ -444,6 +447,21 @@ const ConfigManager = {
         }
     } catch(e) {}
     return data;
+  _cache: {},
+  _readyPromise: null,
+  _resolveReady: null,
+  _sanitize: (data) => {
+    const sanitized = {};
+    for (const k in data) {
+        let val = data[k];
+        if (typeof val === 'string') {
+            try {
+                const parsed = JSON.parse(val);
+                sanitized[k] = parsed;
+            } catch(e) { sanitized[k] = val; }
+        } else { sanitized[k] = val; }
+    }
+    return sanitized;
   },
   init: async () => {
     if (!ConfigManager._readyPromise) {
@@ -452,38 +470,17 @@ const ConfigManager = {
         });
     }
 
-    const cached = sessionStorage.getItem('papelaria_config');
-    if (cached) {
-        let data = JSON.parse(cached);
-        // Force clear if it contains old local URLs
-        if (cached.includes('127.0.0.1') || cached.includes('localhost')) {
-            sessionStorage.removeItem('papelaria_config');
-        } else {
-            ConfigManager._cache = ConfigManager._sanitize(data);
-            if (ConfigManager._resolveReady) ConfigManager._resolveReady();
-            // Silent update in background
-            fetch('api/config?action=get', { credentials: 'include' })
-              .then(r => r.json())
-              .then(d => {
-                 ConfigManager._cache = ConfigManager._sanitize(d || {});
-                 sessionStorage.setItem('papelaria_config', JSON.stringify(ConfigManager._cache));
-              }).catch(() => {});
-            return;
-        }
-    }
-
     try {
-      const response = await fetch('api/config?action=get', { credentials: 'include' });
+      // Usamos a interceptação global que já inclui credentials: 'include'
+      const response = await fetch('api/config?action=all');
       const data = await response.json();
       ConfigManager._cache = ConfigManager._sanitize(data || {});
-      sessionStorage.setItem('papelaria_config', JSON.stringify(ConfigManager._cache));
       if (ConfigManager._resolveReady) ConfigManager._resolveReady();
+      return ConfigManager._cache;
     } catch (err) {
-      console.error("Erro ao inicializar ConfigManager:", err);
+      console.warn("Erro ao carregar configurações:", err);
       if (ConfigManager._resolveReady) ConfigManager._resolveReady();
-    }
-  },
-      if (ConfigManager._resolveReady) ConfigManager._resolveReady();
+      return {};
     }
   },
   waitReady: () => {
@@ -494,27 +491,22 @@ const ConfigManager = {
     }
     return ConfigManager._readyPromise;
   },
-  clearCache: () => {
-    sessionStorage.removeItem(STORAGE_KEYS.CONFIG_CACHE);
-    sessionStorage.removeItem(STORAGE_KEYS.CONFIG_CACHE_EXP);
-  },
   get: (key) => {
-    return ConfigManager._cache[key];
+    return ConfigManager._cache[key] || null;
   },
   set: async (key, value) => {
     try {
-      ConfigManager.clearCache();
-      ConfigManager._cache[key] = value;
-      const resp = await fetch('api/config?action=save', {
+      const response = await fetch('api/config?action=save', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [key]: value }),
-        credentials: 'include'
+        body: JSON.stringify({ [key]: value })
       });
-      const result = await resp.json();
-      return result;
+      const data = await response.json();
+      if (data.status === 'success') {
+          ConfigManager._cache[key] = value;
+      }
+      return data;
     } catch (err) {
-      console.error("Erro ao salvar config:", err);
+      console.error("Erro ao salvar configuração:", err);
       return { status: 'error', message: err.message };
     }
   }

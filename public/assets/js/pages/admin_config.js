@@ -120,7 +120,16 @@ async function setupBanners() {
         addBannerItem(list, allProducts, '', 'novo', []);
     }
 
-    addBtn.addEventListener('click', () => addBannerItem(list, allProducts, '', 'novo', []));
+    addBtn.addEventListener('click', () => {
+        console.log("[Admin] Botão Novo Banner clicado!");
+        alert("Botão Novo Banner Clicado!");
+        try {
+            addBannerItem(list, allProducts, '', 'novo', []);
+        } catch (e) {
+            console.error("[Admin] Erro ao adicionar banner:", e);
+            alert("Erro ao adicionar banner: " + e.message);
+        }
+    });
 
     saveBtn.addEventListener('click', async () => {
         const items = list.querySelectorAll('.banner-item');
