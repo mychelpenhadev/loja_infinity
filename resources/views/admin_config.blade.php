@@ -403,7 +403,7 @@
     </script>
     <script src="{{ asset('assets/js/core/db.js?v=31') }}"></script>
     <script src="{{ asset('assets/js/core/app.js?v=31') }}"></script>
-    <script src="{{ asset('assets/js/pages/admin_config.js?v=31') }}"></script>
+    <script src="{{ asset('assets/js/pages/admin_config.js?v=32') }}"></script>
     <script src="{{ asset('assets/js/core/admin_notifications.js?v=31') }}"></script>
 </body>
 </html>
