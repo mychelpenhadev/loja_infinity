@@ -21,8 +21,9 @@ php artisan config:clear
 php artisan route:clear
 php artisan view:clear
 
-# Tenta rodar migrações (usamos driver 'array' durante a migração para evitar erro se a tabela de sessões estiver quebrada)
-echo "[Laravel] Executando migrações..."
+# Tenta rodar migrações (usamos driver 'array' e forçamos a limpeza da tabela de sessões se ela estiver corrompida)
+echo "[Laravel] Reparando banco de dados..."
+SESSION_DRIVER=array php artisan tinker --execute="Schema::dropIfExists('sessions')"
 SESSION_DRIVER=array php artisan migrate --force || echo "Aviso: Falha ao rodar migrações."
 
 # Inicia o servidor
