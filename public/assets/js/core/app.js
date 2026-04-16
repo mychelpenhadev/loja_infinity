@@ -306,11 +306,6 @@ function renderNotifications(products, list, badge) {
     badge.badgeCount = news.length;
     badge.textContent = news.length;
     badge.style.display = 'flex';
-
-  } catch (err) {
-    console.error("Erro ao carregar notificações:", err);
-    list.innerHTML = '<div class="notification-empty">Erro ao carregar novidades.</div>';
-  }
 }
 
 function updateCartBadge() {

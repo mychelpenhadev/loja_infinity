@@ -429,6 +429,7 @@ const OrderManager = {
   }
 };
 const ConfigManager = {
+  _cache: {},
   _readyPromise: null,
   _resolveReady: null,
   _sanitize: (data) => {
@@ -446,11 +447,7 @@ const ConfigManager = {
             }
         }
     } catch(e) {}
-    return data;
-  _cache: {},
-  _readyPromise: null,
-  _resolveReady: null,
-  _sanitize: (data) => {
+
     const sanitized = {};
     for (const k in data) {
         let val = data[k];
