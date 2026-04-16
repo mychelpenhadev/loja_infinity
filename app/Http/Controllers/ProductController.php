@@ -34,7 +34,7 @@ class ProductController extends Controller
                     $limit = $request->input('limit', 12);
                     
                     if ($category && $category !== 'all') {
-                        $query->where('category', 'like', "%$category%");
+                        $query->where('category', $category);
                     }
                     if ($search) {
                         $query->where(function($q) use ($search) {

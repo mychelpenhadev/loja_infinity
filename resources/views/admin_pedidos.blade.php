@@ -441,6 +441,9 @@
 
             <!-- CARDS: Mobile -->
             <div class="order-cards-list" id="order-cards-list"></div>
+
+            <!-- Pagination -->
+            <div id="pagination-controls" style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; padding: 1rem 0;"></div>
         </main>
     </div>
 

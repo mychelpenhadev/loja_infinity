@@ -55,9 +55,16 @@ window.deleteOrder = async (orderId) => {
 };
 
 /* ===== Render ===== */
-window.renderOrdersTable = async function() {
+let _currentPage = 1;
+const _itemsPerPage = 20;
+
+/* ===== Render ===== */
+window.renderOrdersTable = async function(page = 1) {
+    _currentPage = page;
     const tbody     = document.getElementById('table-orders-body');
     const cardsList = document.getElementById('order-cards-list');
+    const paginationEl = document.getElementById('pagination-controls');
+    const filter = window.getCurrentFilter ? window.getCurrentFilter() : 'all';
 
     const loadingHTML = `<tr><td colspan="6" style="text-align:center;padding:4rem;">
         <i class="bx bx-loader-alt bx-spin" style="font-size:2rem;color:var(--clr-primary);"></i>
@@ -68,32 +75,32 @@ window.renderOrdersTable = async function() {
     if (cardsList) cardsList.innerHTML = '<p style="text-align:center;padding:3rem;color:var(--clr-text-light);"><i class="bx bx-loader-alt bx-spin" style="font-size:2rem;"></i></p>';
 
     try {
-        const allOrders    = await fetch('api/orders.php?action=list', { credentials: 'include' }).then(r => r.json()).catch(() => []);
-        const pickupOrders = allOrders.filter(o => {
-            const m = String(o.method || "").toLowerCase();
-            return m.includes("retira") || m.includes("whatsapp") || m === "";
-        });
+        const params = {
+            action: 'list',
+            page: _currentPage,
+            limit: _itemsPerPage
+        };
+        if (filter !== 'all') params.status = filter;
 
-        updateOrderStats(pickupOrders);
+        const response  = await window.OrderManager.getAll(params);
+        const orders    = response.orders || [];
+        const pagination = response.pagination || {};
 
-        /* Apply filter */
-        const filter       = window.getCurrentFilter ? window.getCurrentFilter() : 'all';
-        const visibleOrders = filter === 'all'
-            ? pickupOrders
-            : pickupOrders.filter(o => (filter === 'entregue' ? o.status === 'entregue' : o.status !== 'entregue'));
+        updateOrderStats(orders); // Note: This only updates stats based on the current page. For global stats, we'd need another API call.
 
         /* Empty state */
-        if (visibleOrders.length === 0) {
+        if (orders.length === 0) {
             const emptyMsg = `<i class='bx bx-ghost' style='font-size:3rem;margin-bottom:1rem;display:block;'></i>Nenhum pedido encontrado.`;
             if (tbody)     tbody.innerHTML     = `<tr><td colspan="6" style="text-align:center;color:var(--clr-text-light);padding:4rem;">${emptyMsg}</td></tr>`;
             if (cardsList) cardsList.innerHTML = `<p style="text-align:center;color:var(--clr-text-light);padding:3rem;">${emptyMsg}</p>`;
+            if (paginationEl) paginationEl.innerHTML = '';
             return;
         }
 
         /* --- TABLE rows (Desktop) --- */
         if (tbody) {
             tbody.innerHTML = '';
-            visibleOrders.forEach((order, index) => {
+            orders.forEach((order, index) => {
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-order-id', order.id);
                 tr.style.animation = `fadeInUp 0.4s ease forwards ${index * 0.05}s`;
@@ -120,7 +127,7 @@ window.renderOrdersTable = async function() {
                                     <i class='bx bx-check-circle'></i> Confirmar
                                 </button>
                             ` : ''}
-                            <button onclick="window.deleteOrder('${order.id}')" class="circle-btn delete" style="background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.2);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;" title="Excluir">
+                            <button onclick="window.deleteOrder('${order.id}')" class="circle-btn delete" style="background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.25);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;" title="Excluir">
                                 <i class='bx bx-trash'></i>
                             </button>
                         </div>
@@ -133,7 +140,7 @@ window.renderOrdersTable = async function() {
         /* --- ORDER CARDS (Mobile) --- */
         if (cardsList) {
             cardsList.innerHTML = '';
-            visibleOrders.forEach((order, index) => {
+            orders.forEach((order, index) => {
                 const { formattedDate, itemsList, isDelivered } = parseOrder(order);
 
                 const card = document.createElement('div');
@@ -185,6 +192,8 @@ window.renderOrdersTable = async function() {
             });
         }
 
+        renderPagination(pagination, paginationEl);
+
     } catch(e) {
         console.error(e);
         const errHTML = `<tr><td colspan="6" style="text-align:center;padding:4rem;color:#EF4444;"><i class='bx bx-error' style='font-size:3rem;'></i><p>Erro ao carregar pedidos.</p></td></tr>`;
@@ -192,6 +201,27 @@ window.renderOrdersTable = async function() {
         if (cardsList) cardsList.innerHTML = `<p style="text-align:center;padding:3rem;color:#EF4444;">Erro ao carregar pedidos.</p>`;
     }
 };
+
+function renderPagination(pagination, container) {
+    if (!container) return;
+    if (!pagination || pagination.pages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = `
+        <button onclick="window.renderOrdersTable(${pagination.page - 1})" class="filter-btn" ${pagination.page === 1 ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+            <i class='bx bx-chevron-left'></i> Anterior
+        </button>
+        <span style="font-size:0.9rem; color:var(--clr-text-light); font-weight:600;">
+            Página ${pagination.page} de ${pagination.pages}
+        </span>
+        <button onclick="window.renderOrdersTable(${pagination.page + 1})" class="filter-btn" ${pagination.page === pagination.pages ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+            Próximo <i class='bx bx-chevron-right'></i>
+        </button>
+    `;
+    container.innerHTML = html;
+}
 
 /* ===== Helpers ===== */
 function parseOrder(order) {

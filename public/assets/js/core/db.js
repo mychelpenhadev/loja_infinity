@@ -90,20 +90,20 @@ window.ImageOptimizer = {
 
 
 const STORAGE_KEYS = {
-  CART: 'papelaria_cart',
-  THEME: 'papelaria_theme',
-  PRODUCTS_CACHE: 'papelaria_products_cache',
-  PRODUCTS_CACHE_EXP: 'papelaria_products_exp',
-  CONFIG_CACHE: 'papelaria_config_cache',
-  CONFIG_CACHE_EXP: 'papelaria_config_exp',
-  PRODUCT_DETAIL_PREFIX: 'papelaria_prod_'
+  CART: 'infinity_cart',
+  THEME: 'infinity_theme',
+  PRODUCTS_CACHE: 'infinity_products_cache',
+  PRODUCTS_CACHE_EXP: 'infinity_products_exp',
+  CONFIG_CACHE: 'infinity_config_cache',
+  CONFIG_CACHE_EXP: 'infinity_config_exp',
+  PRODUCT_DETAIL_PREFIX: 'infinity_prod_'
 };
 const COLOR_CATEGORIES = ['linhas', 'las', 'croche', 'barbantes', 'bordados'];
 const ProductManager = {
   _cache: {},
   getAll: async (params = {}) => {
     const now = Date.now();
-    const cacheKey = 'papelaria_prods_list_' + JSON.stringify(params);
+    const cacheKey = 'infinity_prods_list_' + JSON.stringify(params);
     const expKey = cacheKey + '_exp';
 
     const hasSearch = params.search && params.search.trim().length > 0;
@@ -116,25 +116,19 @@ const ProductManager = {
     }
     try {
       const query = new URLSearchParams(params).toString();
-      const response = await fetch(`api/products?action=list&${query}&_=${Date.now()}`, { credentials: 'include' });
+      const response = await fetch(`api/products?action=list&${query}`, { credentials: 'include' });
       const data = await response.json();
       if (!hasSearch) {
         try {
+          // Use current state for caching, avoiding duplicate processing
           const cacheData = JSON.parse(JSON.stringify(data));
-          if (cacheData.products) {
-            cacheData.products = cacheData.products.map(p => ({
-              ...p,
-              image: (p.image && p.image.startsWith('data:image')) ? 'assets/img/logoPNG.png' : p.image
-            }));
-          }
           const json = JSON.stringify(cacheData);
-          if (json.length < 2000000) {
+          if (json.length < 1000000) {
             sessionStorage.setItem(cacheKey, json);
-            sessionStorage.setItem(expKey, (now + 600000).toString());
+            sessionStorage.setItem(expKey, (now + 300000).toString()); // 5 minutes cache for lists
           }
         } catch (e) {
           ProductManager.clearCache();
-          console.warn("Cache quota", e);
         }
       }
       return data;
@@ -147,7 +141,7 @@ const ProductManager = {
     const keysToRemove = [];
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
-      if (key && (key.startsWith('papelaria_prods_list_') || key.startsWith('papelaria_prod_') || key === STORAGE_KEYS.PRODUCTS_CACHE || key === STORAGE_KEYS.PRODUCTS_CACHE_EXP)) {
+      if (key && (key.startsWith('infinity_prods_list_') || key.startsWith('infinity_prod_') || key === STORAGE_KEYS.PRODUCTS_CACHE || key === STORAGE_KEYS.PRODUCTS_CACHE_EXP)) {
         keysToRemove.push(key);
       }
     }
@@ -280,7 +274,7 @@ const ProductManager = {
 };
 const CartManager = {
   getCartKey: () => {
-      return window.userId ? 'papelaria_cart_user_' + window.userId : 'papelaria_cart_guest';
+      return window.userId ? 'infinity_cart_user_' + window.userId : 'infinity_cart_guest';
   },
   getCart: () => JSON.parse(localStorage.getItem(CartManager.getCartKey()) || '[]'),
   add: (productId, quantity = 1, color = null) => {
@@ -342,12 +336,12 @@ const CartManager = {
     }, 0);
   },
   mergeGuestCart: () => {
-    const guestCart = JSON.parse(localStorage.getItem('papelaria_cart_guest') || '[]');
+    const guestCart = JSON.parse(localStorage.getItem('infinity_cart_guest') || '[]');
     if (guestCart.length === 0) return;
     const userId = window.userId || null;
     if (!userId) return;
     
-    const userKey = 'papelaria_cart_user_' + userId;
+    const userKey = 'infinity_cart_user_' + userId;
     const userCart = JSON.parse(localStorage.getItem(userKey) || '[]');
     
     guestCart.forEach(gItem => {
@@ -363,19 +357,45 @@ const CartManager = {
     });
     
     localStorage.setItem(userKey, JSON.stringify(userCart));
-    localStorage.setItem('papelaria_cart_guest', JSON.stringify([]));
+    localStorage.setItem('infinity_cart_guest', JSON.stringify([]));
     window.dispatchEvent(new Event('cartUpdated'));
   }
 };
 const OrderManager = {
-  getAll: async () => {
+  getAll: async (params = {}) => {
+    const cacheKey = 'infinity_orders_' + JSON.stringify(params);
+    const expKey = cacheKey + '_exp';
+    const now = Date.now();
+    
+    const cached = sessionStorage.getItem(cacheKey);
+    const exp = sessionStorage.getItem(expKey);
+    if (cached && exp && now < parseInt(exp)) {
+      return JSON.parse(cached);
+    }
+
     try {
-      const response = await fetch('api/orders?action=list', { credentials: 'include' });
-      return await response.json();
+      const query = new URLSearchParams(params).toString();
+      const response = await fetch(`api/orders?action=list&${query}`, { credentials: 'include' });
+      const data = await response.json();
+      
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(data));
+        sessionStorage.setItem(expKey, (now + 60000).toString()); // 1 minute cache for orders
+      } catch(e) {}
+      
+      return data;
     } catch (err) {
       console.error("Erro ao buscar pedidos:", err);
-      return [];
+      return { orders: [], pagination: {} };
     }
+  },
+  clearCache: () => {
+    const keysToRemove = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith('infinity_orders_')) keysToRemove.push(key);
+    }
+    keysToRemove.forEach(k => sessionStorage.removeItem(k));
   },
   getByUser: async (userId) => {
     try {
@@ -402,6 +422,7 @@ const OrderManager = {
   },
   updateStatus: async (orderId, newStatus) => {
     try {
+      OrderManager.clearCache();
       const response = await fetch(`api/orders?action=update_status&id=${orderId}&status=${newStatus}`);
       return await response.json();
     } catch (err) {
@@ -411,6 +432,7 @@ const OrderManager = {
   },
   remove: async (orderId) => {
     try {
+      OrderManager.clearCache();
       const response = await fetch(`api/orders?action=delete&id=${orderId}`);
       return await response.json();
     } catch (err) {

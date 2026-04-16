@@ -18,12 +18,21 @@ class OrderController extends Controller
                     if (!Auth::check() || Auth::user()->role !== 'admin') {
                         return response()->json(['error' => 'Não autorizado'], 403);
                     }
-                    $limit = $request->input('limit');
+                    $limit = $request->input('limit', 20);
                     $query = Order::orderBy('created_at', 'desc');
-                    if ($limit) {
-                        $query->limit($limit);
-                    }
-                    return response()->json($query->get());
+                    
+                    $total = $query->count();
+                    $orders = $query->paginate($limit);
+
+                    return response()->json([
+                        'orders' => $orders->items(),
+                        'pagination' => [
+                            'total' => $total,
+                            'page' => $orders->currentPage(),
+                            'limit' => (int)$limit,
+                            'pages' => $orders->lastPage()
+                        ]
+                    ]);
 
                 case 'list_user':
                     $userId = $request->input('user_id', Auth::id());

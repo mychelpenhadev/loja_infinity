@@ -14,13 +14,24 @@ class ConfigController extends Controller
 
         try {
             switch ($action) {
+                case 'all':
+                    $configs = \Illuminate\Support\Facades\Cache::remember('global_configs', 3600, function() {
+                        return Config::pluck('config_value', 'config_key')->toArray();
+                    });
+                    return response()->json($configs);
+
                 case 'get':
                     $key = $request->input('key');
                     if ($key) {
-                        $config = Config::where('config_key', $key)->first();
-                        return response()->json(["value" => $config ? $config->config_value : null]);
+                        $configValue = \Illuminate\Support\Facades\Cache::remember('config_' . $key, 3600, function() use ($key) {
+                            $config = Config::where('config_key', $key)->first();
+                            return $config ? $config->config_value : null;
+                        });
+                        return response()->json(["value" => $configValue]);
                     } else {
-                        $configs = Config::pluck('config_value', 'config_key')->toArray();
+                        $configs = \Illuminate\Support\Facades\Cache::remember('global_configs', 3600, function() {
+                            return Config::pluck('config_value', 'config_key')->toArray();
+                        });
                         return response()->json($configs);
                     }
 
@@ -37,7 +48,9 @@ class ConfigController extends Controller
                             ['config_key' => $key],
                             ['config_value' => (is_array($value) || is_object($value)) ? json_encode($value) : $value]
                         );
+                        \Illuminate\Support\Facades\Cache::forget('config_' . $key);
                     }
+                    \Illuminate\Support\Facades\Cache::forget('global_configs');
                     return response()->json(["status" => "success"]);
 
                 default:
