@@ -39,130 +39,61 @@
                 .hero { padding: 0.5rem 0 !important; }
             }
         </style>
-        <div class="hero-banner-row">
-            <!-- Main Discovery Slider -->
-            <div class="hero-banner-slider-wrap glass-panel" style="border-radius: var(--radius-lg); overflow: hidden; height: 440px; position: relative; border: 1px solid rgba(255,255,255,0.1);">
-                
-                    <style>
-                    .floating-polaroid {
-                        position: absolute; z-index: 10;
-                        background: #ffffff; padding: 6px; border-radius: 2px;
-                        box-shadow: 0 15px 35px rgba(0,0,0,0.15), 0 5px 15px rgba(0,0,0,0.1);
-                        text-decoration: none; 
-                        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                        display: block; width: 145px;
-                    }
-                    .floating-polaroid:hover {
-                        transform: rotate(0deg) scale(1.05) translateY(-5px) !important;
-                        z-index: 20 !important;
-                    }
-
-                    .style-novo .layout-antigo { display: none !important; }
-                    .style-novo .layout-polaroid { display: block !important; }
-                    .style-antigo .layout-polaroid { display: none !important; }
-                    .style-antigo .layout-antigo { display: flex !important; }
-                    
-                    .layout-antigo:hover {
-                        transform: scale(1.05) translateY(-5px) !important;
-                        background: rgba(15, 23, 42, 0.95) !important;
-                        box-shadow: 0 15px 45px rgba(0,0,0,0.6) !important;
-                        z-index: 30 !important;
-                    }
-                    </style>
-
-                    <!-- Javascript will inject floating promos here -->
-                    <div id="dynamic-floating-promos" style="position: absolute; inset: 0; pointer-events: none; z-index: 10;">
-                        <!-- The <a> tags will have pointer-events: auto -->
-                    </div>
-
-                <div class="hero-banner-slider" id="hero-banner-slider" style="height: 100%;">
-                    @if(isset($banners) && count($banners) > 0)
-                        @foreach($banners as $index => $b)
-                            @php
-                                $tag = !empty($b['link']) ? 'a' : 'div';
-                                $href = !empty($b['link']) ? 'href="' . $b['link'] . '"' : '';
-                            @endphp
-                            <{{ $tag }} {{ $href }} class="hb-slide {{ $index === 0 ? 'active' : '' }}">
-                                @php
-                                    $bannerUrl = $b['url'];
-                                    // If URL is absolute but points to another domain (like localhost), try to fix it
-                                    if (str_contains($bannerUrl, 'uploads/banners/')) {
-                                        $bannerUrl = asset('uploads/banners/' . basename($bannerUrl));
-                                    }
-                                @endphp
-                                <img src="{{ $bannerUrl }}" alt="Banner {{ $index + 1 }}" 
-                                     {{ $index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"' }}>
-                            </{{ $tag }}>
-                        @endforeach
-                    @else
-                        <div class="hero-banner-placeholder" id="hero-banner-placeholder" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a1628 0%, #001a1a 100%);">
-                            <img src="{{ asset('assets/img/logoPNG.png') }}" alt="Infinity Variedades" style="width: 70%; max-width: 380px; filter: brightness(0) invert(1) drop-shadow(0 0 30px rgba(0,212,212,0.4)); animation: logoPulse 3s ease-in-out infinite;">
-                            <p style="color: var(--clr-text-light); margin-top: 1.5rem; font-size: 0.95rem; opacity: 0.7;">Explore o que há de mais inovador em papelaria e criatividade.</p>
-                        </div>
-                    @endif
-                </div>
-                <button class="hb-arrow hb-arrow-left" id="hb-prev" aria-label="Anterior" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);"><i class='bx bx-chevron-left'></i></button>
-                <button class="hb-arrow hb-arrow-right" id="hb-next" aria-label="Próximo" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);"><i class='bx bx-chevron-right'></i></button>
-            </div>
-
-            <!-- Side Product Preview -->
+        <div style="max-width: 900px; margin: 0 auto;">
+            <!-- Side Product Preview (Now Main Hero) -->
             <style>
+                .hero-image {
+                    min-height: 480px;
+                }
                 @media (max-width: 768px) {
-                    .hero-image { padding: 1rem !important; }
-                    .hero-slider { height: 350px !important; margin-bottom: 0 !important; }
-                    .slider-item { gap: 0.8rem !important; }
-                    .sidebar-image-box { height: 160px !important; }
-                    .sidebar-caption { gap: 0.25rem !important; }
-                    .sidebar-title { font-size: 0.9rem !important; height: 2.6em !important; }
-                    .sidebar-bottom-btn { padding-top: 0.75rem !important; }
+                    .hero-image { min-height: 400px; padding: 1rem !important; }
+                    .hero-slider { height: 320px !important; }
                 }
             </style>
 
-            <div class="hero-image glass-panel bg-dark-premium" style="border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; position: relative;">
+            <div class="hero-image glass-panel bg-dark-premium" style="border-radius: var(--radius-lg); overflow: hidden; display: flex; flex-direction: column; position: relative; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
                 
                 <!-- Header -->
-                <div style="display: flex; align-items: center; gap: 0.6rem; padding: 1rem 1.25rem 0.75rem; position: relative; z-index: 2;">
-                    <h3 style="font-family: var(--font-display); font-size: 1.1rem; margin: 0; color: #e0fafa; font-weight: 700;">Lançamentos</h3>
-                    <span style="font-size: 0.6rem; background: var(--grad-primary); color: #003838; padding: 3px 8px; border-radius: var(--radius-full); font-weight: 800; white-space: nowrap; letter-spacing: 0.05em;">NEW</span>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 0.8rem; padding: 1.5rem 1.25rem 1rem; position: relative; z-index: 2;">
+                    <h3 style="font-family: var(--font-display); font-size: 1.4rem; margin: 0; color: #e0fafa; font-weight: 800; letter-spacing: -0.5px;">Destaques da Semana</h3>
+                    <span style="font-size: 0.7rem; background: var(--grad-primary); color: #003838; padding: 4px 10px; border-radius: var(--radius-full); font-weight: 900; white-space: nowrap; letter-spacing: 0.05em; box-shadow: 0 0 15px rgba(0,212,212,0.3);">OFICIAIS</span>
                 </div>
                 
                 <!-- Full-image Slider -->
-                <div class="hero-slider" id="hero-slider" style="flex: 1; box-shadow: none; border: none; background: transparent;">
+                <div class="hero-slider" id="hero-slider" style="flex: 1; box-shadow: none; border: none; background: transparent; position: relative;">
                     @forelse($sliderProducts as $index => $p)
                         <div class="slider-item {{ $index === 0 ? 'active' : '' }}" data-id="{{ $p->id }}"
-                             onclick="window.location.href='{{ url('/detalhes/' . $p->id) }}'">
+                             onclick="window.location.href='{{ url('/detalhes/' . $p->id) }}'"
+                             style="cursor: pointer; transition: transform 0.4s ease;">
 
-                            
                             <!-- Full BG Image -->
                             <img src="{{ $p->image }}" alt="{{ $p->name }}"
-                                 style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff;">
+                                 style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #fff; transform: scale(0.9); transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);">
                             
                             <!-- Gradient Overlay -->
-                            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);"></div>
+                            <div style="position: absolute; inset: 0; background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 40%, transparent 100%);"></div>
                             
                             <!-- Info Overlay at Bottom -->
-                            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem 1.1rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 0.75rem;">
+                            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem 2rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem;">
                                 <div style="flex: 1; min-width: 0;">
-                                    <p style="margin: 0 0 4px; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.9); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $p->name }}</p>
-                                    <div style="display: flex; align-items: baseline; gap: 3px;">
-                                        <span style="color: var(--clr-primary); font-size: 0.8rem; font-weight: 800;">R$</span>
-                                        <span style="color: var(--clr-primary); font-size: 1.35rem; font-weight: 900; letter-spacing: -0.5px; text-shadow: 0 0 12px rgba(0,212,212,0.4);">{{ number_format($p->price, 2, ',', '.') }}</span>
+                                    <p style="margin: 0 0 6px; font-size: 1.1rem; font-weight: 700; color: #fff; line-height: 1.2;">{{ $p->name }}</p>
+                                    <div style="display: flex; align-items: baseline; gap: 4px;">
+                                        <span style="color: var(--clr-primary); font-size: 0.9rem; font-weight: 800;">R$</span>
+                                        <span style="color: var(--clr-primary); font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; text-shadow: 0 0 15px rgba(0,212,212,0.5);">{{ number_format($p->price, 2, ',', '.') }}</span>
                                     </div>
                                 </div>
                                 <!-- Cart Icon Button -->
                                 <button onclick="event.stopPropagation(); window.handleAddToCart('{{ $p->id }}')"
-                                        style="width: 44px; height: 44px; border-radius: 50%; background: var(--grad-primary); color: #003838; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 15px rgba(0,212,212,0.4); transition: transform 0.2s ease;"
-                                        onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                        style="width: 54px; height: 54px; border-radius: 50%; background: var(--grad-primary); color: #003838; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 8px 25px rgba(0,212,212,0.5); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);"
+                                        onmouseover="this.style.transform='scale(1.1) rotate(5deg)'" onmouseout="this.style.transform='scale(1) rotate(0deg)'">
                                     <i class='bx bx-cart-add'></i>
                                 </button>
                             </div>
                         </div>
                     @empty
-                        <div class="slider-loading"><i class='bx bx-loader-alt bx-spin'></i></div>
+                        <div class="slider-loading" style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--clr-primary);"><i class='bx bx-loader-alt bx-spin' style="font-size: 2rem;"></i></div>
                     @endforelse
                 </div>
-
-
             </div>
         </div>
     </div>

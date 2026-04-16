@@ -306,21 +306,6 @@
                         <span>Banners do Carrossel (Home)</span>
                     </div>
                     <p style="color: var(--clr-text-light); font-size: 0.9rem; margin-bottom: 2rem;">
-                        Gerencie as imagens de destaque da página inicial. Recomenda-se imagens de alta resolução (1920x600px).
-                    </p>
-                    
-                    <div id="banners-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;"></div>
-                    
-                    <div style="display: flex; gap: 1rem;">
-                        <button type="button" id="add-banner-btn" class="btn" style="flex: 1; border: 2px dashed var(--clr-border); background: transparent; color: var(--clr-text-light); border-radius: 16px;">
-                            <i class='bx bx-plus-circle'></i> Novo Banner
-                        </button>
-                        <button type="button" id="save-banners-btn" class="btn btn-primary" style="flex: 1.5; border-radius: 16px; padding: 1rem;">
-                            <i class='bx bx-save'></i> Salvar Todas as Alterações de Banner
-                        </button>
-                    </div>
-                </div>
-
                 <!-- BACKUP -->
                 <div class="settings-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, var(--clr-surface) 0%, rgba(0, 212, 212, 0.05) 100%);">
                     <div class="settings-card-title">
