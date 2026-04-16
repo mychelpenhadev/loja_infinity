@@ -25,13 +25,19 @@
                 }
 
                 if (banners && banners.length > 0) {
-                    if (bannerPlaceholder) bannerPlaceholder.remove();
-                    bannerSlider.innerHTML = banners.map((b, i) => {
-                        const tag = b.link ? `a href="${b.link}"` : 'div';
-                        return `<${tag} class="hb-slide ${i === 0 ? 'active' : ''}">
-                            <img src="${b.url}" alt="Banner ${i+1}">
-                        </${tag.endsWith('a') ? 'a' : 'div'}>`;
-                    }).join('');
+                    // Only render if not already server-rendered by Blade to avoid flickering
+                    const hasSlides = bannerSlider.querySelectorAll('.hb-slide').length > 0;
+                    if (!hasSlides) {
+                        if (bannerPlaceholder) bannerPlaceholder.remove();
+                        bannerSlider.innerHTML = banners.map((b, i) => {
+                            const tag = b.link ? `a href="${b.link}"` : 'div';
+                            return `<${tag} class="hb-slide ${i === 0 ? 'active' : ''}">
+                                <img src="${b.url}" alt="Banner ${i+1}">
+                            </${tag.endsWith('a') ? 'a' : 'div'}>`;
+                        }).join('');
+                    } else if (bannerPlaceholder) {
+                        bannerPlaceholder.remove();
+                    }
 
                     const slides = bannerSlider.querySelectorAll('.hb-slide');
                     let current = 0;

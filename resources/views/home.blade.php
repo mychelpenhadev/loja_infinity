@@ -76,16 +76,23 @@
                     </div>
 
                 <div class="hero-banner-slider" id="hero-banner-slider" style="height: 100%;">
-                    <div class="hero-banner-placeholder" id="hero-banner-placeholder" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a1628 0%, #001a1a 100%);">
-                        <img src="{{ asset('assets/img/logoPNG.png') }}" alt="Infinity Variedades" style="width: 70%; max-width: 380px; filter: brightness(0) invert(1) drop-shadow(0 0 30px rgba(0,212,212,0.4)); animation: logoPulse 3s ease-in-out infinite;">
-                        <p style="color: var(--clr-text-light); margin-top: 1.5rem; font-size: 0.95rem; opacity: 0.7;">Explore o que há de mais inovador em papelaria e criatividade.</p>
-                        <style>
-                            @keyframes logoPulse {
-                                0%, 100% { filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(0,212,212,0.3)); }
-                                50%       { filter: brightness(0) invert(1) drop-shadow(0 0 40px rgba(0,212,212,0.7)); }
-                            }
-                        </style>
-                    </div>
+                    @if(isset($banners) && count($banners) > 0)
+                        @foreach($banners as $index => $b)
+                            @php
+                                $tag = !empty($b['link']) ? 'a' : 'div';
+                                $href = !empty($b['link']) ? 'href="' . $b['link'] . '"' : '';
+                            @endphp
+                            <{{ $tag }} {{ $href }} class="hb-slide {{ $index === 0 ? 'active' : '' }}">
+                                <img src="{{ $b['url'] }}" alt="Banner {{ $index + 1 }}" 
+                                     {{ $index === 0 ? 'loading="eager" fetchpriority="high"' : 'loading="lazy"' }}>
+                            </{{ $tag }}>
+                        @endforeach
+                    @else
+                        <div class="hero-banner-placeholder" id="hero-banner-placeholder" style="height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #0a1628 0%, #001a1a 100%);">
+                            <img src="{{ asset('assets/img/logoPNG.png') }}" alt="Infinity Variedades" style="width: 70%; max-width: 380px; filter: brightness(0) invert(1) drop-shadow(0 0 30px rgba(0,212,212,0.4)); animation: logoPulse 3s ease-in-out infinite;">
+                            <p style="color: var(--clr-text-light); margin-top: 1.5rem; font-size: 0.95rem; opacity: 0.7;">Explore o que há de mais inovador em papelaria e criatividade.</p>
+                        </div>
+                    @endif
                 </div>
                 <button class="hb-arrow hb-arrow-left" id="hb-prev" aria-label="Anterior" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);"><i class='bx bx-chevron-left'></i></button>
                 <button class="hb-arrow hb-arrow-right" id="hb-next" aria-label="Próximo" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);"><i class='bx bx-chevron-right'></i></button>
