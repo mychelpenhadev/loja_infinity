@@ -212,11 +212,17 @@ class AuthController extends Controller
             $bdata = base64_decode($bdata);
             $filename = 'cliente_' . $user->id . '_' . time() . '.jpg';
             // Assuming storing in public/uploads/clientes
-            $path = public_path('uploads/clientes/' . $filename);
-            if (!is_dir(public_path('uploads/clientes/'))) {
-                mkdir(public_path('uploads/clientes/'), 0755, true);
+            $uploadDir = public_path('uploads/clientes/');
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
             }
-            file_put_contents($path, $bdata);
+            
+            // Additional check for permissions in hosted environment
+            if (!is_writable($uploadDir)) {
+                @chmod($uploadDir, 0777);
+            }
+            
+            file_put_contents($uploadDir . $filename, $bdata);
             $user->profile_picture = 'uploads/clientes/' . $filename;
         } else if ($request->input('delete_photo') == '1') {
             $user->profile_picture = null;

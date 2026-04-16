@@ -65,8 +65,14 @@ class ConfigController extends Controller
                     $filename = 'banner_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                     $uploadDir = public_path('uploads/banners');
                     if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
+                        mkdir($uploadDir, 0777, true);
                     }
+                    
+                    // Additional check for permissions in hosted environment
+                    if (!is_writable($uploadDir)) {
+                        @chmod($uploadDir, 0777);
+                    }
+                    
                     $file->move($uploadDir, $filename);
                     
                     $url = asset('uploads/banners/' . $filename);
