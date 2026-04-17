@@ -366,9 +366,6 @@
             </a>
             <nav class="admin-menu">
                 <a href="{{ url('/admin') }}" class="admin-link">
-                    <i class='bx bx-grid-alt'></i> Dashboard
-                </a>
-                <a href="{{ url('/admin') }}" class="admin-link">
                     <i class='bx bx-cube'></i> Produtos
                 </a>
                 <a href="{{ url('/admin_pedidos') }}" class="admin-link active">
